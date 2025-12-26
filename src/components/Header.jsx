@@ -1,22 +1,8 @@
 import { useState, useRef } from 'react';
 
-const platforms = [
-  { id: 'instagram', name: 'Instagram', color: 'bg-gradient-to-r from-purple-500 to-pink-500' },
-  { id: 'facebook', name: 'Facebook', color: 'bg-fb' },
-  { id: 'twitter', name: 'X', color: 'bg-twitter' },
-  { id: 'pinterest', name: 'Pinterest', color: 'bg-pinterest' },
-];
-
-export default function Header({ connectedAccounts, setConnectedAccounts, accountProfile, setAccountProfile }) {
+export default function Header({ accountProfile, setAccountProfile }) {
   const [isEditing, setIsEditing] = useState(false);
   const fileInputRef = useRef(null);
-
-  const toggleAccount = (platform) => {
-    setConnectedAccounts(prev => ({
-      ...prev,
-      [platform]: !prev[platform]
-    }));
-  };
 
   const handleAvatarUpload = (e) => {
     const file = e.target.files?.[0];
@@ -117,31 +103,6 @@ export default function Header({ connectedAccounts, setConnectedAccounts, accoun
         )}
       </div>
 
-      {/* 右侧：账号连接状态 */}
-      <div className="flex items-center gap-2">
-        <span className="text-sm text-slate-500 mr-2">已连接:</span>
-        {platforms.map(platform => (
-          <button
-            key={platform.id}
-            onClick={() => toggleAccount(platform.id)}
-            className={`
-              px-3 py-1.5 rounded-full text-xs font-medium transition-all
-              ${connectedAccounts[platform.id]
-                ? `${platform.color} text-white shadow-sm`
-                : 'bg-slate-100 text-slate-400 hover:bg-slate-200'
-              }
-            `}
-            title={`点击${connectedAccounts[platform.id] ? '断开' : '连接'} ${platform.name}`}
-          >
-            {platform.name}
-            {connectedAccounts[platform.id] && (
-              <svg className="w-3 h-3 ml-1 inline" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-              </svg>
-            )}
-          </button>
-        ))}
-      </div>
     </header>
   );
 }

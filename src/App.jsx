@@ -3,7 +3,6 @@ import './App.css';
 import Header from './components/Header';
 import MediaUploader from './components/MediaUploader';
 import ContentEditor from './components/ContentEditor';
-import MetadataForm from './components/MetadataForm';
 import PlatformPreview from './components/PlatformPreview';
 import ActionBar from './components/ActionBar';
 import { useAIAdapter } from './hooks/useAIAdapter';
@@ -12,13 +11,6 @@ function App() {
   // 核心状态
   const [images, setImages] = useState([]);
   const [masterText, setMasterText] = useState('');
-  const [metadata, setMetadata] = useState({
-    size: '',
-    craft: '',
-    hours: '',
-    link: ''
-  });
-
   // 平台特定文案（可独立编辑）
   const [platformTexts, setPlatformTexts] = useState({
     instagram: '',
@@ -45,9 +37,14 @@ function App() {
 
   // 设置项
   const [settings, setSettings] = useState({
-    addWatermark: true,
-    hashtagsInComment: true,
-    generateDetails: true
+    addWatermark: true
+  });
+
+  // 账号配置（统一头像和名称）
+  const [accountProfile, setAccountProfile] = useState({
+    displayName: 'Your Brand',
+    username: 'yourbrand',
+    avatar: null
   });
 
   const [activePlatform, setActivePlatform] = useState('instagram');
@@ -58,12 +55,12 @@ function App() {
   const handleAIAdapt = useCallback(async () => {
     if (!masterText.trim()) return;
 
-    const result = await adaptContent(masterText, metadata);
+    const result = await adaptContent(masterText);
     if (result) {
       setPlatformTexts(result.texts);
       setPlatformTags(result.tags);
     }
-  }, [masterText, metadata, adaptContent]);
+  }, [masterText, adaptContent]);
 
   // 更新单个平台文案
   const updatePlatformText = useCallback((platform, text) => {
@@ -87,6 +84,8 @@ function App() {
       <Header
         connectedAccounts={connectedAccounts}
         setConnectedAccounts={setConnectedAccounts}
+        accountProfile={accountProfile}
+        setAccountProfile={setAccountProfile}
       />
 
       {/* 主内容区域 - 主从模式 */}
@@ -99,6 +98,7 @@ function App() {
               images={images}
               setImages={setImages}
               settings={settings}
+              setSettings={setSettings}
             />
 
             {/* 核心文案 */}
@@ -108,46 +108,6 @@ function App() {
               onAIAdapt={handleAIAdapt}
               isAdapting={isAdapting}
             />
-
-            {/* 结构化属性 */}
-            <MetadataForm
-              metadata={metadata}
-              setMetadata={setMetadata}
-            />
-
-            {/* 设置选项 */}
-            <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100">
-              <h3 className="font-medium text-slate-700 mb-3">发布设置</h3>
-              <div className="space-y-2">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={settings.addWatermark}
-                    onChange={(e) => setSettings({...settings, addWatermark: e.target.checked})}
-                    className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  <span className="text-sm text-slate-600">自动添加水印</span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={settings.hashtagsInComment}
-                    onChange={(e) => setSettings({...settings, hashtagsInComment: e.target.checked})}
-                    className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  <span className="text-sm text-slate-600">Instagram标签发到第一条评论</span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={settings.generateDetails}
-                    onChange={(e) => setSettings({...settings, generateDetails: e.target.checked})}
-                    className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  <span className="text-sm text-slate-600">自动生成细节裁剪图</span>
-                </label>
-              </div>
-            </div>
           </div>
         </div>
 
@@ -161,7 +121,7 @@ function App() {
             platformTags={platformTags}
             updatePlatformText={updatePlatformText}
             updatePlatformTags={updatePlatformTags}
-            metadata={metadata}
+            accountProfile={accountProfile}
           />
         </div>
       </div>

@@ -3,33 +3,16 @@ import { useState, useCallback } from 'react';
 const API_URL = 'https://ark.cn-beijing.volces.com/api/v3/chat/completions';
 const API_KEY = '1f7f43a7-05c6-4054-a6f7-cff0ad26c124';
 
-const craftNames = {
-  random_stitch: 'Random Stitch (乱针绣)',
-  ping_stitch: 'Flat Stitch (平针绣)',
-  dicing: 'Seed Stitch (打籽绣)',
-  gold_couching: 'Gold Couching (盘金绣)',
-  double_sided: 'Double-sided Embroidery (双面绣)',
-  hair: 'Hair Embroidery (发绣)',
-  mixed: 'Mixed Techniques (混合针法)',
-};
-
 export function useAIAdapter() {
   const [isAdapting, setIsAdapting] = useState(false);
 
-  const adaptContent = useCallback(async (masterText, metadata) => {
+  const adaptContent = useCallback(async (masterText) => {
     setIsAdapting(true);
-
-    const craftName = craftNames[metadata.craft] || metadata.craft;
 
     const prompt = `你是一个专业的社交媒体文案专家，专门帮助中国苏绣/湘绣艺术品在海外社交媒体推广。
 
-用户输入的原始中文描述：
+用户输入的原始描述：
 "${masterText}"
-
-作品信息：
-- 尺寸: ${metadata.size || '未提供'}
-- 针法: ${craftName || '未提供'}
-- 耗时: ${metadata.hours || '未提供'}
 
 请根据以上信息，生成适合以下4个平台的英文文案和标签。注意每个平台的风格差异：
 

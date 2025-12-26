@@ -7,14 +7,22 @@ const platforms = [
   { id: 'pinterest', name: 'Pinterest', icon: 'Pin', color: 'from-pinterest to-red-400', limit: 500 },
 ];
 
-function InstagramPreview({ images, text, tags, onTextChange, onTagsChange }) {
+function InstagramPreview({ images, text, tags, onTextChange, onTagsChange, accountProfile }) {
   return (
     <div className="bg-white rounded-xl overflow-hidden shadow-sm max-w-sm mx-auto">
       {/* Header */}
       <div className="flex items-center gap-3 p-3 border-b">
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-rose-400 to-amber-300" />
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-rose-400 to-amber-300 overflow-hidden">
+          {accountProfile.avatar ? (
+            <img src={accountProfile.avatar} alt="" className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-white text-sm font-bold">
+              {accountProfile.displayName?.charAt(0) || 'Y'}
+            </div>
+          )}
+        </div>
         <div>
-          <p className="text-sm font-medium">your_brand</p>
+          <p className="text-sm font-medium">{accountProfile.username}</p>
           <p className="text-xs text-slate-400">Sponsored</p>
         </div>
       </div>
@@ -66,14 +74,22 @@ function InstagramPreview({ images, text, tags, onTextChange, onTagsChange }) {
   );
 }
 
-function FacebookPreview({ images, text, tags, onTextChange, onTagsChange }) {
+function FacebookPreview({ images, text, tags, onTextChange, onTagsChange, accountProfile }) {
   return (
     <div className="bg-white rounded-xl overflow-hidden shadow-sm max-w-md mx-auto">
       {/* Header */}
       <div className="flex items-center gap-3 p-4">
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-rose-400 to-amber-300" />
+        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-rose-400 to-amber-300 overflow-hidden">
+          {accountProfile.avatar ? (
+            <img src={accountProfile.avatar} alt="" className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-white font-bold">
+              {accountProfile.displayName?.charAt(0) || 'Y'}
+            </div>
+          )}
+        </div>
         <div>
-          <p className="font-medium">Your Brand</p>
+          <p className="font-medium">{accountProfile.displayName}</p>
           <p className="text-xs text-slate-400">Just now · Public</p>
         </div>
       </div>
@@ -125,18 +141,26 @@ function FacebookPreview({ images, text, tags, onTextChange, onTagsChange }) {
   );
 }
 
-function TwitterPreview({ images, text, tags, onTextChange, onTagsChange, metadata }) {
+function TwitterPreview({ images, text, tags, onTextChange, onTagsChange, accountProfile }) {
   const fullText = text + (tags ? '\n' + tags : '');
   const remaining = 280 - fullText.length;
 
   return (
     <div className="bg-white rounded-xl overflow-hidden shadow-sm max-w-md mx-auto p-4">
       <div className="flex gap-3">
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-rose-400 to-amber-300 flex-shrink-0" />
+        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-rose-400 to-amber-300 flex-shrink-0 overflow-hidden">
+          {accountProfile.avatar ? (
+            <img src={accountProfile.avatar} alt="" className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-white font-bold">
+              {accountProfile.displayName?.charAt(0) || 'Y'}
+            </div>
+          )}
+        </div>
         <div className="flex-1">
           <div className="flex items-center gap-2">
-            <span className="font-bold">Your Brand</span>
-            <span className="text-slate-400">@yourbrand</span>
+            <span className="font-bold">{accountProfile.displayName}</span>
+            <span className="text-slate-400">@{accountProfile.username}</span>
           </div>
 
           <textarea
@@ -159,11 +183,6 @@ function TwitterPreview({ images, text, tags, onTextChange, onTagsChange, metada
             <div className="mt-3 aspect-video rounded-xl overflow-hidden bg-slate-100">
               <img src={images[0].preview} alt="" className="w-full h-full object-cover" />
             </div>
-          )}
-
-          {/* Link */}
-          {metadata.link && (
-            <div className="mt-2 text-sm text-blue-500 truncate">{metadata.link}</div>
           )}
 
           {/* Character count */}
@@ -228,7 +247,7 @@ export default function PlatformPreview({
   platformTags,
   updatePlatformText,
   updatePlatformTags,
-  metadata
+  accountProfile
 }) {
   const currentPlatform = platforms.find(p => p.id === activePlatform);
   const currentText = platformTexts[activePlatform] || '';
@@ -265,6 +284,7 @@ export default function PlatformPreview({
             tags={currentTags}
             onTextChange={(text) => updatePlatformText('instagram', text)}
             onTagsChange={(tags) => updatePlatformTags('instagram', tags)}
+            accountProfile={accountProfile}
           />
         )}
         {activePlatform === 'facebook' && (
@@ -274,6 +294,7 @@ export default function PlatformPreview({
             tags={currentTags}
             onTextChange={(text) => updatePlatformText('facebook', text)}
             onTagsChange={(tags) => updatePlatformTags('facebook', tags)}
+            accountProfile={accountProfile}
           />
         )}
         {activePlatform === 'twitter' && (
@@ -283,7 +304,7 @@ export default function PlatformPreview({
             tags={currentTags}
             onTextChange={(text) => updatePlatformText('twitter', text)}
             onTagsChange={(tags) => updatePlatformTags('twitter', tags)}
-            metadata={metadata}
+            accountProfile={accountProfile}
           />
         )}
         {activePlatform === 'pinterest' && (

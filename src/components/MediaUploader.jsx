@@ -1,6 +1,6 @@
 import { useCallback, useRef } from 'react';
 
-export default function MediaUploader({ images, setImages, settings }) {
+export default function MediaUploader({ images, setImages, settings, setSettings }) {
   const fileInputRef = useRef(null);
 
   const handleFileSelect = useCallback((e) => {
@@ -168,12 +168,16 @@ export default function MediaUploader({ images, setImages, settings }) {
         </div>
       )}
 
-      {/* 提示信息 */}
-      {images.length > 0 && settings.generateDetails && (
-        <p className="mt-3 text-xs text-blue-600 bg-blue-50 px-3 py-2 rounded-lg">
-          将自动为第一张图生成4张局部细节图，用于展示刺绣工艺
-        </p>
-      )}
+      {/* 水印选项 */}
+      <label className="flex items-center gap-2 cursor-pointer mt-4 pt-3 border-t border-slate-100">
+        <input
+          type="checkbox"
+          checked={settings.addWatermark}
+          onChange={(e) => setSettings({...settings, addWatermark: e.target.checked})}
+          className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+        />
+        <span className="text-sm text-slate-600">自动添加水印</span>
+      </label>
     </div>
   );
 }

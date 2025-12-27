@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { openUrl } from '@tauri-apps/plugin-opener';
 import { platformConfigs } from '../config/platforms';
 import {
   InstagramPreview,
@@ -6,21 +7,49 @@ import {
   TwitterPreview,
   PinterestPreview,
   TikTokPreview,
+  EtsyPreview,
   PromptPreview,
   InstagramIcon,
   FacebookIcon,
   XIcon,
   PinterestIcon,
   TikTokIcon,
+  EtsyIcon,
 } from './previews';
 
 // 平台UI配置
 const platformUIConfigs = {
-  instagram: { Icon: InstagramIcon, gradient: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)' },
-  facebook: { Icon: FacebookIcon, activeColor: '#1877F2' },
-  twitter: { Icon: XIcon, activeColor: '#000000' },
-  pinterest: { Icon: PinterestIcon, activeColor: '#E60023' },
-  tiktok: { Icon: TikTokIcon, activeColor: '#000000', videoOnly: true },
+  instagram: {
+    Icon: InstagramIcon,
+    gradient: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)',
+    publishUrl: 'https://www.instagram.com/'
+  },
+  facebook: {
+    Icon: FacebookIcon,
+    activeColor: '#1877F2',
+    publishUrl: 'https://www.facebook.com/'
+  },
+  twitter: {
+    Icon: XIcon,
+    activeColor: '#000000',
+    publishUrl: 'https://twitter.com/compose/tweet'
+  },
+  pinterest: {
+    Icon: PinterestIcon,
+    activeColor: '#E60023',
+    publishUrl: 'https://www.pinterest.com/pin-builder/'
+  },
+  tiktok: {
+    Icon: TikTokIcon,
+    activeColor: '#000000',
+    videoOnly: true,
+    publishUrl: 'https://www.tiktok.com/upload'
+  },
+  etsy: {
+    Icon: EtsyIcon,
+    activeColor: '#F56400',
+    publishUrl: 'https://www.etsy.com/your/shops/me/tools/listings'
+  },
 };
 
 // 合并平台配置和UI配置
@@ -154,20 +183,45 @@ export default function PlatformPreview({
                 accountProfile={accountProfile}
               />
             )}
+            {activePlatform === 'etsy' && (
+              <EtsyPreview
+                images={images}
+                text={currentText}
+                accountProfile={accountProfile}
+              />
+            )}
           </>
         )}
       </div>
 
       {/* Status Bar */}
       <div className="px-5 py-3 flex items-center justify-between">
-        <span className="text-xs text-slate-400">
-          {charCount}/{currentPlatform?.limit} 字符
-        </span>
-        {charCount > (currentPlatform?.limit || 0) && (
-          <span className="text-xs text-red-500 font-medium">
-            超出 {charCount - (currentPlatform?.limit || 0)} 字符
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-slate-400">
+            {charCount}/{currentPlatform?.limit} 字符
           </span>
-        )}
+          {charCount > (currentPlatform?.limit || 0) && (
+            <span className="text-xs text-red-500 font-medium">
+              超出 {charCount - (currentPlatform?.limit || 0)} 字符
+            </span>
+          )}
+        </div>
+        {/* 打开平台发布页 */}
+        <div className="flex items-center gap-1">
+          {visiblePlatforms.map(platform => {
+            const Icon = platform.Icon;
+            return (
+              <button
+                key={platform.id}
+                onClick={() => openUrl(platformUIConfigs[platform.id]?.publishUrl)}
+                className="p-1.5 text-slate-300 hover:text-slate-600 transition-colors rounded hover:bg-slate-100"
+                title={`打开 ${platform.name}`}
+              >
+                <Icon className="w-4 h-4" />
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

@@ -12,6 +12,7 @@ import facebook from './facebook';
 import twitter from './twitter';
 import pinterest from './pinterest';
 import tiktok from './tiktok';
+import etsy from './etsy';
 
 // 平台配置映射
 export const platformConfigs = {
@@ -20,6 +21,7 @@ export const platformConfigs = {
   twitter,
   pinterest,
   tiktok,
+  etsy,
 };
 
 // 平台ID列表

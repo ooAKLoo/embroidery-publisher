@@ -42,8 +42,15 @@ function App() {
 
   const [activePlatform, setActivePlatform] = useState('instagram');
 
-  // 统一的品牌 Prompt
-  const [brandPrompt, setBrandPrompt] = useState(DEFAULT_BRAND_PROMPT);
+  // 提示词列表
+  const [prompts, setPrompts] = useState([
+    { id: 'default', name: '默认提示词', content: DEFAULT_BRAND_PROMPT }
+  ]);
+  const [activePromptId, setActivePromptId] = useState('default');
+
+  // 获取当前激活的提示词内容
+  const activePrompt = prompts.find(p => p.id === activePromptId);
+  const brandPrompt = activePrompt?.content || DEFAULT_BRAND_PROMPT;
 
   const { isAdapting, adaptContent } = useAIAdapter();
 
@@ -85,8 +92,10 @@ function App() {
               setMasterText={setMasterText}
               onAIAdapt={handleAIAdapt}
               isAdapting={isAdapting}
-              brandPrompt={brandPrompt}
-              setBrandPrompt={setBrandPrompt}
+              prompts={prompts}
+              setPrompts={setPrompts}
+              activePromptId={activePromptId}
+              setActivePromptId={setActivePromptId}
             />
           </div>
         </div>

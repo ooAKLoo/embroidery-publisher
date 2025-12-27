@@ -47,7 +47,7 @@ export default function PlatformPreview({
       {/* Top Bar */}
       <div className="p-4 space-y-3">
         {/* Mode Toggle */}
-        <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1 w-fit">
+        <div className="flex items-center gap-1 bg-[#F8F8F8] rounded-lg p-1 w-fit">
           <button
             onClick={() => setPreviewMode('social')}
             className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
@@ -111,7 +111,7 @@ export default function PlatformPreview({
               const Icon = ui.Icon;
               const text = platformTexts[platform.id] || '';
               return (
-                <div key={platform.id} className="bg-slate-50 rounded-xl p-4">
+                <div key={platform.id} className="bg-[#F8F8F8] rounded-xl p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Icon className="w-4 h-4" style={{ color: ui.color }} />
                     <span className="text-sm font-medium text-slate-700">{platform.name}</span>

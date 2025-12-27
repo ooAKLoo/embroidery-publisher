@@ -9,7 +9,7 @@ export default function PromptPreview({ brandPrompt, masterText }) {
           <div className="w-2 h-2 rounded-full bg-emerald-500" />
           <span className="text-sm font-medium text-slate-700">统一品牌 Prompt</span>
         </div>
-        <span className="text-xs text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">
+        <span className="text-xs text-slate-500 bg-[#F8F8F8] px-2.5 py-1 rounded-full">
           所有平台共用
         </span>
       </div>
@@ -17,7 +17,7 @@ export default function PromptPreview({ brandPrompt, masterText }) {
       {/* System */}
       <div className="flex-1 min-h-0 flex flex-col">
         <span className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">System</span>
-        <div className="flex-1 min-h-0 bg-slate-50 rounded-xl p-4 overflow-y-auto">
+        <div className="flex-1 min-h-0 bg-[#F8F8F8] rounded-xl p-4 overflow-y-auto">
           <div className="mb-3">
             <span className="text-[10px] text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">品牌声音</span>
             <pre className="mt-2 text-sm text-slate-700 font-mono whitespace-pre-wrap leading-relaxed">
@@ -25,7 +25,7 @@ export default function PromptPreview({ brandPrompt, masterText }) {
             </pre>
           </div>
           <div className="pt-3 border-t border-slate-200">
-            <span className="text-[10px] text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">固定格式</span>
+            <span className="text-[10px] text-slate-400 bg-[#F8F8F8] px-1.5 py-0.5 rounded">固定格式</span>
             <pre className="mt-2 text-xs text-slate-400 font-mono whitespace-pre-wrap leading-relaxed">
               {OUTPUT_FORMAT.trim()}
             </pre>
@@ -36,7 +36,7 @@ export default function PromptPreview({ brandPrompt, masterText }) {
       {/* User */}
       <div className="mt-3">
         <span className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2 block">User</span>
-        <pre className="text-sm text-slate-700 font-mono whitespace-pre-wrap bg-slate-50 rounded-lg px-4 py-3">
+        <pre className="text-sm text-slate-700 font-mono whitespace-pre-wrap bg-[#F8F8F8] rounded-lg px-4 py-3">
           {masterText || <span className="text-slate-400 italic">等待输入...</span>}
         </pre>
       </div>

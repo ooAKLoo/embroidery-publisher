@@ -1,39 +1,27 @@
 import { useState, useCallback } from 'react';
 import './App.css';
-import Header from './components/Header';
+import AccountCard from './components/AccountCard';
 import MediaUploader from './components/MediaUploader';
 import ContentEditor from './components/ContentEditor';
 import PlatformPreview from './components/PlatformPreview';
-import ActionBar from './components/ActionBar';
 import { useAIAdapter } from './hooks/useAIAdapter';
+import { getDefaultSystemPrompts } from './config/platforms';
 
 function App() {
   // 核心状态
   const [images, setImages] = useState([]);
   const [masterText, setMasterText] = useState('');
-  // 平台特定文案（可独立编辑）
+  // 平台特定文案（可独立编辑，标签直接写在文案里）
   const [platformTexts, setPlatformTexts] = useState({
     instagram: '',
     facebook: '',
     twitter: '',
-    pinterest: ''
+    pinterest: '',
+    tiktok: ''
   });
 
-  // 平台标签
-  const [platformTags, setPlatformTags] = useState({
-    instagram: '#SuEmbroidery #SilkArt #Handmade #ChineseArt #LuxuryArt',
-    facebook: '#SuEmbroidery #ChineseArt #Handmade',
-    twitter: '#SuEmbroidery #Art',
-    pinterest: 'Su Embroidery, Silk Art, Chinese Handmade, Wall Art'
-  });
-
-  // 账号连接状态（默认全部连接）
-  const [connectedAccounts] = useState({
-    instagram: true,
-    facebook: true,
-    twitter: true,
-    pinterest: true
-  });
+  // Pinterest 标题（仅 Pinterest 需要）
+  const [pinterestTitle, setPinterestTitle] = useState('');
 
   // 设置项
   const [settings, setSettings] = useState({
@@ -57,48 +45,48 @@ function App() {
 
   const [activePlatform, setActivePlatform] = useState('instagram');
 
+  // AI 系统提示词配置（分平台，从配置文件获取默认值）
+  const [platformPrompts, setPlatformPrompts] = useState(getDefaultSystemPrompts);
+
   const { isAdapting, adaptContent } = useAIAdapter();
 
   // AI一键润色
   const handleAIAdapt = useCallback(async () => {
     if (!masterText.trim()) return;
 
-    const result = await adaptContent(masterText);
+    const result = await adaptContent(masterText, platformPrompts);
     if (result) {
-      setPlatformTexts(result.texts);
-      setPlatformTags(result.tags);
+      // 合并文案和标签到一个字段
+      const mergedTexts = {};
+      Object.keys(result.texts).forEach(platform => {
+        const text = result.texts[platform] || '';
+        const tags = result.tags[platform] || '';
+        mergedTexts[platform] = tags ? `${text}\n\n${tags}` : text;
+      });
+      setPlatformTexts(mergedTexts);
+      // Pinterest 标题可以用原文的第一句
+      if (result.texts.pinterest) {
+        const firstLine = result.texts.pinterest.split('\n')[0];
+        setPinterestTitle(firstLine.slice(0, 100));
+      }
     }
-  }, [masterText, adaptContent]);
-
-  // 更新单个平台文案
-  const updatePlatformText = useCallback((platform, text) => {
-    setPlatformTexts(prev => ({
-      ...prev,
-      [platform]: text
-    }));
-  }, []);
-
-  // 更新单个平台标签
-  const updatePlatformTags = useCallback((platform, tags) => {
-    setPlatformTags(prev => ({
-      ...prev,
-      [platform]: tags
-    }));
-  }, []);
+  }, [masterText, adaptContent, platformPrompts]);
 
   return (
-    <div className="h-screen flex flex-col bg-slate-50">
-      {/* 顶部状态栏 */}
-      <Header
-        accountProfile={accountProfile}
-        setAccountProfile={setAccountProfile}
-      />
-
+    <div className="h-screen flex flex-col bg-[#F8F8F8]">
       {/* 主内容区域 - 主从模式 */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden gap-3 p-4">
         {/* 左侧编辑区 - 50% */}
-        <div className="w-1/2 border-r border-slate-200 flex flex-col overflow-hidden p-6 gap-6">
-          {/* 媒体上传 - 固定高度，内部滚动 */}
+        <div className="w-1/2 flex flex-col overflow-hidden gap-4">
+          {/* 账号信息 - 顶部固定 */}
+          <div className="flex-shrink-0">
+            <AccountCard
+              accountProfile={accountProfile}
+              setAccountProfile={setAccountProfile}
+            />
+          </div>
+
+          {/* 媒体上传 - 填充剩余空间，内部滚动 */}
           <div className="flex-1 min-h-0">
             <MediaUploader
               images={images}
@@ -113,32 +101,32 @@ function App() {
             <ContentEditor
               masterText={masterText}
               setMasterText={setMasterText}
+              title={pinterestTitle}
+              setTitle={setPinterestTitle}
               onAIAdapt={handleAIAdapt}
               isAdapting={isAdapting}
+              prompts={platformPrompts}
+              setPrompts={setPlatformPrompts}
             />
           </div>
         </div>
 
         {/* 右侧预览区 - 50% */}
-        <div className="w-1/2 flex flex-col overflow-hidden bg-slate-100">
-          <PlatformPreview
-            activePlatform={activePlatform}
-            setActivePlatform={setActivePlatform}
-            images={images}
-            platformTexts={platformTexts}
-            platformTags={platformTags}
-            updatePlatformText={updatePlatformText}
-            updatePlatformTags={updatePlatformTags}
-            accountProfile={accountProfile}
-          />
+        <div className="w-1/2 flex flex-col">
+          <div className="bg-white rounded-2xl h-full overflow-hidden">
+            <PlatformPreview
+              activePlatform={activePlatform}
+              setActivePlatform={setActivePlatform}
+              images={images}
+              platformTexts={platformTexts}
+              pinterestTitle={pinterestTitle}
+              accountProfile={accountProfile}
+              platformPrompts={platformPrompts}
+            />
+          </div>
         </div>
       </div>
 
-      {/* 底部操作栏 */}
-      <ActionBar
-        connectedAccounts={connectedAccounts}
-        hasContent={images.length > 0 || masterText.trim()}
-      />
     </div>
   );
 }

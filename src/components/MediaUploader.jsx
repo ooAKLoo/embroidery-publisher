@@ -110,13 +110,24 @@ export default function MediaUploader({ images, setImages, settings, setSettings
   }, [setImages]);
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-100 h-full flex flex-col overflow-hidden">
-      <div className="flex items-center justify-between p-4 pb-0 flex-shrink-0">
-        <h3 className="font-medium text-slate-700">媒体素材</h3>
-        <span className="text-xs text-slate-400">{images.length}/10 张</span>
+    <div className="bg-white rounded-2xl h-full flex flex-col overflow-hidden">
+      <div className="flex items-center justify-between px-5 pt-4 pb-0 flex-shrink-0">
+        <div className="flex items-center gap-2">
+          <h3 className="font-medium text-slate-800">媒体素材</h3>
+          <span className="text-xs text-slate-400">{images.length}/10</span>
+        </div>
+        <button
+          onClick={() => setShowWatermarkModal(true)}
+          className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-700 transition-colors"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+          </svg>
+          <span>水印{settings.addWatermark ? '已开启' : '已关闭'}</span>
+        </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 pt-3">
+      <div className="flex-1 overflow-y-auto px-5 py-4">
 
       {/* 上传区域 */}
       <div
@@ -124,10 +135,10 @@ export default function MediaUploader({ images, setImages, settings, setSettings
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         className={`
-          border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors
+          border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all
           ${images.length === 0
-            ? 'border-slate-300 hover:border-blue-400 hover:bg-blue-50/50'
-            : 'border-slate-200 hover:border-slate-300'
+            ? 'border-slate-200 hover:border-slate-300 hover:bg-[#F8F8F8]'
+            : 'border-slate-200/60 hover:border-slate-300'
           }
         `}
       >
@@ -142,7 +153,7 @@ export default function MediaUploader({ images, setImages, settings, setSettings
 
         {images.length === 0 ? (
           <>
-            <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-slate-100 flex items-center justify-center">
+            <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-[#F8F8F8] flex items-center justify-center">
               <svg className="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
@@ -161,7 +172,7 @@ export default function MediaUploader({ images, setImages, settings, setSettings
           {images.map((media, index) => (
             <div
               key={media.id}
-              className="relative group aspect-square rounded-lg overflow-hidden bg-slate-100"
+              className="relative group aspect-square rounded-lg overflow-hidden bg-[#F8F8F8]"
             >
               {media.type === 'video' ? (
                 <img
@@ -259,29 +270,6 @@ export default function MediaUploader({ images, setImages, settings, setSettings
         </div>
       )}
 
-      </div>
-
-      {/* 水印设置 - 固定在底部 */}
-      <div className="flex-shrink-0 px-4 border-t border-slate-100">
-        <button
-          onClick={() => setShowWatermarkModal(true)}
-          className="w-full flex items-center justify-between py-3 text-sm text-slate-600 hover:text-slate-800"
-        >
-          <div className="flex items-center gap-2">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
-            </svg>
-            <span>水印设置</span>
-            {settings.addWatermark && (
-              <span className="text-xs text-slate-400">
-                · {settings.watermarkType === 'image' ? '图片水印' : (settings.watermarkText || '文字水印')}
-              </span>
-            )}
-          </div>
-          <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
       </div>
 
       {/* 水印设置 Modal */}

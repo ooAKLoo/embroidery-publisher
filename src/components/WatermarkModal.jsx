@@ -56,16 +56,16 @@ export default function WatermarkModal({ isOpen, onClose, settings, setSettings 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* 背景遮罩 */}
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
 
       {/* Modal 内容 */}
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+      <div className="relative bg-white rounded-2xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
         {/* 头部 */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
+        <div className="flex items-center justify-between px-6 py-4">
           <h2 className="text-lg font-semibold text-slate-800">水印设置</h2>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center"
+            className="w-8 h-8 rounded-full hover:bg-[#F8F8F8] flex items-center justify-center"
           >
             <svg className="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -86,8 +86,8 @@ export default function WatermarkModal({ isOpen, onClose, settings, setSettings 
                 </div>
                 <button
                   onClick={() => updateSetting('addWatermark', !settings.addWatermark)}
-                  className={`w-12 h-7 rounded-full p-1 transition-colors ${
-                    settings.addWatermark ? 'bg-blue-500' : 'bg-slate-200'
+                  className={`w-11 h-6 rounded-full p-0.5 transition-colors ${
+                    settings.addWatermark ? 'bg-slate-900' : 'bg-slate-200'
                   }`}
                 >
                   <div className={`w-5 h-5 rounded-full bg-white shadow-sm transition-transform ${
@@ -109,8 +109,8 @@ export default function WatermarkModal({ isOpen, onClose, settings, setSettings 
                         }}
                         className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all ${
                           activeTab === 'text'
-                            ? 'bg-blue-500 text-white'
-                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                            ? 'bg-slate-900 text-white'
+                            : 'bg-[#F8F8F8] text-slate-600 hover:bg-slate-200'
                         }`}
                       >
                         文字水印
@@ -122,8 +122,8 @@ export default function WatermarkModal({ isOpen, onClose, settings, setSettings 
                         }}
                         className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all ${
                           activeTab === 'image'
-                            ? 'bg-blue-500 text-white'
-                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                            ? 'bg-slate-900 text-white'
+                            : 'bg-[#F8F8F8] text-slate-600 hover:bg-slate-200'
                         }`}
                       >
                         图片水印
@@ -141,7 +141,7 @@ export default function WatermarkModal({ isOpen, onClose, settings, setSettings 
                           value={settings.watermarkText || ''}
                           onChange={(e) => updateSetting('watermarkText', e.target.value)}
                           placeholder="例如：© Your Brand"
-                          className="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full px-4 py-2.5 bg-[#F8F8F8] border-0 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-200 focus:bg-white transition-all"
                         />
                       </div>
 
@@ -157,7 +157,7 @@ export default function WatermarkModal({ isOpen, onClose, settings, setSettings 
                           step="1"
                           value={settings.watermarkFontSize || 14}
                           onChange={(e) => updateSetting('watermarkFontSize', Number(e.target.value))}
-                          className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                          className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-slate-900"
                         />
                       </div>
 
@@ -240,7 +240,7 @@ export default function WatermarkModal({ isOpen, onClose, settings, setSettings 
 
                       {settings.watermarkImage ? (
                         <div className="relative">
-                          <div className="p-4 bg-slate-100 rounded-lg flex items-center justify-center">
+                          <div className="p-4 bg-[#F8F8F8] rounded-lg flex items-center justify-center">
                             <img
                               src={settings.watermarkImage}
                               alt="水印预览"
@@ -284,7 +284,7 @@ export default function WatermarkModal({ isOpen, onClose, settings, setSettings 
                           <select
                             value={settings.watermarkSize || 'medium'}
                             onChange={(e) => updateSetting('watermarkSize', e.target.value)}
-                            className="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-4 py-2.5 bg-[#F8F8F8] border-0 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-200 transition-all"
                           >
                             <option value="small">小</option>
                             <option value="medium">中</option>
@@ -308,7 +308,7 @@ export default function WatermarkModal({ isOpen, onClose, settings, setSettings 
                       step="0.1"
                       value={settings.watermarkOpacity || 0.8}
                       onChange={(e) => updateSetting('watermarkOpacity', parseFloat(e.target.value))}
-                      className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                      className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-slate-900"
                     />
                   </div>
 
@@ -322,8 +322,8 @@ export default function WatermarkModal({ isOpen, onClose, settings, setSettings 
                           onClick={() => updateSetting('watermarkPosition', pos.id)}
                           className={`py-2 px-3 rounded-lg text-sm transition-all ${
                             (settings.watermarkPosition || 'bottom-right') === pos.id
-                              ? 'bg-blue-500 text-white'
-                              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                              ? 'bg-slate-900 text-white'
+                              : 'bg-[#F8F8F8] text-slate-600 hover:bg-slate-200'
                           }`}
                         >
                           {pos.label}
@@ -340,7 +340,7 @@ export default function WatermarkModal({ isOpen, onClose, settings, setSettings 
               <h3 className="text-sm font-medium text-slate-700 mb-3">预览</h3>
               <div className="aspect-square bg-gradient-to-br from-slate-200 to-slate-300 rounded-xl overflow-hidden relative">
                 {/* 模拟图片 */}
-                <div className="absolute inset-4 bg-slate-100 rounded-lg flex items-center justify-center">
+                <div className="absolute inset-4 bg-[#F8F8F8] rounded-lg flex items-center justify-center">
                   <svg className="w-12 h-12 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
@@ -387,7 +387,7 @@ export default function WatermarkModal({ isOpen, onClose, settings, setSettings 
         </div>
 
         {/* 底部按钮 */}
-        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-200 bg-slate-50">
+        <div className="flex items-center justify-end gap-3 px-6 py-4">
           <button
             onClick={onClose}
             className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800"
@@ -396,7 +396,7 @@ export default function WatermarkModal({ isOpen, onClose, settings, setSettings 
           </button>
           <button
             onClick={onClose}
-            className="px-6 py-2 bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 transition-colors"
+            className="px-5 py-2 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-800 transition-colors"
           >
             确定
           </button>

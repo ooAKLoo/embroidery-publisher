@@ -5,23 +5,20 @@ import MediaUploader from './components/MediaUploader';
 import ContentEditor from './components/ContentEditor';
 import PlatformPreview from './components/PlatformPreview';
 import { useAIAdapter } from './hooks/useAIAdapter';
-import { getDefaultSystemPrompts } from './config/platforms';
+import { DEFAULT_BRAND_PROMPT, platforms } from './config/platforms';
 
 function App() {
   // 核心状态
   const [images, setImages] = useState([]);
   const [masterText, setMasterText] = useState('');
-  // 平台特定文案（可独立编辑，标签直接写在文案里）
-  const [platformTexts, setPlatformTexts] = useState({
-    instagram: '',
-    facebook: '',
-    twitter: '',
-    pinterest: '',
-    tiktok: ''
-  });
 
-  // Pinterest 标题（仅 Pinterest 需要）
-  const [pinterestTitle, setPinterestTitle] = useState('');
+  // 平台文案（AI 生成后填充）
+  const [platformTexts, setPlatformTexts] = useState(
+    Object.fromEntries(platforms.map(p => [p.id, '']))
+  );
+
+  // AI 生成的标题（用于 Pinterest）
+  const [generatedTitle, setGeneratedTitle] = useState('');
 
   // 设置项
   const [settings, setSettings] = useState({
@@ -36,7 +33,7 @@ function App() {
     watermarkSize: 'medium'
   });
 
-  // 账号配置（统一头像和名称）
+  // 账号配置
   const [accountProfile, setAccountProfile] = useState({
     displayName: 'Your Brand',
     username: 'yourbrand',
@@ -45,39 +42,27 @@ function App() {
 
   const [activePlatform, setActivePlatform] = useState('instagram');
 
-  // AI 系统提示词配置（分平台，从配置文件获取默认值）
-  const [platformPrompts, setPlatformPrompts] = useState(getDefaultSystemPrompts);
+  // 统一的品牌 Prompt
+  const [brandPrompt, setBrandPrompt] = useState(DEFAULT_BRAND_PROMPT);
 
   const { isAdapting, adaptContent } = useAIAdapter();
 
-  // AI一键润色
+  // AI 一键润色
   const handleAIAdapt = useCallback(async () => {
     if (!masterText.trim()) return;
 
-    const result = await adaptContent(masterText, platformPrompts, pinterestTitle);
+    const result = await adaptContent(masterText, brandPrompt);
     if (result) {
-      // 合并文案和标签到一个字段
-      const mergedTexts = {};
-      Object.keys(result.texts).forEach(platform => {
-        const text = result.texts[platform] || '';
-        const tags = result.tags[platform] || '';
-        mergedTexts[platform] = tags ? `${text}\n\n${tags}` : text;
-      });
-      setPlatformTexts(mergedTexts);
-      // 使用 AI 翻译后的 Pinterest 标题
-      if (result.pinterestTitle) {
-        setPinterestTitle(result.pinterestTitle);
-      }
+      setPlatformTexts(result.texts);
+      setGeneratedTitle(result.title);
     }
-  }, [masterText, adaptContent, platformPrompts, pinterestTitle]);
+  }, [masterText, adaptContent, brandPrompt]);
 
   return (
     <div className="h-screen flex flex-col bg-[#F8F8F8]">
-      {/* 主内容区域 - 主从模式 */}
       <div className="flex-1 flex overflow-hidden gap-3 p-4">
-        {/* 左侧编辑区 - 50% */}
+        {/* 左侧编辑区 */}
         <div className="w-1/2 flex flex-col overflow-hidden gap-4">
-          {/* 账号信息 - 顶部固定 */}
           <div className="flex-shrink-0">
             <AccountCard
               accountProfile={accountProfile}
@@ -85,7 +70,6 @@ function App() {
             />
           </div>
 
-          {/* 媒体上传 - 填充剩余空间，内部滚动 */}
           <div className="flex-1 min-h-0">
             <MediaUploader
               images={images}
@@ -95,22 +79,19 @@ function App() {
             />
           </div>
 
-          {/* 核心文案 - 固定在底部 */}
           <div className="flex-shrink-0">
             <ContentEditor
               masterText={masterText}
               setMasterText={setMasterText}
-              title={pinterestTitle}
-              setTitle={setPinterestTitle}
               onAIAdapt={handleAIAdapt}
               isAdapting={isAdapting}
-              prompts={platformPrompts}
-              setPrompts={setPlatformPrompts}
+              brandPrompt={brandPrompt}
+              setBrandPrompt={setBrandPrompt}
             />
           </div>
         </div>
 
-        {/* 右侧预览区 - 50% */}
+        {/* 右侧预览区 */}
         <div className="w-1/2 flex flex-col">
           <div className="bg-white rounded-2xl h-full overflow-hidden">
             <PlatformPreview
@@ -118,15 +99,14 @@ function App() {
               setActivePlatform={setActivePlatform}
               images={images}
               platformTexts={platformTexts}
-              pinterestTitle={pinterestTitle}
+              generatedTitle={generatedTitle}
               accountProfile={accountProfile}
-              platformPrompts={platformPrompts}
+              brandPrompt={brandPrompt}
               masterText={masterText}
             />
           </div>
         </div>
       </div>
-
     </div>
   );
 }

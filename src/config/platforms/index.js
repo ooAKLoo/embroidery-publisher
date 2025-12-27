@@ -1,77 +1,52 @@
 /**
- * 平台配置注册中心
+ * 统一配置
  *
- * 这里统一管理所有支持的社交媒体平台配置。
- * 添加新平台只需：
- * 1. 创建新的平台配置文件（如 youtube.js）
- * 2. 在此文件中导入并注册
+ * 新架构：品牌优先，极简设计
+ * - 一套品牌 Prompt，所有平台共用
+ * - AI 生成 title + text + tags
+ * - 平台差异仅在格式层面处理（标签格式）
  */
 
-import instagram from './instagram';
-import facebook from './facebook';
-import twitter from './twitter';
-import pinterest from './pinterest';
-import tiktok from './tiktok';
-import etsy from './etsy';
+// 平台列表（仅 UI 展示用）
+export const platforms = [
+  { id: 'instagram', name: 'Instagram', icon: '📸', maxLength: 2200, tagFormat: 'hashtag' },
+  { id: 'facebook', name: 'Facebook', icon: '📘', maxLength: 63206, tagFormat: 'hashtag' },
+  { id: 'twitter', name: 'X (Twitter)', icon: '𝕏', maxLength: 280, tagFormat: 'hashtag' },
+  { id: 'pinterest', name: 'Pinterest', icon: '📌', maxLength: 500, tagFormat: 'keyword', hasTitle: true },
+  { id: 'tiktok', name: 'TikTok', icon: '🎵', maxLength: 2200, tagFormat: 'hashtag', videoOnly: true },
+  { id: 'etsy', name: 'Etsy', icon: '🛒', maxLength: 1000, tagFormat: 'keyword' },
+];
 
-// 平台配置映射
-export const platformConfigs = {
-  instagram,
-  facebook,
-  twitter,
-  pinterest,
-  tiktok,
-  etsy,
+export const platformIds = platforms.map(p => p.id);
+
+export const getPlatform = (id) => platforms.find(p => p.id === id);
+
+// 统一的品牌 Prompt
+export const DEFAULT_BRAND_PROMPT = `你是一位品牌内容顾问，帮助中国传统手工非遗艺术品在海外推广。
+
+【品牌定位】
+高端手工艺品牌，传承千年技艺，让世界看到中国之美。
+
+【内容原则】
+- 简洁有力，100-150 字符以内
+- 一句话 Hook + 一句话价值
+- 每个字都要有信息量，不堆砌形容词
+- 优雅内敛，不用网络用语
+- 最多 1-2 个 emoji（可选）
+- 语言：英文
+
+【标签策略】
+- 生成 5-8 个精准标签
+- 混合：品类标签 + 风格标签 + 受众标签`;
+
+// 固定的输出格式
+export const OUTPUT_FORMAT = `
+
+【输出格式 - 严格遵守】
+返回 JSON，不要其他内容：
+{"title": "英文标题（简短有力）", "text": "英文文案（100-150字符）", "tags": "#Tag1 #Tag2 #Tag3..."}`;
+
+// 构建完整 system prompt
+export const buildSystemPrompt = (brandPrompt) => {
+  return (brandPrompt || DEFAULT_BRAND_PROMPT) + OUTPUT_FORMAT;
 };
-
-// 平台ID列表
-export const platformIds = Object.keys(platformConfigs);
-
-// 获取单个平台配置
-export const getPlatformConfig = (platformId) => {
-  const config = platformConfigs[platformId];
-  if (!config) {
-    throw new Error(`Unknown platform: ${platformId}`);
-  }
-  return config;
-};
-
-// 获取所有平台的默认系统提示词（新结构：支持多提示词）
-export const getDefaultSystemPrompts = () => {
-  return Object.fromEntries(
-    Object.entries(platformConfigs).map(([id, config]) => [
-      id,
-      {
-        activeId: 'default',
-        list: [
-          {
-            id: 'default',
-            name: '默认',
-            content: config.defaultSystemPrompt,
-          },
-        ],
-      },
-    ])
-  );
-};
-
-// 获取某平台当前选中的提示词内容
-export const getActivePromptContent = (platformPrompts, platformId) => {
-  const platformData = platformPrompts[platformId];
-  if (!platformData) return null;
-
-  const activePrompt = platformData.list.find(p => p.id === platformData.activeId);
-  return activePrompt?.content || platformData.list[0]?.content || '';
-};
-
-// 获取平台列表信息（用于UI展示）
-export const getPlatformList = () => {
-  return Object.values(platformConfigs).map((config) => ({
-    id: config.id,
-    name: config.name,
-    icon: config.icon,
-    constraints: config.constraints,
-  }));
-};
-
-export default platformConfigs;

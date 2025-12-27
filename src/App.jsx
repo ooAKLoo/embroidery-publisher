@@ -54,7 +54,7 @@ function App() {
   const handleAIAdapt = useCallback(async () => {
     if (!masterText.trim()) return;
 
-    const result = await adaptContent(masterText, platformPrompts);
+    const result = await adaptContent(masterText, platformPrompts, pinterestTitle);
     if (result) {
       // 合并文案和标签到一个字段
       const mergedTexts = {};
@@ -64,13 +64,12 @@ function App() {
         mergedTexts[platform] = tags ? `${text}\n\n${tags}` : text;
       });
       setPlatformTexts(mergedTexts);
-      // Pinterest 标题可以用原文的第一句
-      if (result.texts.pinterest) {
-        const firstLine = result.texts.pinterest.split('\n')[0];
-        setPinterestTitle(firstLine.slice(0, 100));
+      // 使用 AI 翻译后的 Pinterest 标题
+      if (result.pinterestTitle) {
+        setPinterestTitle(result.pinterestTitle);
       }
     }
-  }, [masterText, adaptContent, platformPrompts]);
+  }, [masterText, adaptContent, platformPrompts, pinterestTitle]);
 
   return (
     <div className="h-screen flex flex-col bg-[#F8F8F8]">
@@ -122,6 +121,7 @@ function App() {
               pinterestTitle={pinterestTitle}
               accountProfile={accountProfile}
               platformPrompts={platformPrompts}
+              masterText={masterText}
             />
           </div>
         </div>

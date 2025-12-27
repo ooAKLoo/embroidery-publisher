@@ -38,7 +38,8 @@ export default function PlatformPreview({
   platformTexts,
   pinterestTitle,
   accountProfile,
-  platformPrompts
+  platformPrompts,
+  masterText
 }) {
   const [previewMode, setPreviewMode] = useState('social'); // 'social' | 'prompt'
   const hasVideo = images.some(m => m.type === 'video');
@@ -112,6 +113,8 @@ export default function PlatformPreview({
           <PromptPreview
             platformPrompts={platformPrompts}
             activePlatform={activePlatform}
+            masterText={masterText}
+            pinterestTitle={pinterestTitle}
           />
         ) : (
           <>

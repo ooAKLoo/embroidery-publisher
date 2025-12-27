@@ -31,6 +31,12 @@ export default createPlatformConfig({
 - 了解海外用户的搜索意图（购买、装饰、送礼）
 - 擅长为艺术品、家居装饰品撰写高转化描述
 
+【标题优化要求】
+- 用户会提供中文标题，你需要翻译并优化为英文
+- 标题要包含高搜索量关键词
+- 控制在100字符以内
+- 格式示例：Luxury Handmade Chinese Silk Embroidery | Traditional Art
+
 【内容创作要求】
 - 以搜索关键词开头，如 "Luxury Chinese Art Wall Decor"
 - 自然融入高搜索量词汇：Wall Art, Home Decor, Luxury Gift, Handmade, Fine Art

@@ -56,23 +56,37 @@ function parseAIResponse(content) {
 }
 
 /**
+ * 构建用户消息
+ * Pinterest 需要包含标题信息
+ */
+function buildUserMessage(platformId, masterText, title) {
+  if (platformId === 'pinterest' && title) {
+    return `标题：${title}\n\n正文：${masterText}`;
+  }
+  return masterText;
+}
+
+/**
  * 为单个平台生成内容
  *
  * @param {string} platformId - 平台ID
  * @param {string} masterText - 用户输入的核心文案
  * @param {string} customSystemPrompt - 用户编辑的系统提示词（可选）
+ * @param {string} title - Pinterest 标题（可选）
  */
-async function generateForPlatform(platformId, masterText, customSystemPrompt) {
+async function generateForPlatform(platformId, masterText, customSystemPrompt, title) {
   const config = getPlatformConfig(platformId);
   const systemPrompt = config.buildSystemPrompt(customSystemPrompt);
+  const userMessage = buildUserMessage(platformId, masterText, title);
 
   try {
-    const content = await callAI(systemPrompt, masterText);
+    const content = await callAI(systemPrompt, userMessage);
     const result = parseAIResponse(content);
 
     return {
       text: result.text || '',
       tags: result.tags || '',
+      title: result.title || '', // Pinterest 专用
     };
   } catch (error) {
     console.error(`[${platformId}] AI生成失败:`, error);
@@ -105,17 +119,20 @@ export function useAIAdapter() {
    *
    * @param {string} masterText - 用户输入的核心文案
    * @param {Object} platformPrompts - 各平台的提示词配置 { platformId: { activeId, list } }
+   * @param {string} pinterestTitle - Pinterest 标题（可选）
    */
-  const adaptContent = useCallback(async (masterText, platformPrompts) => {
+  const adaptContent = useCallback(async (masterText, platformPrompts, pinterestTitle) => {
     setIsAdapting(true);
 
-    const results = { texts: {}, tags: {} };
+    const results = { texts: {}, tags: {}, pinterestTitle: '' };
 
     try {
       const promises = platformIds.map(async (platformId) => {
         // 获取当前选中的提示词内容
         const customSystemPrompt = getActivePromptContent(platformPrompts, platformId);
-        const result = await generateForPlatform(platformId, masterText, customSystemPrompt);
+        // Pinterest 需要传入 title
+        const title = platformId === 'pinterest' ? pinterestTitle : undefined;
+        const result = await generateForPlatform(platformId, masterText, customSystemPrompt, title);
         return { platformId, result };
       });
 
@@ -124,6 +141,10 @@ export function useAIAdapter() {
       for (const { platformId, result } of platformResults) {
         results.texts[platformId] = result.text;
         results.tags[platformId] = result.tags;
+        // 保存 Pinterest 翻译后的标题
+        if (platformId === 'pinterest' && result.title) {
+          results.pinterestTitle = result.title;
+        }
       }
 
       return results;

@@ -19,6 +19,19 @@ export const OUTPUT_FORMAT_INSTRUCTION = `
 - text: 生成的文案
 - tags: 标签（用空格或逗号分隔，根据平台要求）`;
 
+// Pinterest 专用输出格式（包含 title）
+export const PINTEREST_OUTPUT_FORMAT_INSTRUCTION = `
+
+【输出格式要求 - 必须严格遵守】
+你必须严格按以下JSON格式返回，不要添加任何其他内容：
+{"title": "优化后的英文标题", "text": "生成的文案内容", "tags": "关键词内容"}
+
+注意：
+- 只返回JSON，不要有任何解释或前缀
+- title: 翻译并优化后的英文标题（用户会在输入中提供中文标题）
+- text: 生成的文案
+- tags: 关键词（用逗号分隔）`;
+
 // 平台基础配置模板
 export const createPlatformConfig = ({
   id,
@@ -35,10 +48,15 @@ export const createPlatformConfig = ({
   defaultSystemPrompt,
   fallbackContent,
 
+  // 获取该平台的输出格式指令
+  getOutputFormatInstruction() {
+    return id === 'pinterest' ? PINTEREST_OUTPUT_FORMAT_INSTRUCTION : OUTPUT_FORMAT_INSTRUCTION;
+  },
+
   // 构建完整的系统提示词（用户编辑的 + 固定输出格式）
   buildSystemPrompt(customSystemPrompt) {
     const prompt = customSystemPrompt || this.defaultSystemPrompt;
-    return prompt + OUTPUT_FORMAT_INSTRUCTION;
+    return prompt + this.getOutputFormatInstruction();
   },
 
   // 生成该平台的回退内容

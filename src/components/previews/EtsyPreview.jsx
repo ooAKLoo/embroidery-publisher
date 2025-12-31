@@ -7,10 +7,10 @@ export default function EtsyPreview({ images, text, accountProfile }) {
   const description = lines.slice(1).join('\n').trim();
 
   return (
-    <div className="bg-white rounded-2xl overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.06)] max-w-lg mx-auto">
+    <div className="bg-[#F8F8F8] rounded-2xl overflow-hidden w-full max-w-[200px]">
       {/* Product Image */}
       <div className="relative">
-        <MediaCarousel media={images} aspectRatio="aspect-[4/5]" />
+        <MediaCarousel media={images} aspectRatio="aspect-square" />
         {/* Favorite Button */}
         <button className="absolute top-3 right-3 w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center hover:scale-105 transition-transform">
           <svg className="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

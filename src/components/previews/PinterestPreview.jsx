@@ -2,7 +2,7 @@ import MediaCarousel from './MediaCarousel';
 
 export default function PinterestPreview({ images, text, title, accountProfile }) {
   return (
-    <div className="bg-white rounded-2xl overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.06)] max-w-sm mx-auto">
+    <div className="bg-[#F8F8F8] rounded-2xl overflow-hidden w-full max-w-[200px]">
       {/* Media - Pinterest uses 2:3 ratio */}
       <div className="relative">
         <MediaCarousel media={images} aspectRatio="aspect-[2/3]" />

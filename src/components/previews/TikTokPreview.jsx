@@ -2,7 +2,7 @@ export default function TikTokPreview({ images, text, accountProfile }) {
   const video = images.find(m => m.type === 'video');
 
   return (
-    <div className="bg-black rounded-2xl overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.06)] max-w-sm mx-auto aspect-[9/16] relative">
+    <div className="bg-black rounded-2xl overflow-hidden w-full max-w-[180px] aspect-[9/16] relative">
       {/* Video Background */}
       {video ? (
         <video

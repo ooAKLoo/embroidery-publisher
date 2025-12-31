@@ -2,9 +2,9 @@ export default function TwitterPreview({ images, text, accountProfile }) {
   const remaining = 280 - text.length;
 
   return (
-    <div className="bg-white rounded-2xl overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.06)] max-w-lg mx-auto p-4">
+    <div className="bg-[#F8F8F8] rounded-2xl overflow-hidden w-full max-w-xs p-4">
       <div className="flex gap-3">
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-rose-400 to-amber-300 flex-shrink-0 overflow-hidden">
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-rose-400 to-amber-300 flex-shrink-0 overflow-hidden">
           {accountProfile.avatar ? (
             <img src={accountProfile.avatar} alt="" className="w-full h-full object-cover" />
           ) : (
@@ -32,9 +32,9 @@ export default function TwitterPreview({ images, text, accountProfile }) {
           {images.length > 0 && (
             <div className="mt-3 rounded-2xl overflow-hidden border border-slate-200">
               {images.length === 1 ? (
-                // 单张：16:9 视频或图片
+                // 单张
                 images[0].type === 'video' ? (
-                  <div className="aspect-[16/9] relative group bg-black">
+                  <div className="aspect-video relative group bg-black">
                     <video
                       src={images[0].preview}
                       className="w-full h-full object-cover"
@@ -43,11 +43,11 @@ export default function TwitterPreview({ images, text, accountProfile }) {
                     />
                   </div>
                 ) : (
-                  <img src={images[0].preview} alt="" className="w-full aspect-[16/9] object-cover" />
+                  <img src={images[0].preview} alt="" className="w-full aspect-video object-cover" />
                 )
               ) : images.length === 2 ? (
-                // 2张：左右各一半，整体 16:9
-                <div className="flex aspect-[16/9] gap-0.5">
+                // 2张：左右各一半
+                <div className="flex aspect-video gap-0.5">
                   {images.slice(0, 2).map((img, i) => (
                     <div key={img.id || i} className="flex-1 relative overflow-hidden">
                       {img.type === 'video' ? (
@@ -68,8 +68,8 @@ export default function TwitterPreview({ images, text, accountProfile }) {
                   ))}
                 </div>
               ) : images.length === 3 ? (
-                // 3张：左边大图占一半，右边两张各占一半高度，整体 16:9
-                <div className="flex aspect-[16/9] gap-0.5">
+                // 3张：左边大图占一半，右边两张各占一半高度
+                <div className="flex aspect-video gap-0.5">
                   <div className="w-1/2 relative overflow-hidden">
                     {images[0].type === 'video' ? (
                       <div className="w-full h-full bg-black">
@@ -108,8 +108,8 @@ export default function TwitterPreview({ images, text, accountProfile }) {
                   </div>
                 </div>
               ) : (
-                // 4张及以上：2x2 网格，整体 16:9
-                <div className="grid grid-cols-2 grid-rows-2 aspect-[16/9] gap-0.5">
+                // 4张及以上：2x2 网格
+                <div className="grid grid-cols-2 grid-rows-2 aspect-video gap-0.5">
                   {images.slice(0, 4).map((img, i) => (
                     <div key={img.id || i} className="relative overflow-hidden">
                       {img.type === 'video' ? (

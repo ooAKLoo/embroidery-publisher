@@ -179,7 +179,7 @@ function ProductManager() {
   };
 
   return (
-    <div className="h-full bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.06)] flex flex-col overflow-hidden">
+    <div className="h-full bg-white rounded-2xl flex flex-col overflow-hidden">
       {/* Header */}
       <div className="flex-shrink-0 flex items-center justify-between p-5 border-b border-slate-100">
         <div>

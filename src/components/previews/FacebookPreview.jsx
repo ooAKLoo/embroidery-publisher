@@ -2,7 +2,7 @@ import MediaCarousel from './MediaCarousel';
 
 export default function FacebookPreview({ images, text, accountProfile }) {
   return (
-    <div className="bg-white rounded-2xl overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.06)] max-w-lg mx-auto">
+    <div className="bg-[#F8F8F8] rounded-2xl overflow-hidden w-full max-w-xs">
       {/* Header */}
       <div className="flex items-center gap-3 p-4">
         <div className="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-rose-400 to-amber-300">

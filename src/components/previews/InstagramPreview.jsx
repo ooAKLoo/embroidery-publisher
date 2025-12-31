@@ -2,7 +2,7 @@ import MediaCarousel from './MediaCarousel';
 
 export default function InstagramPreview({ images, text, accountProfile }) {
   return (
-    <div className="bg-white rounded-2xl overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.06)] max-w-md mx-auto">
+    <div className="bg-[#F8F8F8] rounded-2xl overflow-hidden w-full max-w-xs">
       {/* Header */}
       <div className="flex items-center gap-3 p-3">
         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400 p-[2px]">

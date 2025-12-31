@@ -21,7 +21,7 @@ function NavSidebar({ activeModule, setActiveModule }) {
   ];
 
   return (
-    <div className="w-20 flex-shrink-0 bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.06)] flex flex-col items-center py-4 gap-2">
+    <div className="w-20 flex-shrink-0 bg-white rounded-2xl flex flex-col items-center py-4 gap-2">
       {/* Logo */}
       <div className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center mb-4">
         <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

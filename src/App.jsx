@@ -169,7 +169,7 @@ Suzhou Embroidery, Chinese Art, Silk Art, Handmade, Traditional Craft, Embroider
 
             {/* 预览区 */}
             <div className="w-1/2 flex flex-col">
-              <div className="bg-white rounded-2xl h-full overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.06)]">
+              <div className="bg-white rounded-2xl h-full overflow-hidden">
                 <PlatformPreview
                   activePlatform={activePlatform}
                   setActivePlatform={setActivePlatform}

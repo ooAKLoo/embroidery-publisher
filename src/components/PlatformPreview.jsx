@@ -76,7 +76,7 @@ export default function PlatformPreview({
 
         {/* Platform Tabs - 仅社交预览模式显示 */}
         {previewMode === 'social' && (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center">
             {visiblePlatforms.map(platform => {
               const ui = platformUI[platform.id];
               const Icon = ui.Icon;
@@ -85,14 +85,14 @@ export default function PlatformPreview({
                 <button
                   key={platform.id}
                   onClick={() => setActivePlatform(platform.id)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-medium transition-all ${
                     isActive
                       ? 'bg-white shadow-[0_2px_8px_rgba(0,0,0,0.08)] text-slate-800'
                       : 'text-slate-500 hover:text-slate-700 hover:bg-white/50'
                   }`}
                 >
-                  <Icon className="w-4 h-4" style={isActive ? { color: ui.color } : { opacity: 0.7 }} />
-                  <span className="hidden sm:inline">{platform.name}</span>
+                  <Icon className="w-4 h-4 flex-shrink-0" style={isActive ? { color: ui.color } : { opacity: 0.7 }} />
+                  <span className="truncate">{platform.name}</span>
                 </button>
               );
             })}
@@ -101,7 +101,7 @@ export default function PlatformPreview({
       </div>
 
       {/* Preview Area */}
-      <div className="flex-1 overflow-y-auto p-5">
+      <div className="flex-1 min-h-0 p-5 flex items-center justify-center">
         {previewMode === 'prompt' ? (
           <PromptPreview brandPrompt={brandPrompt} masterText={masterText} />
         ) : previewMode === 'list' ? (

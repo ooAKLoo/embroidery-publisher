@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>苏绣出海发布助手</title>
+  <link rel="stylesheet" href="../styles/popup.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>苏绣出海发布助手</h1>
+      <div id="status" class="status disconnected">
+        <span class="status-dot"></span>
+        <span class="status-text">检测中...</span>
+      </div>
+    </header>
+
+    <main class="content">
+      <div id="disconnected-view" class="view">
+        <div class="message-box warning">
+          <p>未检测到苏绣发布器</p>
+          <p class="hint">请确保桌面应用已启动</p>
+        </div>
+      </div>
+
+      <div id="connected-view" class="view hidden">
+        <div class="preview-section">
+          <h2>当前内容预览</h2>
+          <div id="preview-content" class="preview-box">
+            <p class="placeholder">加载中...</p>
+          </div>
+        </div>
+
+        <div class="action-section">
+          <p class="instruction">打开目标平台的发布页面，点击下方按钮自动填充内容</p>
+          <button id="fill-btn" class="fill-button">
+            <span class="btn-icon">✨</span>
+            自动填充到当前页面
+          </button>
+        </div>
+
+        <div class="platform-links">
+          <h3>快速打开平台</h3>
+          <div class="links-grid">
+            <a href="https://www.instagram.com/" target="_blank" class="platform-link instagram">
+              <span>Instagram</span>
+            </a>
+            <a href="https://www.facebook.com/" target="_blank" class="platform-link facebook">
+              <span>Facebook</span>
+            </a>
+            <a href="https://x.com/" target="_blank" class="platform-link twitter">
+              <span>X / Twitter</span>
+            </a>
+            <a href="https://www.pinterest.com/" target="_blank" class="platform-link pinterest">
+              <span>Pinterest</span>
+            </a>
+            <a href="https://www.tiktok.com/" target="_blank" class="platform-link tiktok">
+              <span>TikTok</span>
+            </a>
+            <a href="https://www.etsy.com/" target="_blank" class="platform-link etsy">
+              <span>Etsy</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <p>v1.0.0</p>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

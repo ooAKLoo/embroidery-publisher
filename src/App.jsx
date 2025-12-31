@@ -1,4 +1,5 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import { invoke } from '@tauri-apps/api/core';
 import './App.css';
 import AccountCard from './components/AccountCard';
 import MediaUploader from './components/MediaUploader';
@@ -65,6 +66,59 @@ function App() {
     }
   }, [masterText, adaptContent, brandPrompt]);
 
+  // Mock 数据生成（用于测试 Chrome 插件）
+  const handleMockGenerate = useCallback(() => {
+    const mockTitle = 'Exquisite Suzhou Embroidery - Cat Playing with Butterfly';
+    const mockTextHashtag = `This stunning piece of Suzhou embroidery "Cat Playing with Butterfly" showcases the pinnacle of traditional Chinese silk art. Crafted over 3 months by master artisans, each strand of silk is split to 1/16th of its original width, creating lifelike fur textures.
+
+#SuzhouEmbroidery #ChineseArt #SilkArt #Handmade #TraditionalCraft #Embroidery #AsianArt #LuxuryArt #ArtCollector #FineArt`;
+
+    const mockTextKeyword = `This stunning piece of Suzhou embroidery "Cat Playing with Butterfly" showcases the pinnacle of traditional Chinese silk art. Crafted over 3 months by master artisans, each strand of silk is split to 1/16th of its original width, creating lifelike fur textures.
+
+Suzhou Embroidery, Chinese Art, Silk Art, Handmade, Traditional Craft, Embroidery, Asian Art, Luxury Art, Art Collector, Fine Art`;
+
+    setPlatformTexts({
+      instagram: mockTextHashtag,
+      facebook: mockTextHashtag,
+      twitter: 'Exquisite Suzhou embroidery "Cat Playing with Butterfly" - 3 months of meticulous handcraft, silk split to 1/16th width. #SuzhouEmbroidery #ChineseArt #SilkArt',
+      pinterest: mockTextKeyword,
+      tiktok: mockTextHashtag,
+      etsy: mockTextKeyword
+    });
+    setGeneratedTitle(mockTitle);
+    setMasterText('这幅苏绣作品《猫戏蝶》采用了传统的劈丝工艺，由绣娘历时3个月纯手工完成。作品中猫咪的毛发根根分明，每一根丝线都被劈成1/16的细度，展现了苏绣「精、细、雅、洁」的艺术特色。');
+  }, []);
+
+  // 同步内容状态到 Tauri 后端（供 Chrome 插件读取）
+  useEffect(() => {
+    const syncToBackend = async () => {
+      try {
+        // 准备图片信息（不包含完整的文件对象）
+        const imageInfos = images.map(img => ({
+          id: String(img.id),
+          name: img.name || '',
+          type: img.type || 'image',
+          preview: img.preview || ''
+        }));
+
+        await invoke('update_content', {
+          platformTexts,
+          generatedTitle,
+          images: imageInfos,
+          accountProfile: {
+            displayName: accountProfile.displayName,
+            username: accountProfile.username,
+            avatar: accountProfile.avatar || null
+          }
+        });
+      } catch (error) {
+        console.error('同步内容到后端失败:', error);
+      }
+    };
+
+    syncToBackend();
+  }, [platformTexts, generatedTitle, images, accountProfile]);
+
   return (
     <div className="h-screen flex flex-col bg-[#F8F8F8]">
       <div className="flex-1 flex overflow-hidden gap-3 p-4">
@@ -96,6 +150,7 @@ function App() {
               setPrompts={setPrompts}
               activePromptId={activePromptId}
               setActivePromptId={setActivePromptId}
+              onMockGenerate={handleMockGenerate}
             />
           </div>
         </div>

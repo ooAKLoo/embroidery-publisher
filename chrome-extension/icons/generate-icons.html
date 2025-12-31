@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Icon Generator</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    canvas { border: 1px solid #ccc; margin: 10px; }
+    .download-links { margin-top: 20px; }
+    .download-links a { margin-right: 10px; }
+  </style>
+</head>
+<body>
+  <h1>苏绣出海发布助手 - 图标生成器</h1>
+  <p>点击下方链接下载各尺寸图标，然后将它们放到 icons 文件夹中</p>
+
+  <div id="canvases"></div>
+  <div class="download-links" id="links"></div>
+
+  <script>
+    const sizes = [16, 32, 48, 128];
+    const container = document.getElementById('canvases');
+    const linksContainer = document.getElementById('links');
+
+    sizes.forEach(size => {
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      canvas.id = `icon${size}`;
+
+      const ctx = canvas.getContext('2d');
+
+      // 绘制渐变背景
+      const gradient = ctx.createLinearGradient(0, 0, size, size);
+      gradient.addColorStop(0, '#667eea');
+      gradient.addColorStop(1, '#764ba2');
+
+      // 圆角矩形
+      const radius = size * 0.2;
+      ctx.beginPath();
+      ctx.moveTo(radius, 0);
+      ctx.lineTo(size - radius, 0);
+      ctx.quadraticCurveTo(size, 0, size, radius);
+      ctx.lineTo(size, size - radius);
+      ctx.quadraticCurveTo(size, size, size - radius, size);
+      ctx.lineTo(radius, size);
+      ctx.quadraticCurveTo(0, size, 0, size - radius);
+      ctx.lineTo(0, radius);
+      ctx.quadraticCurveTo(0, 0, radius, 0);
+      ctx.closePath();
+      ctx.fillStyle = gradient;
+      ctx.fill();
+
+      // 绘制刺绣针的图标
+      ctx.strokeStyle = 'white';
+      ctx.lineWidth = size * 0.06;
+      ctx.lineCap = 'round';
+
+      // 针的形状
+      const centerX = size / 2;
+      const centerY = size / 2;
+      const needleLength = size * 0.5;
+
+      // 斜线代表针
+      ctx.beginPath();
+      ctx.moveTo(centerX - needleLength * 0.3, centerY + needleLength * 0.3);
+      ctx.lineTo(centerX + needleLength * 0.3, centerY - needleLength * 0.3);
+      ctx.stroke();
+
+      // 针眼
+      ctx.beginPath();
+      ctx.arc(centerX + needleLength * 0.2, centerY - needleLength * 0.2, size * 0.06, 0, Math.PI * 2);
+      ctx.fillStyle = 'white';
+      ctx.fill();
+
+      // 线
+      ctx.beginPath();
+      ctx.moveTo(centerX + needleLength * 0.3, centerY - needleLength * 0.3);
+      ctx.quadraticCurveTo(
+        centerX + needleLength * 0.5,
+        centerY - needleLength * 0.1,
+        centerX + needleLength * 0.35,
+        centerY + needleLength * 0.15
+      );
+      ctx.stroke();
+
+      container.appendChild(canvas);
+
+      // 创建下载链接
+      const link = document.createElement('a');
+      link.download = `icon${size}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.textContent = `下载 ${size}x${size}`;
+      link.style.display = 'inline-block';
+      link.style.padding = '8px 16px';
+      link.style.background = '#667eea';
+      link.style.color = 'white';
+      link.style.borderRadius = '4px';
+      link.style.textDecoration = 'none';
+      link.style.marginRight = '10px';
+      linksContainer.appendChild(link);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+{
+  "manifest_version": 3,
+  "name": "苏绣出海发布助手",
+  "version": "1.0.0",
+  "description": "自动填充苏绣发布器生成的内容到各社交平台",
+  "permissions": [
+    "activeTab",
+    "storage"
+  ],
+  "host_permissions": [
+    "http://localhost:9527/*",
+    "https://www.instagram.com/*",
+    "https://www.facebook.com/*",
+    "https://twitter.com/*",
+    "https://x.com/*",
+    "https://www.pinterest.com/*",
+    "https://www.tiktok.com/*",
+    "https://www.etsy.com/*"
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.instagram.com/*"],
+      "js": ["content-scripts/common.js", "content-scripts/instagram.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://www.facebook.com/*"],
+      "js": ["content-scripts/common.js", "content-scripts/facebook.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://twitter.com/*", "https://x.com/*"],
+      "js": ["content-scripts/common.js", "content-scripts/twitter.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://www.pinterest.com/*"],
+      "js": ["content-scripts/common.js", "content-scripts/pinterest.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://www.tiktok.com/*"],
+      "js": ["content-scripts/common.js", "content-scripts/tiktok.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://www.etsy.com/*"],
+      "js": ["content-scripts/common.js", "content-scripts/etsy.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
+}

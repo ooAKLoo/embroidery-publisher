@@ -5,6 +5,8 @@ import AccountCard from './components/AccountCard';
 import MediaUploader from './components/MediaUploader';
 import ContentEditor from './components/ContentEditor';
 import PlatformPreview from './components/PlatformPreview';
+import NavSidebar from './components/NavSidebar';
+import ProductManager from './components/ProductManager';
 import { useAIAdapter } from './hooks/useAIAdapter';
 import { DEFAULT_BRAND_PROMPT, platforms } from './config/platforms';
 
@@ -48,6 +50,9 @@ function App() {
     { id: 'default', name: '默认提示词', content: DEFAULT_BRAND_PROMPT }
   ]);
   const [activePromptId, setActivePromptId] = useState('default');
+
+  // 当前模块
+  const [activeModule, setActiveModule] = useState('content');
 
   // 获取当前激活的提示词内容
   const activePrompt = prompts.find(p => p.id === activePromptId);
@@ -120,56 +125,68 @@ Suzhou Embroidery, Chinese Art, Silk Art, Handmade, Traditional Craft, Embroider
   }, [platformTexts, generatedTitle, images, accountProfile]);
 
   return (
-    <div className="h-screen flex flex-col bg-[#F8F8F8]">
-      <div className="flex-1 flex overflow-hidden gap-3 p-4">
-        {/* 左侧编辑区 */}
-        <div className="w-1/2 flex flex-col overflow-hidden gap-4">
-          <div className="flex-shrink-0">
-            <AccountCard
-              accountProfile={accountProfile}
-              setAccountProfile={setAccountProfile}
-            />
-          </div>
+    <div className="h-screen flex bg-[#F8F8F8] p-4 gap-4">
+      {/* 左侧导航栏 */}
+      <NavSidebar activeModule={activeModule} setActiveModule={setActiveModule} />
 
-          <div className="flex-1 min-h-0">
-            <MediaUploader
-              images={images}
-              setImages={setImages}
-              settings={settings}
-              setSettings={setSettings}
-            />
-          </div>
+      {/* 右侧内容区 */}
+      <div className="flex-1 overflow-hidden">
+        {activeModule === 'content' ? (
+          // 内容发布模块
+          <div className="h-full flex gap-4">
+            {/* 编辑区 */}
+            <div className="w-1/2 flex flex-col overflow-hidden gap-4">
+              <div className="flex-shrink-0">
+                <AccountCard
+                  accountProfile={accountProfile}
+                  setAccountProfile={setAccountProfile}
+                />
+              </div>
 
-          <div className="flex-shrink-0">
-            <ContentEditor
-              masterText={masterText}
-              setMasterText={setMasterText}
-              onAIAdapt={handleAIAdapt}
-              isAdapting={isAdapting}
-              prompts={prompts}
-              setPrompts={setPrompts}
-              activePromptId={activePromptId}
-              setActivePromptId={setActivePromptId}
-              onMockGenerate={handleMockGenerate}
-            />
-          </div>
-        </div>
+              <div className="flex-1 min-h-0">
+                <MediaUploader
+                  images={images}
+                  setImages={setImages}
+                  settings={settings}
+                  setSettings={setSettings}
+                />
+              </div>
 
-        {/* 右侧预览区 */}
-        <div className="w-1/2 flex flex-col">
-          <div className="bg-white rounded-2xl h-full overflow-hidden">
-            <PlatformPreview
-              activePlatform={activePlatform}
-              setActivePlatform={setActivePlatform}
-              images={images}
-              platformTexts={platformTexts}
-              generatedTitle={generatedTitle}
-              accountProfile={accountProfile}
-              brandPrompt={brandPrompt}
-              masterText={masterText}
-            />
+              <div className="flex-shrink-0">
+                <ContentEditor
+                  masterText={masterText}
+                  setMasterText={setMasterText}
+                  onAIAdapt={handleAIAdapt}
+                  isAdapting={isAdapting}
+                  prompts={prompts}
+                  setPrompts={setPrompts}
+                  activePromptId={activePromptId}
+                  setActivePromptId={setActivePromptId}
+                  onMockGenerate={handleMockGenerate}
+                />
+              </div>
+            </div>
+
+            {/* 预览区 */}
+            <div className="w-1/2 flex flex-col">
+              <div className="bg-white rounded-2xl h-full overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.06)]">
+                <PlatformPreview
+                  activePlatform={activePlatform}
+                  setActivePlatform={setActivePlatform}
+                  images={images}
+                  platformTexts={platformTexts}
+                  generatedTitle={generatedTitle}
+                  accountProfile={accountProfile}
+                  brandPrompt={brandPrompt}
+                  masterText={masterText}
+                />
+              </div>
+            </div>
           </div>
-        </div>
+        ) : (
+          // 产品中心模块
+          <ProductManager />
+        )}
       </div>
     </div>
   );

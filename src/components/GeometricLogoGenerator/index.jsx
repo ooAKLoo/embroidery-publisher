@@ -11,6 +11,7 @@ export default function GeometricLogoGenerator() {
   const [bgColor, setBgColor] = useState('#0f172a');
   const [autoRotate, setAutoRotate] = useState(false);
   const [iconScale, setIconScale] = useState(0.7); // 导出时图标占画布比例
+  const [borderRadius, setBorderRadius] = useState(0.22); // 导出圆角比例，0.22 为 macOS 风格
 
   const previewRef = useRef(null);
   const previewAreaRef = useRef(null);
@@ -178,6 +179,8 @@ export default function GeometricLogoGenerator() {
             setBgColor={setBgColor}
             iconScale={iconScale}
             setIconScale={setIconScale}
+            borderRadius={borderRadius}
+            setBorderRadius={setBorderRadius}
           />
         </div>
 

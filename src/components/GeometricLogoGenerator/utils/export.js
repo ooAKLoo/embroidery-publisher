@@ -4,7 +4,16 @@
  * 导出逻辑说明：
  * - 导出与预览缩放(zoom)无关，始终生成标准化的图标
  * - 图案居中并占据画布的合理比例（默认 70%），四周留有安全边距
+ * - 支持圆角导出（macOS Dock 风格）
  * - 符合 Apple、Google 等平台的 App Icon 设计规范
+ *
+ * 导出目录结构：
+ * - resources/icon.svg - 原始矢量图
+ * - resources/icon.png - 高清 PNG (1024x1024)
+ * - resources/icon.icns - macOS 应用图标
+ * - public/icon.svg - 网站用 SVG
+ * - public/favicon.png - 网站 favicon
+ * - public/{name}.svg - 品牌 Logo
  */
 import JSZip from 'jszip';
 
@@ -14,9 +23,7 @@ import JSZip from 'jszip';
  * @returns {Object} 边界框 {x, y, width, height}
  */
 const getContentBBox = (svgElement) => {
-  // 尝试获取实际的图形边界
   try {
-    // 获取所有非 defs 的子元素
     const contentElements = Array.from(svgElement.children).filter(
       child => child.tagName.toLowerCase() !== 'defs'
     );
@@ -25,7 +32,6 @@ const getContentBBox = (svgElement) => {
       return { x: 0, y: 0, width: 300, height: 300 };
     }
 
-    // 计算所有内容元素的合并边界框
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
 
     contentElements.forEach(el => {
@@ -62,59 +68,89 @@ const getContentBBox = (svgElement) => {
  * @param {SVGElement} svgElement - 原始 SVG 元素
  * @param {number} exportSize - 导出画布尺寸
  * @param {string} bgColor - 背景色
- * @param {number} iconScale - 图标占画布比例 (0-1)，默认 0.7 表示图标占 70%
+ * @param {number} iconScale - 图标占画布比例 (0-1)
+ * @param {number} borderRadius - 圆角半径比例 (0-0.5)，0 表示无圆角
  */
-const createExportSvg = (svgElement, exportSize, bgColor, iconScale = 0.7) => {
-  // 获取实际图形内容的边界框
+const createExportSvg = (svgElement, exportSize, bgColor, iconScale = 0.7, borderRadius = 0) => {
   const contentBBox = getContentBBox(svgElement);
 
-  // 创建新的导出用 SVG
   const exportSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   exportSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
   exportSvg.setAttribute('width', exportSize);
   exportSvg.setAttribute('height', exportSize);
   exportSvg.setAttribute('viewBox', `0 0 ${exportSize} ${exportSize}`);
 
+  // 如果需要圆角，创建 clipPath
+  if (borderRadius > 0) {
+    const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+    const clipPath = document.createElementNS('http://www.w3.org/2000/svg', 'clipPath');
+    clipPath.setAttribute('id', 'rounded-clip');
+
+    const clipRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    const radius = exportSize * borderRadius;
+    clipRect.setAttribute('width', exportSize);
+    clipRect.setAttribute('height', exportSize);
+    clipRect.setAttribute('rx', radius);
+    clipRect.setAttribute('ry', radius);
+
+    clipPath.appendChild(clipRect);
+    defs.appendChild(clipPath);
+    exportSvg.appendChild(defs);
+  }
+
+  // 创建主内容组（可能被裁剪）
+  const mainGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  if (borderRadius > 0) {
+    mainGroup.setAttribute('clip-path', 'url(#rounded-clip)');
+  }
+
   // 添加背景矩形
   const bgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
   bgRect.setAttribute('width', exportSize);
   bgRect.setAttribute('height', exportSize);
   bgRect.setAttribute('fill', bgColor);
-  exportSvg.appendChild(bgRect);
+  if (borderRadius > 0) {
+    const radius = exportSize * borderRadius;
+    bgRect.setAttribute('rx', radius);
+    bgRect.setAttribute('ry', radius);
+  }
+  mainGroup.appendChild(bgRect);
 
   // 计算图标在导出画布中的目标尺寸
   const targetIconSize = exportSize * iconScale;
-
-  // 基于实际内容的尺寸计算缩放比例
   const contentSize = Math.max(contentBBox.width, contentBBox.height);
   const scaleRatio = targetIconSize / contentSize;
 
-  // 计算缩放后的实际尺寸
   const scaledWidth = contentBBox.width * scaleRatio;
   const scaledHeight = contentBBox.height * scaleRatio;
-
-  // 计算居中偏移
   const offsetX = (exportSize - scaledWidth) / 2 - contentBBox.x * scaleRatio;
   const offsetY = (exportSize - scaledHeight) / 2 - contentBBox.y * scaleRatio;
 
-  // 复制 defs（渐变、滤镜等定义）
-  const defs = svgElement.querySelector('defs');
-  if (defs) {
-    exportSvg.appendChild(defs.cloneNode(true));
+  // 复制 defs（渐变、滤镜等定义）- 合并到现有 defs 或创建新的
+  const originalDefs = svgElement.querySelector('defs');
+  if (originalDefs) {
+    let existingDefs = exportSvg.querySelector('defs');
+    if (!existingDefs) {
+      existingDefs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+      exportSvg.insertBefore(existingDefs, exportSvg.firstChild);
+    }
+    Array.from(originalDefs.children).forEach(child => {
+      existingDefs.appendChild(child.cloneNode(true));
+    });
   }
 
-  // 创建一个组来包含原始 SVG 内容，并进行缩放和平移
+  // 创建内容组
   const contentGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
   contentGroup.setAttribute('transform', `translate(${offsetX}, ${offsetY}) scale(${scaleRatio})`);
 
-  // 复制所有非 defs 的子元素
   Array.from(svgElement.children).forEach(child => {
     if (child.tagName.toLowerCase() !== 'defs') {
       contentGroup.appendChild(child.cloneNode(true));
     }
   });
 
-  exportSvg.appendChild(contentGroup);
+  mainGroup.appendChild(contentGroup);
+  exportSvg.appendChild(mainGroup);
 
   return exportSvg;
 };
@@ -125,11 +161,11 @@ const createExportSvg = (svgElement, exportSize, bgColor, iconScale = 0.7) => {
  * @param {number} size - 输出 PNG 尺寸
  * @param {string} bgColor - 背景色
  * @param {number} iconScale - 图标占画布比例
+ * @param {number} borderRadius - 圆角半径比例
  */
-const svgToPngBlob = (svgElement, size, bgColor = null, iconScale = 0.7) => {
+const svgToPngBlob = (svgElement, size, bgColor = null, iconScale = 0.7, borderRadius = 0) => {
   return new Promise((resolve) => {
-    // 创建标准化的导出 SVG
-    const exportSvg = createExportSvg(svgElement, size, bgColor, iconScale);
+    const exportSvg = createExportSvg(svgElement, size, bgColor, iconScale, borderRadius);
     const svgData = new XMLSerializer().serializeToString(exportSvg);
     const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
     const url = URL.createObjectURL(svgBlob);
@@ -141,13 +177,6 @@ const svgToPngBlob = (svgElement, size, bgColor = null, iconScale = 0.7) => {
       canvas.height = size;
 
       const ctx = canvas.getContext('2d');
-
-      // 背景已经在 SVG 中绘制，这里作为备份
-      if (bgColor) {
-        ctx.fillStyle = bgColor;
-        ctx.fillRect(0, 0, size, size);
-      }
-
       ctx.drawImage(img, 0, 0, size, size);
 
       canvas.toBlob((blob) => {
@@ -163,23 +192,19 @@ const svgToPngBlob = (svgElement, size, bgColor = null, iconScale = 0.7) => {
 /**
  * 生成 ICO 文件 (包含多个尺寸)
  */
-const generateICO = async (svgElement, sizes, bgColor, iconScale = 0.7) => {
-  // ICO 文件格式简化版 - 生成包含多尺寸的 ICO
+const generateICO = async (svgElement, sizes, bgColor, iconScale = 0.7, borderRadius = 0) => {
   const pngBlobs = await Promise.all(
-    sizes.map(size => svgToPngBlob(svgElement, size, bgColor, iconScale))
+    sizes.map(size => svgToPngBlob(svgElement, size, bgColor, iconScale, borderRadius))
   );
 
-  // 将 PNG 转为 ArrayBuffer
   const pngBuffers = await Promise.all(
     pngBlobs.map(blob => blob.arrayBuffer())
   );
 
-  // ICO 文件头
   const headerSize = 6;
   const dirEntrySize = 16;
   const numImages = sizes.length;
 
-  // 计算总大小
   let totalSize = headerSize + (dirEntrySize * numImages);
   const imageOffsets = [];
   for (const buffer of pngBuffers) {
@@ -187,34 +212,30 @@ const generateICO = async (svgElement, sizes, bgColor, iconScale = 0.7) => {
     totalSize += buffer.byteLength;
   }
 
-  // 创建 ICO buffer
   const icoBuffer = new ArrayBuffer(totalSize);
   const view = new DataView(icoBuffer);
 
-  // ICO 头
-  view.setUint16(0, 0, true); // Reserved
-  view.setUint16(2, 1, true); // ICO type
-  view.setUint16(4, numImages, true); // Number of images
+  view.setUint16(0, 0, true);
+  view.setUint16(2, 1, true);
+  view.setUint16(4, numImages, true);
 
-  // 目录条目
   let offset = headerSize;
   for (let i = 0; i < numImages; i++) {
     const size = sizes[i];
     const pngSize = pngBuffers[i].byteLength;
 
-    view.setUint8(offset, size >= 256 ? 0 : size); // Width
-    view.setUint8(offset + 1, size >= 256 ? 0 : size); // Height
-    view.setUint8(offset + 2, 0); // Color palette
-    view.setUint8(offset + 3, 0); // Reserved
-    view.setUint16(offset + 4, 1, true); // Color planes
-    view.setUint16(offset + 6, 32, true); // Bits per pixel
-    view.setUint32(offset + 8, pngSize, true); // Image size
-    view.setUint32(offset + 12, imageOffsets[i], true); // Image offset
+    view.setUint8(offset, size >= 256 ? 0 : size);
+    view.setUint8(offset + 1, size >= 256 ? 0 : size);
+    view.setUint8(offset + 2, 0);
+    view.setUint8(offset + 3, 0);
+    view.setUint16(offset + 4, 1, true);
+    view.setUint16(offset + 6, 32, true);
+    view.setUint32(offset + 8, pngSize, true);
+    view.setUint32(offset + 12, imageOffsets[i], true);
 
     offset += dirEntrySize;
   }
 
-  // 复制 PNG 数据
   const uint8View = new Uint8Array(icoBuffer);
   for (let i = 0; i < numImages; i++) {
     uint8View.set(new Uint8Array(pngBuffers[i]), imageOffsets[i]);
@@ -224,151 +245,263 @@ const generateICO = async (svgElement, sizes, bgColor, iconScale = 0.7) => {
 };
 
 /**
+ * 生成 ICNS 文件 (macOS 应用图标)
+ * ICNS 格式包含多种尺寸的 PNG 图像
+ */
+const generateICNS = async (svgElement, bgColor, iconScale = 0.7, borderRadius = 0.22) => {
+  // macOS 图标尺寸和对应的类型码
+  const icnsTypes = [
+    { type: 'icp4', size: 16 },   // 16x16
+    { type: 'icp5', size: 32 },   // 32x32
+    { type: 'icp6', size: 64 },   // 64x64
+    { type: 'ic07', size: 128 },  // 128x128
+    { type: 'ic08', size: 256 },  // 256x256
+    { type: 'ic09', size: 512 },  // 512x512
+    { type: 'ic10', size: 1024 }, // 1024x1024 (10.7+)
+  ];
+
+  // 生成所有尺寸的 PNG（带圆角）
+  const pngBlobs = await Promise.all(
+    icnsTypes.map(({ size }) => svgToPngBlob(svgElement, size, bgColor, iconScale, borderRadius))
+  );
+
+  const pngBuffers = await Promise.all(
+    pngBlobs.map(blob => blob.arrayBuffer())
+  );
+
+  // 计算 ICNS 文件总大小
+  // ICNS 头: 4 字节 magic + 4 字节 fileLength
+  // 每个图像: 4 字节 type + 4 字节 length + PNG 数据
+  let totalSize = 8; // ICNS 文件头
+  for (const buffer of pngBuffers) {
+    totalSize += 8 + buffer.byteLength; // 每个图像条目
+  }
+
+  const icnsBuffer = new ArrayBuffer(totalSize);
+  const view = new DataView(icnsBuffer);
+  const uint8View = new Uint8Array(icnsBuffer);
+
+  // ICNS 文件头
+  // Magic number: 'icns'
+  uint8View[0] = 0x69; // 'i'
+  uint8View[1] = 0x63; // 'c'
+  uint8View[2] = 0x6E; // 'n'
+  uint8View[3] = 0x73; // 's'
+  // 文件总长度 (big-endian)
+  view.setUint32(4, totalSize, false);
+
+  // 写入每个图像
+  let offset = 8;
+  for (let i = 0; i < icnsTypes.length; i++) {
+    const { type } = icnsTypes[i];
+    const pngData = new Uint8Array(pngBuffers[i]);
+    const entrySize = 8 + pngData.byteLength;
+
+    // 类型码 (4 ASCII 字符)
+    for (let j = 0; j < 4; j++) {
+      uint8View[offset + j] = type.charCodeAt(j);
+    }
+    // 条目长度 (big-endian，包含 8 字节头)
+    view.setUint32(offset + 4, entrySize, false);
+    // PNG 数据
+    uint8View.set(pngData, offset + 8);
+
+    offset += entrySize;
+  }
+
+  return new Blob([icnsBuffer], { type: 'image/x-icns' });
+};
+
+/**
  * 导出所有格式到 ZIP
  * @param {SVGElement} svgElement - SVG 元素
  * @param {string} logoName - Logo 名称
  * @param {string} bgColor - 背景色
- * @param {number} iconScale - 图标占画布比例 (0-1)，默认 0.7
+ * @param {number} iconScale - 图标占画布比例 (0-1)
+ * @param {number} borderRadius - 圆角半径比例 (0-0.5)，macOS 风格约为 0.22
  */
-export const exportAllFormats = async (svgElement, logoName = 'logo', bgColor = '#0f172a', iconScale = 0.7) => {
+export const exportAllFormats = async (svgElement, logoName = 'logo', bgColor = '#0f172a', iconScale = 0.7, borderRadius = 0.22) => {
   if (!svgElement) return;
 
   const zip = new JSZip();
 
-  // SVG 原始文件 - 也使用标准化版本
-  const exportSvg = createExportSvg(svgElement, 512, bgColor, iconScale);
-  const svgData = new XMLSerializer().serializeToString(exportSvg);
-  zip.file(`${logoName}.svg`, svgData);
+  // ==================== resources/ 目录 ====================
+  // 核心资源文件，用于应用开发
 
-  // 定义所有需要的尺寸和用途
-  const sizes = {
-    // Favicon
-    'favicon/favicon-16x16.png': 16,
-    'favicon/favicon-32x32.png': 32,
-    'favicon/favicon-48x48.png': 48,
+  // SVG 矢量图（无圆角，保持原始形状）
+  const resourceSvg = createExportSvg(svgElement, 512, bgColor, iconScale, 0);
+  const resourceSvgData = new XMLSerializer().serializeToString(resourceSvg);
+  zip.file('resources/icon.svg', resourceSvgData);
 
-    // Apple Touch Icons
-    'apple/apple-touch-icon-57x57.png': 57,
-    'apple/apple-touch-icon-60x60.png': 60,
-    'apple/apple-touch-icon-72x72.png': 72,
-    'apple/apple-touch-icon-76x76.png': 76,
-    'apple/apple-touch-icon-114x114.png': 114,
-    'apple/apple-touch-icon-120x120.png': 120,
-    'apple/apple-touch-icon-144x144.png': 144,
-    'apple/apple-touch-icon-152x152.png': 152,
-    'apple/apple-touch-icon-180x180.png': 180,
+  // 高清 PNG (1024x1024，带圆角)
+  const iconPng = await svgToPngBlob(svgElement, 1024, bgColor, iconScale, borderRadius);
+  zip.file('resources/icon.png', iconPng);
 
-    // Android Chrome
-    'android/android-chrome-192x192.png': 192,
-    'android/android-chrome-512x512.png': 512,
+  // macOS ICNS 文件（带圆角）
+  const icnsBlob = await generateICNS(svgElement, bgColor, iconScale, borderRadius);
+  zip.file('resources/icon.icns', icnsBlob);
 
-    // MS Tile
-    'ms/mstile-70x70.png': 70,
-    'ms/mstile-144x144.png': 144,
-    'ms/mstile-150x150.png': 150,
-    'ms/mstile-310x150.png': { w: 310, h: 150 },
-    'ms/mstile-310x310.png': 310,
+  // Windows ICO 文件
+  const icoBlob = await generateICO(svgElement, [16, 32, 48, 256], bgColor, iconScale, borderRadius);
+  zip.file('resources/icon.ico', icoBlob);
 
-    // 通用尺寸
-    'png/logo-64x64.png': 64,
-    'png/logo-128x128.png': 128,
-    'png/logo-256x256.png': 256,
-    'png/logo-512x512.png': 512,
-    'png/logo-1024x1024.png': 1024,
-  };
+  // ==================== public/ 目录 ====================
+  // 网站公共资源
 
-  // 生成所有 PNG
-  for (const [path, size] of Object.entries(sizes)) {
-    if (typeof size === 'number') {
-      const blob = await svgToPngBlob(svgElement, size, bgColor, iconScale);
-      zip.file(path, blob);
-    } else {
-      // 特殊尺寸 (非正方形)
-      const blob = await svgToRectPngBlob(svgElement, size.w, size.h, bgColor, iconScale);
-      zip.file(path, blob);
-    }
+  // 网站用 SVG
+  zip.file('public/icon.svg', resourceSvgData);
+
+  // 品牌 Logo SVG
+  zip.file(`public/${logoName}.svg`, resourceSvgData);
+
+  // Favicon PNG (32x32，带轻微圆角)
+  const faviconPng = await svgToPngBlob(svgElement, 32, bgColor, iconScale, borderRadius * 0.5);
+  zip.file('public/favicon.png', faviconPng);
+
+  // Favicon ICO
+  const faviconIco = await generateICO(svgElement, [16, 32, 48], bgColor, iconScale, borderRadius * 0.5);
+  zip.file('public/favicon.ico', faviconIco);
+
+  // Apple Touch Icon (180x180，带圆角)
+  const appleTouchIcon = await svgToPngBlob(svgElement, 180, bgColor, iconScale, borderRadius);
+  zip.file('public/apple-touch-icon.png', appleTouchIcon);
+
+  // ==================== 各平台专用目录 ====================
+
+  // iOS 尺寸
+  const iosSizes = [20, 29, 40, 58, 60, 76, 80, 87, 120, 152, 167, 180, 1024];
+  for (const size of iosSizes) {
+    const blob = await svgToPngBlob(svgElement, size, bgColor, iconScale, 0); // iOS 系统会自动加圆角
+    zip.file(`ios/icon-${size}x${size}.png`, blob);
   }
 
-  // 生成 ICO 文件 (包含 16, 32, 48 尺寸)
-  const icoBlob = await generateICO(svgElement, [16, 32, 48], bgColor, iconScale);
-  zip.file('favicon/favicon.ico', icoBlob);
+  // Android 尺寸
+  const androidSizes = [
+    { name: 'mdpi', size: 48 },
+    { name: 'hdpi', size: 72 },
+    { name: 'xhdpi', size: 96 },
+    { name: 'xxhdpi', size: 144 },
+    { name: 'xxxhdpi', size: 192 },
+  ];
+  for (const { name, size } of androidSizes) {
+    // Android 自适应图标 - 前景层（无背景）
+    const blob = await svgToPngBlob(svgElement, size, bgColor, iconScale, 0);
+    zip.file(`android/mipmap-${name}/ic_launcher.png`, blob);
+  }
+  // Android 高清图
+  const android512 = await svgToPngBlob(svgElement, 512, bgColor, iconScale, 0);
+  zip.file('android/playstore-icon.png', android512);
 
-  // 生成 webmanifest 文件
+  // macOS 各尺寸（带圆角）
+  const macosSizes = [16, 32, 64, 128, 256, 512, 1024];
+  for (const size of macosSizes) {
+    const blob = await svgToPngBlob(svgElement, size, bgColor, iconScale, borderRadius);
+    zip.file(`macos/icon_${size}x${size}.png`, blob);
+  }
+
+  // Windows 各尺寸
+  const windowsSizes = [16, 24, 32, 48, 64, 128, 256];
+  for (const size of windowsSizes) {
+    const blob = await svgToPngBlob(svgElement, size, bgColor, iconScale, borderRadius);
+    zip.file(`windows/icon-${size}.png`, blob);
+  }
+
+  // ==================== Web 配置文件 ====================
+
+  // Web Manifest
   const manifest = {
     name: logoName,
     short_name: logoName,
     icons: [
-      { src: '/android-chrome-192x192.png', sizes: '192x192', type: 'image/png' },
-      { src: '/android-chrome-512x512.png', sizes: '512x512', type: 'image/png' }
+      { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { src: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+      { src: '/icon-maskable-192.png', sizes: '192x192', type: 'image/png', purpose: 'maskable' },
+      { src: '/icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
     ],
     theme_color: bgColor,
     background_color: bgColor,
     display: 'standalone'
   };
-  zip.file('site.webmanifest', JSON.stringify(manifest, null, 2));
+  zip.file('public/manifest.json', JSON.stringify(manifest, null, 2));
 
-  // 生成 browserconfig.xml (Windows)
+  // PWA 图标
+  const pwa192 = await svgToPngBlob(svgElement, 192, bgColor, iconScale, borderRadius);
+  const pwa512 = await svgToPngBlob(svgElement, 512, bgColor, iconScale, borderRadius);
+  zip.file('public/icon-192.png', pwa192);
+  zip.file('public/icon-512.png', pwa512);
+
+  // Maskable 图标（更小的 iconScale 确保安全区）
+  const maskable192 = await svgToPngBlob(svgElement, 192, bgColor, iconScale * 0.8, 0);
+  const maskable512 = await svgToPngBlob(svgElement, 512, bgColor, iconScale * 0.8, 0);
+  zip.file('public/icon-maskable-192.png', maskable192);
+  zip.file('public/icon-maskable-512.png', maskable512);
+
+  // browserconfig.xml (Windows)
   const browserconfig = `<?xml version="1.0" encoding="utf-8"?>
 <browserconfig>
   <msapplication>
     <tile>
-      <square70x70logo src="/mstile-70x70.png"/>
       <square150x150logo src="/mstile-150x150.png"/>
-      <square310x310logo src="/mstile-310x310.png"/>
-      <wide310x150logo src="/mstile-310x150.png"/>
       <TileColor>${bgColor}</TileColor>
     </tile>
   </msapplication>
 </browserconfig>`;
-  zip.file('ms/browserconfig.xml', browserconfig);
+  zip.file('public/browserconfig.xml', browserconfig);
 
-  // 生成 HTML 使用说明
-  const readme = `# Logo 资源使用说明
+  // MS Tile
+  const mstile = await svgToPngBlob(svgElement, 150, bgColor, iconScale, 0);
+  zip.file('public/mstile-150x150.png', mstile);
 
-## 文件结构
+  // ==================== README ====================
+  const readme = `# ${logoName} 图标资源包
 
-- \`${logoName}.svg\` - 原始 SVG 矢量文件
-- \`favicon/\` - 网站 favicon 图标
-- \`apple/\` - Apple 设备图标
-- \`android/\` - Android 设备图标
-- \`ms/\` - Windows 磁贴图标
-- \`png/\` - 通用 PNG 尺寸
+## 目录结构
 
-## HTML 引用代码
+\`\`\`
+├── resources/          # 核心资源
+│   ├── icon.svg        # 矢量图标
+│   ├── icon.png        # 高清 PNG (1024x1024)
+│   ├── icon.icns       # macOS 应用图标
+│   └── icon.ico        # Windows 应用图标
+│
+├── public/             # 网站公共资源
+│   ├── icon.svg        # 网站图标
+│   ├── ${logoName}.svg # 品牌 Logo
+│   ├── favicon.png     # Favicon
+│   ├── favicon.ico     # Favicon ICO
+│   ├── apple-touch-icon.png  # iOS 主屏图标
+│   ├── icon-192.png    # PWA 图标
+│   ├── icon-512.png    # PWA 图标
+│   ├── manifest.json   # Web App Manifest
+│   └── browserconfig.xml
+│
+├── ios/                # iOS App 图标
+├── android/            # Android App 图标
+├── macos/              # macOS 各尺寸 PNG
+└── windows/            # Windows 各尺寸 PNG
+\`\`\`
 
+## 快速使用
+
+### HTML 引用
 \`\`\`html
-<!-- Favicon -->
-<link rel="icon" type="image/x-icon" href="/favicon.ico">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-
-<!-- Apple Touch Icon -->
-<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">
-
-<!-- Android -->
-<link rel="manifest" href="/site.webmanifest">
-
-<!-- Windows -->
-<meta name="msapplication-TileColor" content="${bgColor}">
-<meta name="msapplication-config" content="/browserconfig.xml">
-
-<!-- Theme Color -->
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="${bgColor}">
 \`\`\`
 
-## 各平台推荐尺寸
+### Electron / Tauri
+- macOS: 使用 \`resources/icon.icns\`
+- Windows: 使用 \`resources/icon.ico\`
+- Linux: 使用 \`resources/icon.png\`
 
-### Favicon
-- 16x16, 32x32, 48x48 (ICO 文件包含全部)
+### iOS / Android
+将对应目录下的图标文件复制到项目中
 
-### Apple iOS
-- 180x180 (推荐), 152x152, 144x144, 120x120, 114x114, 76x76, 72x72, 60x60, 57x57
-
-### Android
-- 192x192, 512x512
-
-### Windows
-- 70x70, 144x144, 150x150, 310x150, 310x310
+---
+导出时间: ${new Date().toLocaleString('zh-CN')}
 `;
   zip.file('README.md', readme);
 
@@ -378,7 +511,7 @@ export const exportAllFormats = async (svgElement, logoName = 'logo', bgColor = 
 
   const link = document.createElement('a');
   link.href = url;
-  link.download = `${logoName}-assets.zip`;
+  link.download = `${logoName}-icons.zip`;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
@@ -390,7 +523,6 @@ export const exportAllFormats = async (svgElement, logoName = 'logo', bgColor = 
  */
 const svgToRectPngBlob = (svgElement, width, height, bgColor = null, iconScale = 0.7) => {
   return new Promise((resolve) => {
-    // 先创建一个正方形的标准化 SVG（使用较小边作为基准）
     const baseSize = Math.min(width, height);
     const exportSvg = createExportSvg(svgElement, baseSize, bgColor, iconScale);
     const svgData = new XMLSerializer().serializeToString(exportSvg);
@@ -405,13 +537,11 @@ const svgToRectPngBlob = (svgElement, width, height, bgColor = null, iconScale =
 
       const ctx = canvas.getContext('2d');
 
-      // 填充背景
       if (bgColor) {
         ctx.fillStyle = bgColor;
         ctx.fillRect(0, 0, width, height);
       }
 
-      // 居中绘制 (保持宽高比)
       const x = (width - baseSize) / 2;
       const y = (height - baseSize) / 2;
       ctx.drawImage(img, x, y, baseSize, baseSize);
@@ -424,4 +554,42 @@ const svgToRectPngBlob = (svgElement, width, height, bgColor = null, iconScale =
 
     img.src = url;
   });
+};
+
+/**
+ * 单独导出 SVG
+ */
+export const exportSvg = (svgElement, logoName = 'logo', bgColor = '#0f172a', iconScale = 0.7) => {
+  if (!svgElement) return;
+
+  const exportSvg = createExportSvg(svgElement, 512, bgColor, iconScale, 0);
+  const svgData = new XMLSerializer().serializeToString(exportSvg);
+  const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `${logoName}.svg`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+};
+
+/**
+ * 单独导出 PNG
+ */
+export const exportPng = async (svgElement, logoName = 'logo', bgColor = '#0f172a', iconScale = 0.7, size = 1024, borderRadius = 0) => {
+  if (!svgElement) return;
+
+  const blob = await svgToPngBlob(svgElement, size, bgColor, iconScale, borderRadius);
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `${logoName}.png`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 };

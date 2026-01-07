@@ -6,9 +6,17 @@ const PREVIEW_SIZES = [
   { size: 16, label: '16', desc: 'Favicon' },
   { size: 32, label: '32', desc: 'Favicon' },
   { size: 64, label: '64', desc: 'Icon' },
-  { size: 128, label: '128', desc: 'Icon' },
-  { size: 180, label: '180', desc: 'Apple Touch' },
-  { size: 512, label: '512', desc: 'Android/PWA' },
+  { size: 128, label: '128', desc: 'macOS' },
+  { size: 180, label: '180', desc: 'Apple' },
+  { size: 512, label: '512', desc: 'App' },
+];
+
+// 圆角预设
+const RADIUS_PRESETS = [
+  { value: 0, label: '无', desc: '方形' },
+  { value: 0.1, label: '小', desc: '10%' },
+  { value: 0.22, label: 'macOS', desc: '22%' },
+  { value: 0.5, label: '圆', desc: '50%' },
 ];
 
 const PreviewToolbar = ({
@@ -17,11 +25,12 @@ const PreviewToolbar = ({
   bgColor = '#0f172a',
   setBgColor,
   iconScale = 0.7,
-  setIconScale
+  setIconScale,
+  borderRadius = 0.22,
+  setBorderRadius
 }) => {
   const [exporting, setExporting] = useState(false);
   const [previews, setPreviews] = useState([]);
-  const canvasRefs = useRef([]);
 
   // 生成预览图
   useEffect(() => {
@@ -34,7 +43,7 @@ const PreviewToolbar = ({
       for (const { size } of PREVIEW_SIZES) {
         try {
           const canvas = document.createElement('canvas');
-          const displaySize = Math.min(size, 64); // 预览最大 64px
+          const displaySize = Math.min(size, 64);
           canvas.width = displaySize;
           canvas.height = displaySize;
 
@@ -73,12 +82,39 @@ const PreviewToolbar = ({
           exportSvg.setAttribute('height', displaySize);
           exportSvg.setAttribute('viewBox', `0 0 ${displaySize} ${displaySize}`);
 
+          // 圆角裁剪
+          if (borderRadius > 0) {
+            const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+            const clipPath = document.createElementNS('http://www.w3.org/2000/svg', 'clipPath');
+            clipPath.setAttribute('id', 'preview-clip');
+            const clipRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            const radius = displaySize * borderRadius;
+            clipRect.setAttribute('width', displaySize);
+            clipRect.setAttribute('height', displaySize);
+            clipRect.setAttribute('rx', radius);
+            clipRect.setAttribute('ry', radius);
+            clipPath.appendChild(clipRect);
+            defs.appendChild(clipPath);
+            exportSvg.appendChild(defs);
+          }
+
+          // 主内容组
+          const mainGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+          if (borderRadius > 0) {
+            mainGroup.setAttribute('clip-path', 'url(#preview-clip)');
+          }
+
           // 背景
           const bgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
           bgRect.setAttribute('width', displaySize);
           bgRect.setAttribute('height', displaySize);
           bgRect.setAttribute('fill', bgColor);
-          exportSvg.appendChild(bgRect);
+          if (borderRadius > 0) {
+            const radius = displaySize * borderRadius;
+            bgRect.setAttribute('rx', radius);
+            bgRect.setAttribute('ry', radius);
+          }
+          mainGroup.appendChild(bgRect);
 
           // 计算缩放
           const targetIconSize = displaySize * iconScale;
@@ -89,9 +125,16 @@ const PreviewToolbar = ({
           const offsetY = (displaySize - scaledHeight) / 2 - minY * scaleRatio;
 
           // 复制 defs
-          const defs = svg.querySelector('defs');
-          if (defs) {
-            exportSvg.appendChild(defs.cloneNode(true));
+          const originalDefs = svg.querySelector('defs');
+          if (originalDefs) {
+            let existingDefs = exportSvg.querySelector('defs');
+            if (!existingDefs) {
+              existingDefs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+              exportSvg.insertBefore(existingDefs, exportSvg.firstChild);
+            }
+            Array.from(originalDefs.children).forEach(child => {
+              existingDefs.appendChild(child.cloneNode(true));
+            });
           }
 
           // 内容组
@@ -104,7 +147,8 @@ const PreviewToolbar = ({
             }
           });
 
-          exportSvg.appendChild(contentGroup);
+          mainGroup.appendChild(contentGroup);
+          exportSvg.appendChild(mainGroup);
 
           // 转为图片
           const svgData = new XMLSerializer().serializeToString(exportSvg);
@@ -114,8 +158,6 @@ const PreviewToolbar = ({
           const img = new Image();
           await new Promise((resolve) => {
             img.onload = () => {
-              ctx.fillStyle = bgColor;
-              ctx.fillRect(0, 0, displaySize, displaySize);
               ctx.drawImage(img, 0, 0, displaySize, displaySize);
               URL.revokeObjectURL(url);
               resolve();
@@ -132,10 +174,9 @@ const PreviewToolbar = ({
       setPreviews(newPreviews);
     };
 
-    // 延迟执行避免频繁更新
     const timer = setTimeout(generatePreviews, 100);
     return () => clearTimeout(timer);
-  }, [svgRef, bgColor, iconScale]);
+  }, [svgRef, bgColor, iconScale, borderRadius]);
 
   const handleExport = async () => {
     const svg = svgRef?.current?.querySelector('svg');
@@ -143,7 +184,7 @@ const PreviewToolbar = ({
 
     setExporting(true);
     try {
-      await exportAllFormats(svg, logoName, bgColor, iconScale);
+      await exportAllFormats(svg, logoName, bgColor, iconScale, borderRadius);
     } finally {
       setExporting(false);
     }
@@ -153,33 +194,33 @@ const PreviewToolbar = ({
     <div className="flex flex-col gap-2">
       {/* 工具栏 */}
       <div className="flex items-center justify-between px-4 py-2 bg-[#f8f8f8] rounded-xl">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           {/* 背景色控制 */}
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <span className="text-xs text-slate-500 whitespace-nowrap">背景</span>
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            <span className="text-[10px] text-slate-400 whitespace-nowrap">背景</span>
             <input
               type="color"
               value={bgColor}
               onChange={(e) => setBgColor(e.target.value)}
-              className="w-6 h-6 rounded cursor-pointer border-0"
+              className="w-5 h-5 rounded cursor-pointer border-0"
             />
             <button
               onClick={() => setBgColor('#000000')}
-              className="w-5 h-5 rounded bg-black border border-slate-300 hover:ring-2 hover:ring-slate-400 transition-all"
+              className="w-4 h-4 rounded bg-black border border-slate-300 hover:ring-1 hover:ring-slate-400 transition-all"
               title="黑色"
             />
             <button
               onClick={() => setBgColor('#ffffff')}
-              className="w-5 h-5 rounded bg-white border border-slate-300 hover:ring-2 hover:ring-slate-400 transition-all"
+              className="w-4 h-4 rounded bg-white border border-slate-300 hover:ring-1 hover:ring-slate-400 transition-all"
               title="白色"
             />
           </div>
 
-          <div className="w-px h-4 bg-slate-300" />
+          <div className="w-px h-4 bg-slate-200" />
 
-          {/* 导出图标占比控制 */}
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <span className="text-xs text-slate-500 whitespace-nowrap">占比</span>
+          {/* 图标占比控制 */}
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            <span className="text-[10px] text-slate-400 whitespace-nowrap">占比</span>
             <input
               type="range"
               min="0.5"
@@ -187,9 +228,32 @@ const PreviewToolbar = ({
               step="0.05"
               value={iconScale}
               onChange={(e) => setIconScale(parseFloat(e.target.value))}
-              className="w-16 accent-slate-600"
+              className="w-12 accent-slate-500"
             />
-            <span className="text-xs text-slate-500 w-8">{Math.round(iconScale * 100)}%</span>
+            <span className="text-[10px] text-slate-500 w-6">{Math.round(iconScale * 100)}%</span>
+          </div>
+
+          <div className="w-px h-4 bg-slate-200" />
+
+          {/* 圆角控制 */}
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            <span className="text-[10px] text-slate-400 whitespace-nowrap">圆角</span>
+            <div className="flex gap-0.5">
+              {RADIUS_PRESETS.map((preset) => (
+                <button
+                  key={preset.value}
+                  onClick={() => setBorderRadius(preset.value)}
+                  className={`px-1.5 py-0.5 text-[10px] rounded transition-all ${
+                    borderRadius === preset.value
+                      ? 'bg-slate-700 text-white'
+                      : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
+                  }`}
+                  title={preset.desc}
+                >
+                  {preset.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -197,11 +261,11 @@ const PreviewToolbar = ({
         <button
           onClick={handleExport}
           disabled={exporting}
-          className="px-4 py-1.5 text-xs font-medium bg-slate-800 text-white rounded-lg hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+          className="px-3 py-1.5 text-xs font-medium bg-slate-800 text-white rounded-lg hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-1.5"
         >
           {exporting ? (
             <>
-              <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+              <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
               </svg>
@@ -209,10 +273,10 @@ const PreviewToolbar = ({
             </>
           ) : (
             <>
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
-              <span>下载全部资源</span>
+              <span>下载资源包</span>
             </>
           )}
         </button>
@@ -225,10 +289,11 @@ const PreviewToolbar = ({
           {PREVIEW_SIZES.map((item, index) => (
             <div key={item.size} className="flex flex-col items-center gap-1">
               <div
-                className="rounded overflow-hidden flex-shrink-0 bg-slate-200"
+                className="flex-shrink-0 bg-slate-200 overflow-hidden"
                 style={{
                   width: Math.min(item.size, 48),
                   height: Math.min(item.size, 48),
+                  borderRadius: borderRadius > 0 ? `${borderRadius * Math.min(item.size, 48)}px` : '4px',
                 }}
               >
                 {previews[index] && (
@@ -243,6 +308,13 @@ const PreviewToolbar = ({
               <span className="text-[9px] text-slate-400">{item.label}</span>
             </div>
           ))}
+        </div>
+        {/* 导出格式提示 */}
+        <div className="flex-shrink-0 ml-auto flex items-center gap-1.5 text-[10px] text-slate-400">
+          <span className="px-1.5 py-0.5 bg-slate-200 rounded">SVG</span>
+          <span className="px-1.5 py-0.5 bg-slate-200 rounded">PNG</span>
+          <span className="px-1.5 py-0.5 bg-slate-200 rounded">ICO</span>
+          <span className="px-1.5 py-0.5 bg-slate-200 rounded">ICNS</span>
         </div>
       </div>
     </div>

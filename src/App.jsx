@@ -7,6 +7,7 @@ import ContentEditor from './components/ContentEditor';
 import PlatformPreview from './components/PlatformPreview';
 import NavSidebar from './components/NavSidebar';
 import ProductManager from './components/ProductManager';
+import GeometricLogoGenerator from './components/GeometricLogoGenerator';
 import { useAIAdapter } from './hooks/useAIAdapter';
 import { DEFAULT_BRAND_PROMPT, platforms } from './config/platforms';
 
@@ -183,10 +184,13 @@ Suzhou Embroidery, Chinese Art, Silk Art, Handmade, Traditional Craft, Embroider
               </div>
             </div>
           </div>
-        ) : (
+        ) : activeModule === 'products' ? (
           // 产品中心模块
           <ProductManager />
-        )}
+        ) : activeModule === 'logo' ? (
+          // Logo 生成器模块
+          <GeometricLogoGenerator />
+        ) : null}
       </div>
     </div>
   );

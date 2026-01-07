@@ -1,6 +1,8 @@
 import { useState, useRef } from 'react';
 import { productsApi } from '../lib/supabase';
 import { uploadImages } from '../lib/r2';
+import SOPProgress from './SOPProgress';
+import SOPConfigPanel from './SOPConfigPanel';
 
 function ProductManager() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -39,6 +41,52 @@ function ProductManager() {
         [name]: type === 'checkbox' ? checked : value
       }));
     }
+  };
+
+  // SOP 配置相关状态
+  const [activeConfigStep, setActiveConfigStep] = useState(null);
+  const [sopConfig, setSopConfig] = useState({
+    schema: { parsedFields: ['id', 'title', 'description', 'price', 'images', 'category', 'stock'] },
+    supabase: {
+      projectUrl: import.meta.env.VITE_SUPABASE_URL || '',
+      anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY || '',
+      tableName: 'products'
+    },
+    storage: {
+      accountId: import.meta.env.VITE_R2_ACCOUNT_ID || '',
+      accessKeyId: import.meta.env.VITE_R2_ACCESS_KEY_ID || '',
+      secretAccessKey: import.meta.env.VITE_R2_SECRET_ACCESS_KEY || '',
+      bucketName: import.meta.env.VITE_R2_BUCKET_NAME || '',
+      publicUrl: import.meta.env.VITE_R2_PUBLIC_URL || ''
+    },
+    fields: {},
+    ready: {},
+  });
+
+  // SOP 配置流程步骤
+  const sopSteps = [
+    { key: 'schema', label: '导入Schema' },
+    { key: 'supabase', label: '配置Supabase' },
+    { key: 'storage', label: '配置R2存储' },
+    { key: 'fields', label: '字段映射' },
+    { key: 'ready', label: '开始使用' },
+  ];
+
+  // TODO: 从配置状态读取，目前硬编码为已完成前3步
+  const currentStep = 'fields';
+  const completedSteps = ['schema', 'supabase', 'storage'];
+
+  // 点击步骤显示配置详情
+  const handleStepClick = (stepKey) => {
+    setActiveConfigStep(stepKey);
+  };
+
+  // 保存配置
+  const handleSaveConfig = (stepKey, config) => {
+    setSopConfig(prev => ({
+      ...prev,
+      [stepKey]: config
+    }));
   };
 
   // 选择文件 - 只做本地预览，不上传
@@ -179,32 +227,54 @@ function ProductManager() {
   };
 
   return (
-    <div className="h-full bg-white rounded-2xl flex flex-col overflow-hidden">
-      {/* Header */}
-      <div className="flex-shrink-0 flex items-center justify-between p-5 border-b border-slate-100">
-        <div>
-          <h2 className="text-base font-semibold text-slate-800">添加产品</h2>
-          <p className="text-xs text-slate-400 mt-0.5">填写产品信息并保存到数据库</p>
-        </div>
-        {message && (
-          <div className={`px-4 py-2 rounded-xl text-sm ${
-            message.type === 'success' ? 'bg-green-50 text-green-700' :
-            message.type === 'error' ? 'bg-red-50 text-red-600' :
-            'bg-slate-100 text-slate-600'
-          }`}>
-            {message.type === 'info' && (
-              <svg className="w-4 h-4 inline mr-1.5 animate-spin" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-              </svg>
-            )}
-            {message.text}
-          </div>
-        )}
+    <div className="h-full flex flex-col gap-4 overflow-hidden">
+      {/* SOP 流程进度卡片 */}
+      <div className="flex-shrink-0 bg-white rounded-2xl px-6 py-4">
+        <SOPProgress
+          steps={sopSteps}
+          currentStep={currentStep}
+          completedSteps={completedSteps}
+          onStepClick={handleStepClick}
+        />
       </div>
 
-      {/* Form */}
-      <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-5">
+      {/* SOP 配置详情弹窗 */}
+      {activeConfigStep && (
+        <SOPConfigPanel
+          stepKey={activeConfigStep}
+          config={sopConfig[activeConfigStep]}
+          onClose={() => setActiveConfigStep(null)}
+          onSave={handleSaveConfig}
+        />
+      )}
+
+      {/* 表单卡片 */}
+      <div className="flex-1 bg-white rounded-2xl flex flex-col overflow-hidden min-h-0">
+        {/* Header */}
+        <div className="flex-shrink-0 flex items-center justify-between p-5 border-b border-slate-100">
+          <div>
+            <h2 className="text-base font-semibold text-slate-800">添加产品</h2>
+            <p className="text-xs text-slate-400 mt-0.5">填写产品信息并保存到数据库</p>
+          </div>
+          {message && (
+            <div className={`px-4 py-2 rounded-xl text-sm ${
+              message.type === 'success' ? 'bg-green-50 text-green-700' :
+              message.type === 'error' ? 'bg-red-50 text-red-600' :
+              'bg-slate-100 text-slate-600'
+            }`}>
+              {message.type === 'info' && (
+                <svg className="w-4 h-4 inline mr-1.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+              )}
+              {message.text}
+            </div>
+          )}
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-5">
         <div className="grid grid-cols-2 gap-8 h-full">
           {/* 左列：基本信息 */}
           <div className="space-y-5">
@@ -462,7 +532,8 @@ function ProductManager() {
             </button>
           </div>
         </div>
-      </form>
+        </form>
+      </div>
     </div>
   );
 }

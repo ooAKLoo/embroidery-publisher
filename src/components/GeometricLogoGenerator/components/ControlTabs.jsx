@@ -94,7 +94,7 @@ const ControlTabs = ({
                     <button
                       onClick={() => setAutoRotate(!autoRotate)}
                       className={`relative w-11 h-6 rounded-full transition-colors ${
-                        autoRotate ? 'bg-purple-600' : 'bg-slate-300'
+                        autoRotate ? 'bg-slate-700' : 'bg-slate-300'
                       }`}
                     >
                       <span

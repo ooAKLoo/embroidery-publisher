@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { LOGO_TYPES } from '../constants/logoTypes';
 
-const CategoryNav = ({ activeType, onSelect }) => {
+const CategoryNav = ({ activeType, onSelect, colors, strokeWidth, bgColor }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [collapsedCategories, setCollapsedCategories] = useState({});
 
@@ -43,7 +43,7 @@ const CategoryNav = ({ activeType, onSelect }) => {
   };
 
   return (
-    <nav className="w-52 flex-shrink-0 bg-slate-50 rounded-2xl p-4 mr-4 flex flex-col overflow-hidden">
+    <nav className="w-64 flex-shrink-0 bg-[#f8f8f8] rounded-2xl p-4 flex flex-col overflow-hidden">
       {/* 搜索框 */}
       <div className="relative mb-4">
         <svg 
@@ -74,7 +74,7 @@ const CategoryNav = ({ activeType, onSelect }) => {
       </div>
 
       {/* 分类列表 */}
-      <div className="flex-1 overflow-y-auto space-y-2">
+      <div className="flex-1 overflow-y-auto space-y-2 [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
         {categories.map(cat => {
           const types = groupedTypes[cat];
           const isCollapsed = collapsedCategories[cat];
@@ -89,45 +89,55 @@ const CategoryNav = ({ activeType, onSelect }) => {
               <button
                 onClick={() => toggleCategory(cat)}
                 className={`w-full flex items-center justify-between px-2 py-1.5 rounded-lg transition-colors ${
-                  hasActiveType ? 'bg-purple-50' : 'hover:bg-slate-100'
+                  hasActiveType ? 'bg-slate-100' : 'hover:bg-slate-100'
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  <svg 
-                    className={`w-3 h-3 text-slate-400 transition-transform ${isCollapsed ? '' : 'rotate-90'}`} 
-                    fill="none" 
-                    stroke="currentColor" 
+                  <svg
+                    className={`w-3 h-3 text-slate-400 transition-transform ${isCollapsed ? '' : 'rotate-90'}`}
+                    fill="none"
+                    stroke="currentColor"
                     viewBox="0 0 24 24"
                   >
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                   <span className={`text-[11px] font-semibold uppercase tracking-wider ${
-                    hasActiveType ? 'text-purple-600' : 'text-slate-500'
+                    hasActiveType ? 'text-slate-700' : 'text-slate-500'
                   }`}>
                     {cat}
                   </span>
                 </div>
                 <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-                  hasActiveType ? 'bg-purple-100 text-purple-600' : 'bg-slate-200 text-slate-500'
+                  hasActiveType ? 'bg-slate-200 text-slate-600' : 'bg-slate-200 text-slate-500'
                 }`}>
                   {getCategoryCount(cat)}
                 </span>
               </button>
 
-              {/* 类型列表 */}
+              {/* 类型列表 - 带缩略图 */}
               {!isCollapsed && (
                 <div className="mt-1 ml-2 space-y-0.5">
                   {types.map(t => (
                     <button
                       key={t.id}
                       onClick={() => onSelect(t.id)}
-                      className={`w-full text-left px-3 py-2 text-xs rounded-lg transition-all ${
+                      className={`w-full flex items-center gap-2 px-2 py-1.5 text-xs rounded-lg transition-all ${
                         activeType === t.id
-                          ? 'bg-slate-900 text-white font-medium'
-                          : 'text-slate-600 hover:bg-slate-200'
+                          ? 'bg-slate-200 text-slate-800 font-medium'
+                          : 'text-slate-600 hover:bg-slate-100'
                       }`}
                     >
-                      {t.name}
+                      <div
+                        className="w-6 h-6 rounded flex-shrink-0 overflow-hidden"
+                        style={{ backgroundColor: bgColor }}
+                      >
+                        <t.Component
+                          {...t.defaultProps}
+                          colors={colors}
+                          strokeWidth={Math.min(strokeWidth, 1.5)}
+                        />
+                      </div>
+                      <span className="truncate">{t.name}</span>
                     </button>
                   ))}
                 </div>

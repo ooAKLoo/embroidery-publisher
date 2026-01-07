@@ -136,48 +136,15 @@ const StylePanel = ({ colors, setColors, strokeWidth, setStrokeWidth, bgColor, s
       {/* 线条粗细 */}
       <div>
         <label className="block text-xs font-medium text-slate-600 mb-2">线条粗细: {strokeWidth}</label>
-        <input 
-          type="range" 
-          min="0.5" 
-          max="5" 
-          step="0.5" 
-          value={strokeWidth} 
-          onChange={(e) => setStrokeWidth(parseFloat(e.target.value))} 
-          className="w-full accent-slate-900" 
+        <input
+          type="range"
+          min="0.5"
+          max="5"
+          step="0.5"
+          value={strokeWidth}
+          onChange={(e) => setStrokeWidth(parseFloat(e.target.value))}
+          className="w-full accent-slate-900"
         />
-      </div>
-
-      {/* 背景颜色 */}
-      <div>
-        <label className="block text-xs font-medium text-slate-600 mb-2">背景颜色</label>
-        <div className="flex items-center gap-2">
-          <input
-            type="color"
-            value={bgColor}
-            onChange={(e) => setBgColor(e.target.value)}
-            className="w-8 h-8 flex-shrink-0 rounded cursor-pointer border-0"
-          />
-          <input
-            type="text"
-            value={bgColor}
-            onChange={(e) => setBgColor(e.target.value)}
-            className="flex-1 min-w-0 px-2 py-1.5 bg-slate-100 rounded-lg text-xs font-mono"
-          />
-          <button
-            onClick={() => setBgColor('#0f172a')}
-            className="flex-shrink-0 px-2 py-1.5 text-[10px] bg-slate-800 text-white rounded-lg"
-            title="深色"
-          >
-            深
-          </button>
-          <button
-            onClick={() => setBgColor('#f1f5f9')}
-            className="flex-shrink-0 px-2 py-1.5 text-[10px] bg-slate-200 text-slate-700 rounded-lg"
-            title="浅色"
-          >
-            浅
-          </button>
-        </div>
       </div>
     </div>
   );

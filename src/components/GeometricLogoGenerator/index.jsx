@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { LOGO_TYPES, getLogoType } from './constants/logoTypes';
 import CategoryNav from './components/CategoryNav';
 import PreviewToolbar from './components/PreviewToolbar';
@@ -10,11 +10,16 @@ export default function GeometricLogoGenerator() {
   const [globalStrokeWidth, setGlobalStrokeWidth] = useState(2.5);
   const [bgColor, setBgColor] = useState('#0f172a');
   const [autoRotate, setAutoRotate] = useState(false);
-  const [zoom, setZoom] = useState(100);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  
+  const [iconScale, setIconScale] = useState(0.7); // 导出时图标占画布比例
+
   const previewRef = useRef(null);
-  const fullscreenRef = useRef(null);
+  const previewAreaRef = useRef(null);
+
+  // 缩放状态：zoom 用于实际渲染尺寸，保证 SVG 清晰
+  const [zoom, setZoom] = useState(100);
+  const zoomRef = useRef(100); // 用于手势过程中的临时值
+  const renderZoomRef = useRef(100); // 当前已渲染的 zoom 值
+  const zoomUpdateTimeoutRef = useRef(null);
 
   // 动态参数状态
   const [params, setParams] = useState(() => {
@@ -38,22 +43,53 @@ export default function GeometricLogoGenerator() {
     return () => clearInterval(interval);
   }, [autoRotate, activeType]);
 
-  // 全屏快捷键
+  // Figma 风格缩放：手势过程中用 transform 实现流畅动画，停止后用真实尺寸渲染保证清晰
   useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape' && isFullscreen) {
-        setIsFullscreen(false);
-      }
-      if (e.key === 'f' && !e.ctrlKey && !e.metaKey) {
-        const active = document.activeElement;
-        if (active.tagName !== 'INPUT' && active.tagName !== 'TEXTAREA') {
-          setIsFullscreen(prev => !prev);
+    const el = previewAreaRef.current;
+    if (!el) return;
+
+    const wheelHandler = (e) => {
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        // 使用指数缩放，体验更自然
+        const zoomFactor = 1 - e.deltaY * 0.003;
+        const newZoom = Math.min(400, Math.max(25, zoomRef.current * zoomFactor));
+        zoomRef.current = newZoom;
+
+        // 手势过程中：用 transform 实现即时视觉反馈（基于已渲染尺寸的相对缩放）
+        if (previewRef.current) {
+          const relativeScale = newZoom / renderZoomRef.current;
+          previewRef.current.style.transform = `scale(${relativeScale})`;
         }
+
+        // 防抖：停止滚动后更新真实渲染尺寸（SVG 会重新按新尺寸渲染，保证清晰）
+        if (zoomUpdateTimeoutRef.current) {
+          clearTimeout(zoomUpdateTimeoutRef.current);
+        }
+        zoomUpdateTimeoutRef.current = setTimeout(() => {
+          const finalZoom = Math.round(zoomRef.current);
+          renderZoomRef.current = finalZoom;
+          // 重置 transform，因为新尺寸会直接应用到容器
+          if (previewRef.current) {
+            previewRef.current.style.transform = 'scale(1)';
+          }
+          setZoom(finalZoom);
+        }, 150); // 停止滚动 150ms 后重新渲染
       }
     };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isFullscreen]);
+
+    // passive: false 是关键，否则 preventDefault 在现代浏览器中不生效
+    el.addEventListener('wheel', wheelHandler, { passive: false });
+
+    return () => {
+      el.removeEventListener('wheel', wheelHandler);
+      if (zoomUpdateTimeoutRef.current) {
+        clearTimeout(zoomUpdateTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const activeConfig = getLogoType(activeType);
 
@@ -67,81 +103,86 @@ export default function GeometricLogoGenerator() {
     }
   };
 
-  // 计算预览尺寸
-  const previewSize = Math.round(320 * (zoom / 100));
+  // 重置缩放
+  const resetZoom = useCallback(() => {
+    zoomRef.current = 100;
+    renderZoomRef.current = 100;
+    if (previewRef.current) {
+      previewRef.current.style.transform = 'scale(1)';
+    }
+    setZoom(100);
+  }, []);
+
+  // 计算预览尺寸：基于 zoom 值动态计算，保证 SVG 始终清晰渲染
+  const baseSize = 320;
+  const previewSize = Math.round(baseSize * (zoom / 100));
 
   return (
-    <>
-      <div className="h-full bg-white rounded-2xl p-5 overflow-hidden flex flex-col">
-        {/* 顶部标题栏 */}
-        <div className="flex items-center justify-between mb-4 flex-shrink-0">
-          <div>
-            <h1 className="text-lg font-semibold text-slate-800">几何 Logo 生成器</h1>
-            <p className="text-xs text-slate-400 mt-0.5">选择图形样式，调整参数，导出你的设计</p>
+    <div className="h-full bg-white rounded-2xl p-5 overflow-hidden flex flex-col">
+      {/* 顶部标题栏 */}
+      <div className="flex items-center justify-between mb-4 flex-shrink-0">
+        <div>
+          <h1 className="text-lg font-semibold text-slate-800">几何 Logo 生成器</h1>
+          <p className="text-xs text-slate-400 mt-0.5">选择图形样式，调整参数，导出你的设计</p>
+        </div>
+      </div>
+
+      <div className="flex flex-1 min-h-0 overflow-hidden gap-4">
+        {/* 左侧：分类导航 */}
+        <CategoryNav
+          activeType={activeType}
+          onSelect={setActiveType}
+          colors={globalColors}
+          strokeWidth={globalStrokeWidth}
+          bgColor={bgColor}
+        />
+
+        {/* 中间：预览区 */}
+        <div className="flex-1 flex flex-col min-w-0 gap-3">
+          {/* 主预览区 */}
+          <div
+            ref={previewAreaRef}
+            className="rounded-2xl flex-1 flex items-center justify-center relative overflow-hidden"
+            style={{ backgroundColor: bgColor }}
+          >
+            {/* Logo 预览 - 真实尺寸渲染保证清晰，手势过程用 transform 过渡 */}
+            <div
+              ref={previewRef}
+              className="relative z-10"
+              style={{
+                width: previewSize,
+                height: previewSize,
+                willChange: 'transform',
+                transformOrigin: 'center center',
+              }}
+            >
+              {activeConfig && <activeConfig.Component {...params[activeType]} colors={globalColors} strokeWidth={globalStrokeWidth} />}
+            </div>
+            {/* 缩放提示 - 点击可重置 */}
+            {zoom !== 100 && (
+              <button
+                onClick={resetZoom}
+                className="absolute bottom-3 right-3 px-2 py-1 bg-black/50 hover:bg-black/70 text-white text-xs rounded-lg transition-colors cursor-pointer"
+                title="点击重置缩放"
+              >
+                {zoom}%
+              </button>
+            )}
           </div>
-          <div className="flex items-center gap-2 text-xs text-slate-400">
-            <kbd className="px-1.5 py-0.5 bg-slate-100 rounded text-[10px]">F</kbd>
-            <span>全屏</span>
-          </div>
+
+          {/* 工具栏 */}
+          <PreviewToolbar
+            svgRef={previewRef}
+            logoName={activeConfig?.name || 'logo'}
+            bgColor={bgColor}
+            setBgColor={setBgColor}
+            iconScale={iconScale}
+            setIconScale={setIconScale}
+          />
         </div>
 
-        <div className="flex flex-1 min-h-0 overflow-hidden gap-4">
-          {/* 左侧：分类导航 */}
-          <CategoryNav activeType={activeType} onSelect={setActiveType} />
-
-          {/* 中间：预览区 */}
-          <div className="flex-1 flex flex-col min-w-0 gap-3">
-            {/* 主预览区 */}
-            <div
-              className="rounded-2xl flex-1 flex items-center justify-center relative overflow-hidden"
-              style={{ backgroundColor: bgColor }}
-            >
-              {/* Logo 预览 */}
-              <div 
-                ref={previewRef}
-                className="relative z-10 transition-all duration-200"
-                style={{ width: previewSize, height: previewSize }}
-              >
-                {activeConfig && <activeConfig.Component {...params[activeType]} colors={globalColors} strokeWidth={globalStrokeWidth} />}
-              </div>
-            </div>
-            
-            {/* 工具栏 */}
-            <PreviewToolbar
-              zoom={zoom}
-              setZoom={setZoom}
-              onFullscreen={() => setIsFullscreen(true)}
-              svgRef={previewRef}
-              logoName={activeConfig?.name || 'logo'}
-              bgColor={bgColor}
-            />
-            
-            {/* 快速预览缩略图 */}
-            <div className="flex-shrink-0">
-              <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin">
-                {LOGO_TYPES.slice(0, 12).map(t => (
-                  <button
-                    key={t.id}
-                    onClick={() => setActiveType(t.id)}
-                    className={`rounded-lg p-2 flex-shrink-0 transition-all ${activeType === t.id ? 'ring-2 ring-purple-500 scale-105' : 'hover:ring-2 hover:ring-slate-400'}`}
-                    style={{ backgroundColor: bgColor }}
-                  >
-                    <div className="w-10 h-10">
-                      <t.Component {...t.defaultProps} colors={globalColors} strokeWidth={Math.min(globalStrokeWidth, 1.5)} />
-                    </div>
-                  </button>
-                ))}
-                {LOGO_TYPES.length > 12 && (
-                  <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center text-xs text-slate-400">
-                    +{LOGO_TYPES.length - 12}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
           {/* 右侧：控制面板 */}
-          <div className="w-72 flex-shrink-0 bg-slate-50 rounded-2xl p-4 overflow-hidden">
+          <div className="w-72 flex-shrink-0 bg-[#f8f8f8] rounded-2xl p-4 overflow-hidden">
             <ControlTabs
               colors={globalColors}
               setColors={setGlobalColors}
@@ -160,40 +201,5 @@ export default function GeometricLogoGenerator() {
           </div>
         </div>
       </div>
-
-      {/* 全屏预览模态框 */}
-      {isFullscreen && (
-        <div
-          ref={fullscreenRef}
-          className="fixed inset-0 z-50 flex items-center justify-center"
-          style={{ backgroundColor: bgColor }}
-          onClick={() => setIsFullscreen(false)}
-        >
-          <div 
-            className="relative"
-            style={{ width: '60vmin', height: '60vmin' }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {activeConfig && <activeConfig.Component {...params[activeType]} colors={globalColors} strokeWidth={globalStrokeWidth} />}
-          </div>
-          
-          {/* 关闭按钮 */}
-          <button
-            onClick={() => setIsFullscreen(false)}
-            className="absolute top-6 right-6 w-12 h-12 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-          
-          {/* 信息 */}
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-center">
-            <p className="text-white/80 text-sm font-medium">{activeConfig?.name}</p>
-            <p className="text-white/50 text-xs mt-1">按 ESC 或点击任意处退出</p>
-          </div>
-        </div>
-      )}
-    </>
   );
 }

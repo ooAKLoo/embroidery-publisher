@@ -35,3 +35,4 @@ export { default as SpiralLogo } from './SpiralLogo';
 export { default as WaveformLogo } from './WaveformLogo';
 export { default as MazeLogo } from './MazeLogo';
 export { default as GlowOrbLogo } from './GlowOrbLogo';
+export { default as SpinnerBladesLogo } from './SpinnerBladesLogo';

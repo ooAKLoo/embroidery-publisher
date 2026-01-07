@@ -8,7 +8,8 @@ import {
   // 新增几何图案
   GridPatternLogo, ParticleFieldLogo, HoneycombLogo, ConcentricRingsLogo,
   GeometricShardLogo, FlowingCurvesLogo, NoiseTextureLogo, MandalaLogo,
-  ConstellationLogo, SpiralLogo, WaveformLogo, MazeLogo, GlowOrbLogo
+  ConstellationLogo, SpiralLogo, WaveformLogo, MazeLogo, GlowOrbLogo,
+  SpinnerBladesLogo
 } from '../logos';
 
 // Logo 类型配置
@@ -51,6 +52,8 @@ export const LOGO_TYPES = [
   { id: 'noise', name: '噪声纹理', category: '纹理碎片', Component: NoiseTextureLogo, defaultProps: { resolution: 20, noiseScale: 0.1, noiseType: 'circles', intensity: 1, seed: 42 } },
   { id: 'shard', name: '几何碎片', category: '纹理碎片', Component: GeometricShardLogo, defaultProps: { shardCount: 12, layers: 3, irregularity: 0.3, fillOpacity: 0.3, seed: 42 } },
   { id: 'maze', name: '迷宫回路', category: '纹理碎片', Component: MazeLogo, defaultProps: { mazeType: 'concentric', layers: 4, openings: 2, lineWeight: 'medium', seed: 42 } },
+  // 动感旋转类
+  { id: 'spinner', name: '旋转叶片', category: '动态流体', Component: SpinnerBladesLogo, defaultProps: { bladeCount: 6, curvature: 30, innerRadius: 30, outerRadius: 100, rotation: 0 } },
 ];
 
 // 获取所有分类

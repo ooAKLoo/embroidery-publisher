@@ -254,6 +254,14 @@ export const PARAM_CONTROLS = {
     ]},
     { key: 'seed', type: 'range', label: '随机种子', min: 1, max: 100, step: 1 },
   ],
+  // 旋转叶片
+  spinner: [
+    { key: 'bladeCount', type: 'range', label: '叶片数量', min: 3, max: 12, step: 1 },
+    { key: 'curvature', type: 'range', label: '弯曲度', min: 0, max: 90, step: 5, suffix: '°', hint: '叶片弯曲角度' },
+    { key: 'innerRadius', type: 'range', label: '内半径', min: 10, max: 60, step: 5 },
+    { key: 'outerRadius', type: 'range', label: '外半径', min: 60, max: 120, step: 5 },
+    { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 5, suffix: '°' },
+  ],
 };
 
 // 获取参数控制配置

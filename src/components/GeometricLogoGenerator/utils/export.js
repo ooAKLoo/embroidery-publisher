@@ -64,6 +64,101 @@ const getContentBBox = (svgElement) => {
 };
 
 /**
+ * 创建 macOS 风格的图标 SVG（带透明边距）
+ *
+ * macOS Dock 图标规范：
+ * - 图标内容（包括背景）应占画布的约 80%
+ * - 四周留出约 10% 的透明边距
+ * - 系统会自动添加阴影效果
+ *
+ * @param {SVGElement} svgElement - 原始 SVG 元素
+ * @param {number} exportSize - 导出画布尺寸
+ * @param {string} bgColor - 背景色
+ * @param {number} iconScale - 图案占背景的比例 (0-1)
+ * @param {number} borderRadius - 圆角半径比例 (0-0.5)
+ * @param {number} contentRatio - 整体内容占画布比例，macOS 推荐 0.8
+ */
+const createMacOSIconSvg = (svgElement, exportSize, bgColor, iconScale = 0.7, borderRadius = 0.22, contentRatio = 0.8) => {
+  const contentBBox = getContentBBox(svgElement);
+
+  const exportSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  exportSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+  exportSvg.setAttribute('width', exportSize);
+  exportSvg.setAttribute('height', exportSize);
+  exportSvg.setAttribute('viewBox', `0 0 ${exportSize} ${exportSize}`);
+
+  // 计算内容区域（整体缩小到 contentRatio）
+  const contentSize = exportSize * contentRatio;
+  const contentOffset = (exportSize - contentSize) / 2;
+
+  // 复制 defs（渐变、滤镜等定义）
+  const originalDefs = svgElement.querySelector('defs');
+  if (originalDefs) {
+    const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+    Array.from(originalDefs.children).forEach(child => {
+      defs.appendChild(child.cloneNode(true));
+    });
+    exportSvg.appendChild(defs);
+  }
+
+  // 创建内容组（整体偏移到中心）
+  const mainGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  mainGroup.setAttribute('transform', `translate(${contentOffset}, ${contentOffset})`);
+
+  // 添加圆角背景矩形
+  const bgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+  bgRect.setAttribute('width', contentSize);
+  bgRect.setAttribute('height', contentSize);
+  bgRect.setAttribute('fill', bgColor);
+  const radius = contentSize * borderRadius;
+  bgRect.setAttribute('rx', radius);
+  bgRect.setAttribute('ry', radius);
+  mainGroup.appendChild(bgRect);
+
+  // 创建裁剪路径（确保图案不超出圆角）
+  const defs = exportSvg.querySelector('defs') || document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+  if (!exportSvg.querySelector('defs')) {
+    exportSvg.insertBefore(defs, exportSvg.firstChild);
+  }
+
+  const clipPath = document.createElementNS('http://www.w3.org/2000/svg', 'clipPath');
+  clipPath.setAttribute('id', 'macos-clip');
+  const clipRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+  clipRect.setAttribute('width', contentSize);
+  clipRect.setAttribute('height', contentSize);
+  clipRect.setAttribute('rx', radius);
+  clipRect.setAttribute('ry', radius);
+  clipPath.appendChild(clipRect);
+  defs.appendChild(clipPath);
+
+  // 计算图标在内容区域中的位置
+  const targetIconSize = contentSize * iconScale;
+  const contentMaxSize = Math.max(contentBBox.width, contentBBox.height);
+  const scaleRatio = targetIconSize / contentMaxSize;
+
+  const scaledWidth = contentBBox.width * scaleRatio;
+  const scaledHeight = contentBBox.height * scaleRatio;
+  const iconOffsetX = (contentSize - scaledWidth) / 2 - contentBBox.x * scaleRatio;
+  const iconOffsetY = (contentSize - scaledHeight) / 2 - contentBBox.y * scaleRatio;
+
+  // 创建图标内容组
+  const iconGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  iconGroup.setAttribute('clip-path', 'url(#macos-clip)');
+  iconGroup.setAttribute('transform', `translate(${iconOffsetX}, ${iconOffsetY}) scale(${scaleRatio})`);
+
+  Array.from(svgElement.children).forEach(child => {
+    if (child.tagName.toLowerCase() !== 'defs') {
+      iconGroup.appendChild(child.cloneNode(true));
+    }
+  });
+
+  mainGroup.appendChild(iconGroup);
+  exportSvg.appendChild(mainGroup);
+
+  return exportSvg;
+};
+
+/**
  * 创建导出专用的标准化 SVG
  * @param {SVGElement} svgElement - 原始 SVG 元素
  * @param {number} exportSize - 导出画布尺寸
@@ -190,6 +285,43 @@ const svgToPngBlob = (svgElement, size, bgColor = null, iconScale = 0.7, borderR
 };
 
 /**
+ * 生成 macOS 风格的 PNG（带透明边距）
+ * @param {SVGElement} svgElement - 原始 SVG 元素
+ * @param {number} size - 输出 PNG 尺寸
+ * @param {string} bgColor - 背景色
+ * @param {number} iconScale - 图案占背景比例
+ * @param {number} borderRadius - 圆角半径比例
+ * @param {number} contentRatio - 内容占画布比例（推荐 0.8）
+ */
+const svgToMacOSPngBlob = (svgElement, size, bgColor, iconScale = 0.7, borderRadius = 0.22, contentRatio = 0.8) => {
+  return new Promise((resolve) => {
+    const exportSvg = createMacOSIconSvg(svgElement, size, bgColor, iconScale, borderRadius, contentRatio);
+    const svgData = new XMLSerializer().serializeToString(exportSvg);
+    const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(svgBlob);
+
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+
+      const ctx = canvas.getContext('2d');
+      // 保持透明背景
+      ctx.clearRect(0, 0, size, size);
+      ctx.drawImage(img, 0, 0, size, size);
+
+      canvas.toBlob((blob) => {
+        URL.revokeObjectURL(url);
+        resolve(blob);
+      }, 'image/png');
+    };
+
+    img.src = url;
+  });
+};
+
+/**
  * 生成 ICO 文件 (包含多个尺寸)
  */
 const generateICO = async (svgElement, sizes, bgColor, iconScale = 0.7, borderRadius = 0) => {
@@ -247,8 +379,10 @@ const generateICO = async (svgElement, sizes, bgColor, iconScale = 0.7, borderRa
 /**
  * 生成 ICNS 文件 (macOS 应用图标)
  * ICNS 格式包含多种尺寸的 PNG 图像
+ *
+ * 重要：macOS 图标需要透明边距，内容占画布约 80%
  */
-const generateICNS = async (svgElement, bgColor, iconScale = 0.7, borderRadius = 0.22) => {
+const generateICNS = async (svgElement, bgColor, iconScale = 0.7, borderRadius = 0.22, contentRatio = 0.8) => {
   // macOS 图标尺寸和对应的类型码
   const icnsTypes = [
     { type: 'icp4', size: 16 },   // 16x16
@@ -260,9 +394,9 @@ const generateICNS = async (svgElement, bgColor, iconScale = 0.7, borderRadius =
     { type: 'ic10', size: 1024 }, // 1024x1024 (10.7+)
   ];
 
-  // 生成所有尺寸的 PNG（带圆角）
+  // 生成所有尺寸的 PNG（使用 macOS 专用函数，带透明边距）
   const pngBlobs = await Promise.all(
-    icnsTypes.map(({ size }) => svgToPngBlob(svgElement, size, bgColor, iconScale, borderRadius))
+    icnsTypes.map(({ size }) => svgToMacOSPngBlob(svgElement, size, bgColor, iconScale, borderRadius, contentRatio))
   );
 
   const pngBuffers = await Promise.all(
@@ -333,12 +467,12 @@ export const exportAllFormats = async (svgElement, logoName = 'logo', bgColor = 
   const resourceSvgData = new XMLSerializer().serializeToString(resourceSvg);
   zip.file('resources/icon.svg', resourceSvgData);
 
-  // 高清 PNG (1024x1024，带圆角)
-  const iconPng = await svgToPngBlob(svgElement, 1024, bgColor, iconScale, borderRadius);
+  // 高清 PNG (1024x1024，macOS 风格带透明边距)
+  const iconPng = await svgToMacOSPngBlob(svgElement, 1024, bgColor, iconScale, borderRadius, 0.8);
   zip.file('resources/icon.png', iconPng);
 
-  // macOS ICNS 文件（带圆角）
-  const icnsBlob = await generateICNS(svgElement, bgColor, iconScale, borderRadius);
+  // macOS ICNS 文件（带透明边距，符合 Apple 规范）
+  const icnsBlob = await generateICNS(svgElement, bgColor, iconScale, borderRadius, 0.8);
   zip.file('resources/icon.icns', icnsBlob);
 
   // Windows ICO 文件
@@ -392,10 +526,10 @@ export const exportAllFormats = async (svgElement, logoName = 'logo', bgColor = 
   const android512 = await svgToPngBlob(svgElement, 512, bgColor, iconScale, 0);
   zip.file('android/playstore-icon.png', android512);
 
-  // macOS 各尺寸（带圆角）
+  // macOS 各尺寸（带透明边距，符合 Apple 规范）
   const macosSizes = [16, 32, 64, 128, 256, 512, 1024];
   for (const size of macosSizes) {
-    const blob = await svgToPngBlob(svgElement, size, bgColor, iconScale, borderRadius);
+    const blob = await svgToMacOSPngBlob(svgElement, size, bgColor, iconScale, borderRadius, 0.8);
     zip.file(`macos/icon_${size}x${size}.png`, blob);
   }
 

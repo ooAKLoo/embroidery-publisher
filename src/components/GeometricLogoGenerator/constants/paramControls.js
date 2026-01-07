@@ -262,6 +262,247 @@ export const PARAM_CONTROLS = {
     { key: 'outerRadius', type: 'range', label: '外半径', min: 60, max: 120, step: 5 },
     { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 5, suffix: '°' },
   ],
+  // 凯尔特结
+  celticKnot: [
+    { key: 'knotType', type: 'select', label: '结型', options: [
+      { value: 'triquetra', label: '三叶结' },
+      { value: 'quaternary', label: '四元结' },
+      { value: 'endless', label: '无尽结' },
+      { value: 'triskele', label: '三旋臂' },
+    ]},
+    { key: 'complexity', type: 'range', label: '复杂度', min: 1, max: 4, step: 1 },
+    { key: 'weaveWidth', type: 'range', label: '编织宽度', min: 6, max: 20, step: 2 },
+    { key: 'showBorder', type: 'checkbox', label: '显示边框' },
+    { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 15, suffix: '°' },
+  ],
+  // 太极变体
+  yinYang: [
+    { key: 'divisions', type: 'range', label: '分割数', min: 2, max: 6, step: 1, hint: '2=传统太极' },
+    { key: 'innerDots', type: 'checkbox', label: '显示阴阳点' },
+    { key: 'dotSize', type: 'range', label: '点大小', min: 0.1, max: 0.25, step: 0.05 },
+    { key: 'spiralEffect', type: 'range', label: '螺旋效果', min: 0, max: 50, step: 5 },
+    { key: 'outline', type: 'checkbox', label: '显示轮廓' },
+    { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 15, suffix: '°' },
+  ],
+  // 禅圆
+  enso: [
+    { key: 'openingSize', type: 'range', label: '开口大小', min: 5, max: 60, step: 5, suffix: '°' },
+    { key: 'openingPosition', type: 'range', label: '开口位置', min: 0, max: 360, step: 15, suffix: '°' },
+    { key: 'brushWidth', type: 'range', label: '笔刷宽度', min: 10, max: 40, step: 5 },
+    { key: 'taperStart', type: 'range', label: '起笔渐变', min: 0.1, max: 0.5, step: 0.1 },
+    { key: 'taperEnd', type: 'range', label: '收笔渐变', min: 0.1, max: 0.5, step: 0.1 },
+    { key: 'roughness', type: 'range', label: '粗糙度', min: 0, max: 0.1, step: 0.01, hint: '笔触不规则感' },
+    { key: 'inkSplash', type: 'checkbox', label: '墨迹飞溅' },
+    { key: 'innerCircle', type: 'checkbox', label: '内圈装饰' },
+    { key: 'seed', type: 'range', label: '随机种子', min: 1, max: 100, step: 1 },
+  ],
+  // 彭罗斯拼贴
+  penrose: [
+    { key: 'tileType', type: 'select', label: '拼贴类型', options: [
+      { value: 'kite-dart', label: '风筝飞镖' },
+      { value: 'rhombus', label: '菱形' },
+      { value: 'pentagons', label: '五边形' },
+      { value: 'stars', label: '星形' },
+    ]},
+    { key: 'iterations', type: 'range', label: '迭代层数', min: 1, max: 4, step: 1 },
+    { key: 'showOutline', type: 'checkbox', label: '显示外框' },
+    { key: 'fillAlternate', type: 'checkbox', label: '交替填充' },
+    { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 15, suffix: '°' },
+  ],
+  // 梅塔特隆立方
+  metatron: [
+    { key: 'showCircles', type: 'checkbox', label: '显示基础圆' },
+    { key: 'showConnections', type: 'checkbox', label: '显示连接线' },
+    { key: 'showInnerPatterns', type: 'checkbox', label: '显示内部图案' },
+    { key: 'circleStyle', type: 'select', label: '圆形样式', options: [
+      { value: 'solid', label: '实线' },
+      { value: 'dashed', label: '虚线' },
+      { value: 'dotted', label: '点线' },
+    ]},
+    { key: 'complexity', type: 'range', label: '复杂度', min: 1, max: 4, step: 1 },
+    { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 15, suffix: '°' },
+  ],
+  // 生命之花
+  flowerOfLife: [
+    { key: 'pattern', type: 'select', label: '图案类型', options: [
+      { value: 'seed', label: '生命种子' },
+      { value: 'flower', label: '生命之花' },
+      { value: 'fruit', label: '生命之果' },
+      { value: 'full', label: '完整版' },
+    ]},
+    { key: 'rings', type: 'range', label: '圈数', min: 1, max: 5, step: 1 },
+    { key: 'showOuterCircle', type: 'checkbox', label: '显示外圈' },
+    { key: 'fillPetals', type: 'checkbox', label: '填充花瓣' },
+    { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 15, suffix: '°' },
+  ],
+  // 衔尾蛇
+  ouroboros: [
+    { key: 'style', type: 'select', label: '风格', options: [
+      { value: 'serpent', label: '蛇形' },
+      { value: 'dragon', label: '龙形' },
+      { value: 'geometric', label: '几何' },
+      { value: 'double', label: '双蛇缠绕' },
+    ]},
+    { key: 'bodySegments', type: 'range', label: '身体节数', min: 12, max: 36, step: 4 },
+    { key: 'headSize', type: 'range', label: '头部大小', min: 0.8, max: 1.5, step: 0.1 },
+    { key: 'bodyTaper', type: 'range', label: '身体渐细', min: 0.1, max: 0.5, step: 0.1 },
+    { key: 'scales', type: 'checkbox', label: '显示鳞片' },
+    { key: 'rotation', type: 'range', label: '旋转角度', min: -180, max: 180, step: 15, suffix: '°' },
+  ],
+  // 迷宫
+  labyrinth: [
+    { key: 'labyrinthType', type: 'select', label: '迷宫类型', options: [
+      { value: 'chartres', label: '沙特尔' },
+      { value: 'classical', label: '经典克里特' },
+      { value: 'meander', label: '希腊回纹' },
+      { value: 'roman', label: '罗马' },
+    ]},
+    { key: 'circuits', type: 'range', label: '回路数', min: 3, max: 11, step: 1 },
+    { key: 'showCenter', type: 'checkbox', label: '显示中心' },
+    { key: 'pathWidth', type: 'range', label: '路径宽度', min: 4, max: 16, step: 2 },
+    { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 15, suffix: '°' },
+  ],
+  // 欧普艺术
+  opArt: [
+    { key: 'pattern', type: 'select', label: '图案类型', options: [
+      { value: 'checkerboard', label: '棋盘格' },
+      { value: 'stripes', label: '条纹' },
+      { value: 'circles', label: '同心圆' },
+      { value: 'bulge', label: '膨胀格' },
+      { value: 'spiral', label: '螺旋' },
+    ]},
+    { key: 'density', type: 'range', label: '密度', min: 5, max: 20, step: 1 },
+    { key: 'distortion', type: 'range', label: '扭曲程度', min: 0, max: 1, step: 0.1, hint: '视觉错觉强度' },
+    { key: 'contrast', type: 'checkbox', label: '高对比度' },
+    { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 15, suffix: '°' },
+  ],
+  // 字母组合
+  monogram: [
+    { key: 'letters', type: 'text', label: '字母', hint: '输入1-3个字母' },
+    { key: 'style', type: 'select', label: '风格', options: [
+      { value: 'overlap', label: '重叠' },
+      { value: 'interlock', label: '交织' },
+      { value: 'mirror', label: '镜像' },
+      { value: 'geometric', label: '几何' },
+    ]},
+    { key: 'arrangement', type: 'select', label: '排列', options: [
+      { value: 'horizontal', label: '水平' },
+      { value: 'vertical', label: '垂直' },
+      { value: 'diagonal', label: '对角' },
+      { value: 'circular', label: '环形' },
+    ]},
+    { key: 'letterWeight', type: 'select', label: '字重', options: [
+      { value: 'light', label: '细体' },
+      { value: 'regular', label: '常规' },
+      { value: 'bold', label: '粗体' },
+    ]},
+    { key: 'showFrame', type: 'checkbox', label: '显示外框' },
+    { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 15, suffix: '°' },
+  ],
+  // 连笔书法
+  script: [
+    { key: 'text', type: 'text', label: '文字', hint: '输入1-8个字母' },
+    { key: 'style', type: 'select', label: '风格', options: [
+      { value: 'elegant', label: '优雅' },
+      { value: 'playful', label: '活泼' },
+      { value: 'formal', label: '正式' },
+      { value: 'brush', label: '毛笔' },
+    ]},
+    { key: 'connectLetters', type: 'checkbox', label: '字母连接' },
+    { key: 'slant', type: 'range', label: '倾斜角度', min: 0, max: 30, step: 5, suffix: '°' },
+    { key: 'thickness', type: 'select', label: '粗细', options: [
+      { value: 'thin', label: '细' },
+      { value: 'medium', label: '中' },
+      { value: 'thick', label: '粗' },
+    ]},
+    { key: 'flourish', type: 'checkbox', label: '装饰花饰' },
+    { key: 'gradientEffect', type: 'checkbox', label: '渐变效果' },
+  ],
+  // 镂空模板
+  stencil: [
+    { key: 'text', type: 'text', label: '文字', hint: '输入1-8个字母' },
+    { key: 'style', type: 'select', label: '风格', options: [
+      { value: 'military', label: '军事' },
+      { value: 'industrial', label: '工业' },
+      { value: 'modern', label: '现代' },
+    ]},
+    { key: 'cutStyle', type: 'select', label: '镂空样式', options: [
+      { value: 'center', label: '居中' },
+      { value: 'edge', label: '边缘' },
+      { value: 'random', label: '随机' },
+    ]},
+    { key: 'spacing', type: 'select', label: '字间距', options: [
+      { value: 'tight', label: '紧凑' },
+      { value: 'normal', label: '正常' },
+      { value: 'wide', label: '宽松' },
+    ]},
+    { key: 'borderFrame', type: 'checkbox', label: '显示边框' },
+  ],
+  // 霓虹灯
+  neon: [
+    { key: 'text', type: 'text', label: '文字', hint: '输入1-8个字母' },
+    { key: 'glowIntensity', type: 'range', label: '发光强度', min: 0.3, max: 1, step: 0.1 },
+    { key: 'tubeStyle', type: 'select', label: '灯管样式', options: [
+      { value: 'round', label: '圆管' },
+      { value: 'flat', label: '扁平' },
+      { value: 'vintage', label: '复古' },
+    ]},
+    { key: 'flicker', type: 'checkbox', label: '闪烁效果' },
+    { key: 'backing', type: 'checkbox', label: '显示背板' },
+  ],
+  // 复古排版
+  retro: [
+    { key: 'text', type: 'text', label: '文字', hint: '输入1-8个字母' },
+    { key: 'style', type: 'select', label: '风格', options: [
+      { value: 'vintage', label: '复古' },
+      { value: 'art-deco', label: 'Art Deco' },
+      { value: 'groovy', label: '70年代' },
+      { value: 'western', label: '西部' },
+    ]},
+    { key: 'layers', type: 'range', label: '层数', min: 1, max: 5, step: 1 },
+    { key: 'layerOffset', type: 'range', label: '层偏移', min: 1, max: 6, step: 1 },
+    { key: 'inline', type: 'checkbox', label: '内线装饰' },
+    { key: 'serifs', type: 'checkbox', label: '衬线' },
+  ],
+  // 渐变文字
+  gradientText: [
+    { key: 'text', type: 'text', label: '文字', hint: '输入1-8个字母' },
+    { key: 'gradientType', type: 'select', label: '渐变类型', options: [
+      { value: 'linear', label: '线性' },
+      { value: 'radial', label: '径向' },
+      { value: 'conic', label: '锥形' },
+    ]},
+    { key: 'gradientAngle', type: 'range', label: '渐变角度', min: 0, max: 360, step: 15, suffix: '°' },
+    { key: 'colorStops', type: 'range', label: '颜色节点', min: 2, max: 5, step: 1 },
+    { key: 'strokeOutline', type: 'checkbox', label: '描边轮廓' },
+    { key: 'glossy', type: 'checkbox', label: '光泽效果' },
+    { key: 'fontWeight', type: 'select', label: '字重', options: [
+      { value: 'light', label: '细体' },
+      { value: 'regular', label: '常规' },
+      { value: 'bold', label: '粗体' },
+    ]},
+  ],
+  // 3D阴影
+  shadowText: [
+    { key: 'text', type: 'text', label: '文字', hint: '输入1-8个字母' },
+    { key: 'shadowDepth', type: 'range', label: '阴影深度', min: 2, max: 15, step: 1 },
+    { key: 'shadowAngle', type: 'range', label: '阴影方向', min: 0, max: 360, step: 15, suffix: '°' },
+    { key: 'perspective', type: 'select', label: '透视类型', options: [
+      { value: 'flat', label: '平面' },
+      { value: 'isometric', label: '等轴测' },
+      { value: 'extrude', label: '挤压' },
+    ]},
+    { key: 'fillStyle', type: 'select', label: '填充样式', options: [
+      { value: 'solid', label: '实心' },
+      { value: 'outline', label: '轮廓' },
+      { value: 'striped', label: '条纹' },
+    ]},
+    { key: 'fontWeight', type: 'select', label: '字重', options: [
+      { value: 'light', label: '细体' },
+      { value: 'regular', label: '常规' },
+      { value: 'bold', label: '粗体' },
+    ]},
+  ],
 };
 
 // 获取参数控制配置

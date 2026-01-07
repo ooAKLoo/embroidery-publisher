@@ -9,7 +9,13 @@ import {
   GridPatternLogo, ParticleFieldLogo, HoneycombLogo, ConcentricRingsLogo,
   GeometricShardLogo, FlowingCurvesLogo, NoiseTextureLogo, MandalaLogo,
   ConstellationLogo, SpiralLogo, WaveformLogo, MazeLogo, GlowOrbLogo,
-  SpinnerBladesLogo
+  SpinnerBladesLogo,
+  // 神圣几何与文化符号
+  CelticKnotLogo, YinYangLogo, EnsoCircleLogo, PenroseTileLogo,
+  MetatronCubeLogo, FlowerOfLifeLogo, OuroborosLogo, LabyrinthLogo,
+  OpArtLogo, MonogramLogo,
+  // 字母排版风格
+  ScriptLogo, StencilLogo, NeonLogo, RetroLogo, GradientTextLogo, ShadowTextLogo
 } from '../logos';
 
 // Logo 类型配置
@@ -54,6 +60,24 @@ export const LOGO_TYPES = [
   { id: 'maze', name: '迷宫回路', category: '纹理碎片', Component: MazeLogo, defaultProps: { mazeType: 'concentric', layers: 4, openings: 2, lineWeight: 'medium', seed: 42 } },
   // 动感旋转类
   { id: 'spinner', name: '旋转叶片', category: '动态流体', Component: SpinnerBladesLogo, defaultProps: { bladeCount: 6, curvature: 30, innerRadius: 30, outerRadius: 100, rotation: 0 } },
+  // 神圣几何与文化符号
+  { id: 'celticKnot', name: '凯尔特结', category: '文化符号', Component: CelticKnotLogo, defaultProps: { knotType: 'triquetra', complexity: 2, weaveWidth: 12, showBorder: true, rotation: 0 } },
+  { id: 'yinYang', name: '太极变体', category: '文化符号', Component: YinYangLogo, defaultProps: { divisions: 2, innerDots: true, dotSize: 0.15, rotation: 0, spiralEffect: 0, outline: true } },
+  { id: 'enso', name: '禅圆', category: '文化符号', Component: EnsoCircleLogo, defaultProps: { openingSize: 15, openingPosition: 45, brushWidth: 20, taperStart: 0.3, taperEnd: 0.3, roughness: 0.02, inkSplash: false, innerCircle: false, seed: 42 } },
+  { id: 'penrose', name: '彭罗斯拼贴', category: '神圣几何', Component: PenroseTileLogo, defaultProps: { tileType: 'kite-dart', iterations: 3, showOutline: true, fillAlternate: true, rotation: 0 } },
+  { id: 'metatron', name: '梅塔特隆', category: '神圣几何', Component: MetatronCubeLogo, defaultProps: { showCircles: true, showConnections: true, showInnerPatterns: true, circleStyle: 'solid', complexity: 3, rotation: 0 } },
+  { id: 'flowerOfLife', name: '生命之花', category: '神圣几何', Component: FlowerOfLifeLogo, defaultProps: { pattern: 'flower', rings: 3, showOuterCircle: true, fillPetals: false, rotation: 0 } },
+  { id: 'ouroboros', name: '衔尾蛇', category: '文化符号', Component: OuroborosLogo, defaultProps: { style: 'serpent', bodySegments: 24, headSize: 1.2, bodyTaper: 0.3, scales: true, rotation: -90 } },
+  { id: 'labyrinth', name: '迷宫', category: '神圣几何', Component: LabyrinthLogo, defaultProps: { labyrinthType: 'chartres', circuits: 7, rotation: 0, showCenter: true, pathWidth: 8 } },
+  { id: 'opArt', name: '欧普艺术', category: '视觉艺术', Component: OpArtLogo, defaultProps: { pattern: 'checkerboard', density: 10, distortion: 0.5, rotation: 0, contrast: true } },
+  { id: 'monogram', name: '字母组合', category: '视觉艺术', Component: MonogramLogo, defaultProps: { letters: 'AB', style: 'overlap', arrangement: 'horizontal', letterWeight: 'bold', showFrame: true, rotation: 0 } },
+  // 字母排版风格
+  { id: 'script', name: '连笔书法', category: '字体排版', Component: ScriptLogo, defaultProps: { text: 'Logo', style: 'elegant', connectLetters: true, slant: 15, thickness: 'medium', flourish: true, gradientEffect: true } },
+  { id: 'stencil', name: '镂空模板', category: '字体排版', Component: StencilLogo, defaultProps: { text: 'LOGO', style: 'military', cutStyle: 'center', spacing: 'normal', borderFrame: true } },
+  { id: 'neon', name: '霓虹灯', category: '字体排版', Component: NeonLogo, defaultProps: { text: 'NEON', glowIntensity: 0.8, tubeStyle: 'round', flicker: false, backing: true } },
+  { id: 'retro', name: '复古排版', category: '字体排版', Component: RetroLogo, defaultProps: { text: 'RETRO', style: 'vintage', layers: 3, layerOffset: 3, inline: true, serifs: true } },
+  { id: 'gradientText', name: '渐变文字', category: '字体排版', Component: GradientTextLogo, defaultProps: { text: 'TECH', gradientType: 'linear', gradientAngle: 45, colorStops: 3, strokeOutline: true, glossy: false, fontWeight: 'bold' } },
+  { id: 'shadowText', name: '3D阴影', category: '字体排版', Component: ShadowTextLogo, defaultProps: { text: 'SHADOW', shadowDepth: 8, shadowAngle: 135, perspective: 'flat', fillStyle: 'solid', fontWeight: 'bold' } },
 ];
 
 // 获取所有分类

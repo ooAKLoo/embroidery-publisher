@@ -68,7 +68,26 @@ const ParamControls = ({ type, params, updateParam }) => {
             </div>
           );
         }
-        
+
+        if (ctrl.type === 'text') {
+          // 根据 hint 确定最大长度：字母组合用3个，字体排版用8个
+          const maxLen = ctrl.hint?.includes('1-8') ? 8 : 3;
+          return (
+            <div key={ctrl.key}>
+              <label className="block text-xs font-medium text-slate-600 mb-1">{ctrl.label}</label>
+              <input
+                type="text"
+                value={value || ''}
+                onChange={(e) => updateParam(ctrl.key, e.target.value.toUpperCase().slice(0, maxLen))}
+                className="w-full px-2 py-1 text-sm border border-slate-300 rounded focus:outline-none focus:ring-1 focus:ring-slate-900"
+                placeholder={ctrl.hint || ''}
+                maxLength={maxLen}
+              />
+              {ctrl.hint && <p className="text-[10px] text-slate-400 mt-0.5">{ctrl.hint}</p>}
+            </div>
+          );
+        }
+
         return null;
       })}
     </div>

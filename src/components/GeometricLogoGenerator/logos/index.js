@@ -54,3 +54,9 @@ export { default as NeonLogo } from './NeonLogo';
 export { default as RetroLogo } from './RetroLogo';
 export { default as GradientTextLogo } from './GradientTextLogo';
 export { default as ShadowTextLogo } from './ShadowTextLogo';
+// 有机形态
+export { default as PetalLogo } from './PetalLogo';
+export { default as SwirlLogo } from './SwirlLogo';
+export { default as SpinningTrianglesLogo } from './SpinningTrianglesLogo';
+export { default as PinwheelLogo } from './PinwheelLogo';
+export { default as CircleFlowerLogo } from './CircleFlowerLogo';

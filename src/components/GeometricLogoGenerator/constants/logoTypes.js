@@ -15,7 +15,9 @@ import {
   MetatronCubeLogo, FlowerOfLifeLogo, OuroborosLogo, LabyrinthLogo,
   OpArtLogo, MonogramLogo,
   // 字母排版风格
-  ScriptLogo, StencilLogo, NeonLogo, RetroLogo, GradientTextLogo, ShadowTextLogo
+  ScriptLogo, StencilLogo, NeonLogo, RetroLogo, GradientTextLogo, ShadowTextLogo,
+  // 有机形态
+  PetalLogo, SwirlLogo, SpinningTrianglesLogo, PinwheelLogo, CircleFlowerLogo
 } from '../logos';
 
 // Logo 类型配置
@@ -78,6 +80,12 @@ export const LOGO_TYPES = [
   { id: 'retro', name: '复古排版', category: '字体排版', Component: RetroLogo, defaultProps: { text: 'RETRO', style: 'vintage', layers: 3, layerOffset: 3, inline: true, serifs: true } },
   { id: 'gradientText', name: '渐变文字', category: '字体排版', Component: GradientTextLogo, defaultProps: { text: 'TECH', gradientType: 'linear', gradientAngle: 45, colorStops: 3, strokeOutline: true, glossy: false, fontWeight: 'bold' } },
   { id: 'shadowText', name: '3D阴影', category: '字体排版', Component: ShadowTextLogo, defaultProps: { text: 'SHADOW', shadowDepth: 8, shadowAngle: 135, perspective: 'flat', fillStyle: 'solid', fontWeight: 'bold' } },
+  // 有机形态
+  { id: 'petal', name: '花瓣', category: '有机形态', Component: PetalLogo, defaultProps: { petals: 8, petalLength: 45, petalWidth: 18, petalShape: 'ellipse', spread: 20, centerRadius: 8, rotation: 0 } },
+  { id: 'swirl', name: '旋涡', category: '有机形态', Component: SwirlLogo, defaultProps: { blades: 4, twist: 60, innerRadius: 25, outerRadius: 70, bladeWidth: 0.6, rotation: 0 } },
+  { id: 'spinningTriangles', name: '旋转三角', category: '有机形态', Component: SpinningTrianglesLogo, defaultProps: { count: 6, innerRadius: 35, outerRadius: 80, triangleRotation: 30, gap: 0.3, strokeWidth: 3, filled: false, centerDot: true, centerRadius: 6, rotation: 0 } },
+  { id: 'pinwheel', name: '风车', category: '有机形态', Component: PinwheelLogo, defaultProps: { blades: 4, radius: 70, curve: 0.3, rotation: 0 } },
+  { id: 'circleFlower', name: '圆形花', category: '有机形态', Component: CircleFlowerLogo, defaultProps: { petals: 6, petalRadius: 35, centerRadius: 15, spread: 35, rotation: 0 } },
 ];
 
 // 获取所有分类

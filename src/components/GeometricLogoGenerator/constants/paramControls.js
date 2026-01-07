@@ -503,6 +503,57 @@ export const PARAM_CONTROLS = {
       { value: 'bold', label: '粗体' },
     ]},
   ],
+  // 花瓣
+  petal: [
+    { key: 'petals', type: 'range', label: '花瓣数', min: 4, max: 16, step: 1 },
+    { key: 'petalLength', type: 'range', label: '花瓣长度', min: 20, max: 70, step: 5 },
+    { key: 'petalWidth', type: 'range', label: '花瓣宽度', min: 8, max: 35, step: 2 },
+    { key: 'spread', type: 'range', label: '距中心', min: 5, max: 50, step: 5 },
+    { key: 'centerRadius', type: 'range', label: '中心圆大小', min: 0, max: 20, step: 2 },
+    { key: 'petalShape', type: 'select', label: '形状', options: [
+      { value: 'ellipse', label: '椭圆' },
+      { value: 'teardrop', label: '水滴' },
+      { value: 'round', label: '圆形' },
+    ]},
+    { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 5, suffix: '°' },
+  ],
+  // 旋涡
+  swirl: [
+    { key: 'blades', type: 'range', label: '叶片数', min: 2, max: 8, step: 1 },
+    { key: 'twist', type: 'range', label: '扭曲角度', min: 20, max: 120, step: 5, suffix: '°' },
+    { key: 'innerRadius', type: 'range', label: '内半径', min: 10, max: 50, step: 5 },
+    { key: 'outerRadius', type: 'range', label: '外半径', min: 50, max: 100, step: 5 },
+    { key: 'bladeWidth', type: 'range', label: '叶片宽度', min: 0.3, max: 0.9, step: 0.1, hint: '叶片占比' },
+    { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 5, suffix: '°' },
+  ],
+  // 旋转三角
+  spinningTriangles: [
+    { key: 'count', type: 'range', label: '三角形数', min: 3, max: 12, step: 1 },
+    { key: 'innerRadius', type: 'range', label: '内半径', min: 20, max: 60, step: 5 },
+    { key: 'outerRadius', type: 'range', label: '外半径', min: 60, max: 120, step: 5 },
+    { key: 'triangleRotation', type: 'range', label: '自身旋转', min: -90, max: 90, step: 5, suffix: '°' },
+    { key: 'gap', type: 'range', label: '间隙', min: 0.1, max: 0.6, step: 0.1 },
+    { key: 'strokeWidth', type: 'range', label: '线条粗细', min: 1, max: 6, step: 1 },
+    { key: 'filled', type: 'checkbox', label: '填充' },
+    { key: 'centerDot', type: 'checkbox', label: '显示中心点' },
+    { key: 'centerRadius', type: 'range', label: '中心点大小', min: 2, max: 12, step: 2 },
+    { key: 'rotation', type: 'range', label: '整体旋转', min: 0, max: 360, step: 5, suffix: '°' },
+  ],
+  // 风车
+  pinwheel: [
+    { key: 'blades', type: 'range', label: '叶片数', min: 2, max: 8, step: 1 },
+    { key: 'radius', type: 'range', label: '半径', min: 50, max: 120, step: 5 },
+    { key: 'curve', type: 'range', label: '曲率', min: 0, max: 0.8, step: 0.05, hint: '叶片弯曲程度' },
+    { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 5, suffix: '°' },
+  ],
+  // 圆形花
+  circleFlower: [
+    { key: 'petals', type: 'range', label: '花瓣数', min: 3, max: 12, step: 1 },
+    { key: 'petalRadius', type: 'range', label: '花瓣大小', min: 20, max: 60, step: 5 },
+    { key: 'spread', type: 'range', label: '展开距离', min: 15, max: 60, step: 5 },
+    { key: 'centerRadius', type: 'range', label: '中心大小', min: 5, max: 30, step: 5 },
+    { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 5, suffix: '°' },
+  ],
 };
 
 // 获取参数控制配置

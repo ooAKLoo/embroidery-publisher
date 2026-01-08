@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { getSvgStrokeProps } from '../constants/commonStyles';
 
 // 星座/连接点Logo - 随机点+最近邻连线
 const ConstellationLogo = ({
@@ -12,7 +13,9 @@ const ConstellationLogo = ({
   rotation = 0,                // 旋转角度
   strokeWidth = 1,
   colors = ['#1a1a1a', '#ffffff'],
+  commonStyles = {}
 }) => {
+  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
   const seededRandom = (s) => {
     const x = Math.sin(s) * 10000;
     return x - Math.floor(x);
@@ -141,7 +144,7 @@ const ConstellationLogo = ({
           <stop offset="100%" stopColor={color} stopOpacity="0.5" />
         </radialGradient>
       </defs>
-      <g transform={`rotate(${rotation}, 150, 150)`}>
+      <g transform={`rotate(${rotation}, 150, 150)`} {...strokeProps}>
         {/* 连接线 */}
         {connections.map((c) => (
           <line

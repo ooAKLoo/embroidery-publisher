@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { getSvgStrokeProps } from '../constants/commonStyles';
 
 // 复古排版 Logo - 多层轮廓/阴影，复古风格文字
 const RetroLogo = ({
@@ -10,7 +11,9 @@ const RetroLogo = ({
   serifs = true,              // 衬线
   strokeWidth = 2,
   colors = ['#1a1a1a', '#ffffff'],
+  commonStyles = {},
 }) => {
+  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
   const elements = useMemo(() => {
     const result = [];
     const cx = 150, cy = 150;
@@ -309,7 +312,7 @@ const RetroLogo = ({
           <stop offset="100%" stopColor={color} stopOpacity="0.7" />
         </linearGradient>
       </defs>
-      <g fill="none" strokeLinecap="round" strokeLinejoin="round">
+      <g fill="none" {...strokeProps}>
         {elements.map((el) => {
           if (el.type === 'letterLayer') {
             const opacity = el.isTop ? 1 : 0.3 + (1 - el.layer / layers) * 0.3;

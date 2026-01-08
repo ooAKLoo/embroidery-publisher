@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { getSvgStrokeProps } from '../constants/commonStyles';
 
 // 流体线条Logo - 曲线流动、贝塞尔曲线
 const FlowingCurvesLogo = ({
@@ -10,7 +11,9 @@ const FlowingCurvesLogo = ({
   rotation = 0,                // 旋转角度
   strokeWidth = 2,
   colors = ['#1a1a1a', '#ffffff'],
+  commonStyles = {},
 }) => {
+  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
   const curves = useMemo(() => {
     const result = [];
     const cx = 150, cy = 150;
@@ -95,7 +98,7 @@ const FlowingCurvesLogo = ({
           <stop offset="100%" stopColor={color} stopOpacity="0" />
         </linearGradient>
       </defs>
-      <g transform={`rotate(${rotation}, 150, 150)`} fill="none" strokeLinecap="round">
+      <g transform={`rotate(${rotation}, 150, 150)`} fill="none" {...strokeProps}>
         {curves.map((curve) => (
           <path
             key={curve.id}

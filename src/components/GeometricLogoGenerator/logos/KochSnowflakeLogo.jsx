@@ -1,14 +1,18 @@
 import { useMemo } from 'react';
 import { GradientDefs, generateGradientId, getStroke } from '../utils/gradient';
+import { getSvgStrokeProps } from '../constants/commonStyles';
 
 const KochSnowflakeLogo = ({
   iterations = 4,
   size = 100,
   rotation = 0,
   strokeWidth = 1.5,
-  colors = ['#06b6d4', '#0ea5e9']
+  colors = ['#06b6d4', '#0ea5e9'],
+  commonStyles = {}
 }) => {
   const gradientId = generateGradientId('koch', colors);
+  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
+
   const path = useMemo(() => {
     const kochLine = (x1, y1, x2, y2, depth) => {
       if (depth === 0) return [`L ${x2} ${y2}`];
@@ -33,7 +37,7 @@ const KochSnowflakeLogo = ({
     <svg viewBox="0 0 300 300" className="w-full h-full">
       <GradientDefs id={gradientId} colors={colors} />
       <g transform={`rotate(${rotation}, 150, 150)`}>
-        <path d={path} stroke={getStroke(gradientId, colors)} strokeWidth={strokeWidth} fill="none" />
+        <path d={path} stroke={getStroke(gradientId, colors)} strokeWidth={strokeWidth} fill="none" {...strokeProps} />
       </g>
     </svg>
   );

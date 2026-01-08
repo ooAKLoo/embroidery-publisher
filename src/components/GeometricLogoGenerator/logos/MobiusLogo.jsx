@@ -1,15 +1,19 @@
 import { useMemo } from 'react';
 import { rotateX, rotateY } from '../utils/math';
 import { GradientDefs, generateGradientId, getStroke } from '../utils/gradient';
+import { getSvgStrokeProps } from '../constants/commonStyles';
 
-const MobiusLogo = ({ 
-  rotationX: rx = 0.5, 
-  rotationY: ry = 0.3, 
-  scale = 80, 
-  strokeWidth = 1.5, 
-  colors = ['#8b5cf6', '#6366f1', '#3b82f6'] 
+const MobiusLogo = ({
+  rotationX: rx = 0.5,
+  rotationY: ry = 0.3,
+  scale = 80,
+  strokeWidth = 1.5,
+  colors = ['#8b5cf6', '#6366f1', '#3b82f6'],
+  commonStyles = {}
 }) => {
   const gradientId = generateGradientId('mobius', colors);
+  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
+
   const lines = useMemo(() => {
     const result = [];
     const R = 1;
@@ -43,7 +47,7 @@ const MobiusLogo = ({
   return (
     <svg viewBox="0 0 300 300" className="w-full h-full">
       <GradientDefs id={gradientId} colors={colors} />
-      <g stroke={getStroke(gradientId, colors)} strokeWidth={strokeWidth} fill="none" strokeLinecap="round">
+      <g stroke={getStroke(gradientId, colors)} strokeWidth={strokeWidth} fill="none" {...strokeProps}>
         {lines.map((strip, i) => (
           <path key={i} d={strip.map((p, j) => `${j === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ')} opacity={0.7} />
         ))}

@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { getSvgStrokeProps } from '../constants/commonStyles';
 
 // 粒子/点阵Logo - 散点分布、密度渐变、连线粒子
 const ParticleFieldLogo = ({
@@ -11,7 +12,9 @@ const ParticleFieldLogo = ({
   rotation = 0,                // 旋转角度
   strokeWidth = 2,
   colors = ['#1a1a1a', '#ffffff'],
+  commonStyles = {}
 }) => {
+  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
   // 简单的伪随机数生成器
   const seededRandom = (s) => {
     const x = Math.sin(s) * 10000;
@@ -118,7 +121,7 @@ const ParticleFieldLogo = ({
           <stop offset="100%" stopColor={color} stopOpacity="0.3" />
         </radialGradient>
       </defs>
-      <g transform={`rotate(${rotation}, 150, 150)`}>
+      <g transform={`rotate(${rotation}, 150, 150)`} {...strokeProps}>
         {/* 连线 */}
         {connections.map((c) => (
           <line

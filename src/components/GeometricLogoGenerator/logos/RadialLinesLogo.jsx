@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { getSvgStrokeProps } from '../constants/commonStyles';
 
 // 放射状渐变线条 - 从中心向外发散，支持螺旋偏移
 const RadialLinesLogo = ({
@@ -11,8 +12,10 @@ const RadialLinesLogo = ({
   gradientDirection = 'outward', // 渐变方向: 'outward' | 'inward'
   roundCap = true,              // 是否圆角端点
   strokeWidth = 2,              // (被覆盖，兼容全局)
-  colors = ['#1a1a1a', '#ffffff']
+  colors = ['#1a1a1a', '#ffffff'],
+  commonStyles = {},
 }) => {
+  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
   const segments = useMemo(() => {
     const result = [];
     const spiralRad = (spiral * Math.PI) / 180;
@@ -80,7 +83,7 @@ const RadialLinesLogo = ({
           }
         })}
       </defs>
-      <g strokeLinecap={roundCap ? 'round' : 'butt'}>
+      <g {...strokeProps} strokeLinecap={roundCap ? 'round' : 'butt'}>
         {segments.map((seg, i) => (
           <line
             key={i}

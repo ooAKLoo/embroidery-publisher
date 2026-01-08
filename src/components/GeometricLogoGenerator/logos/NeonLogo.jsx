@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { getSvgStrokeProps } from '../constants/commonStyles';
 
 // 霓虹灯效果 Logo - 发光管风格
 const NeonLogo = ({
@@ -10,7 +11,9 @@ const NeonLogo = ({
   tubeWidth = 'medium',       // 'thin' | 'medium' | 'thick'
   strokeWidth = 2,
   colors = ['#ff00ff', '#ffffff'],
+  commonStyles = {},
 }) => {
+  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
   const elements = useMemo(() => {
     const result = [];
     const cx = 150, cy = 150;
@@ -202,7 +205,7 @@ const NeonLogo = ({
           <stop offset="100%" stopColor={color} stopOpacity="0.7" />
         </linearGradient>
       </defs>
-      <g fill="none" strokeLinecap="round" strokeLinejoin="round">
+      <g fill="none" {...strokeProps}>
         {/* 背板 */}
         {elements.filter(el => el.type === 'backing').map((el) => (
           <rect

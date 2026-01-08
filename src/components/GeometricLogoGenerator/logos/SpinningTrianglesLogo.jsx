@@ -1,4 +1,6 @@
 import React, { useMemo } from 'react';
+import { GradientDefs, generateGradientId, getStroke, getFill } from '../utils/gradient';
+import { getSvgStrokeProps } from '../constants/commonStyles';
 
 // 旋转三角/箭头Logo
 const SpinningTrianglesLogo = ({
@@ -6,14 +8,19 @@ const SpinningTrianglesLogo = ({
   innerRadius = 35,
   outerRadius = 80,
   rotation = 0,
-  triangleRotation = 30, // 每个三角形自身的旋转
-  gap = 0.3, // 三角形之间的间隙
+  triangleRotation = 30,
+  gap = 0.3,
   strokeWidth = 3,
-  color = '#000000',
+  colors = ['#f97316', '#ec4899'],
   filled = false,
   centerDot = true,
   centerRadius = 6,
+  commonStyles = {},
 }) => {
+  const gradientId = generateGradientId('spinningtriangles', colors);
+  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
+  const strokeColor = getStroke(gradientId, colors);
+  const fillColor = getFill(gradientId, colors);
   const triangles = useMemo(() => {
     const result = [];
     const rotationRad = (rotation * Math.PI) / 180;
@@ -59,18 +66,20 @@ const SpinningTrianglesLogo = ({
 
   return (
     <svg viewBox="0 0 300 300" className="w-full h-full">
+      <GradientDefs id={gradientId} colors={colors} />
       {triangles.map((t) => (
         <path
           key={t.id}
           d={t.d}
-          fill={filled ? color : 'none'}
-          stroke={color}
+          fill={filled ? fillColor : 'none'}
+          stroke={strokeColor}
           strokeWidth={strokeWidth}
           strokeLinejoin="round"
+          {...strokeProps}
         />
       ))}
       {/* 中心圆点 */}
-      {centerDot && <circle cx="150" cy="150" r={centerRadius} fill={color} />}
+      {centerDot && <circle cx="150" cy="150" r={centerRadius} fill={fillColor} />}
     </svg>
   );
 };

@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { getSvgStrokeProps } from '../constants/commonStyles';
 
 // 弧线Logo - 圆弧段渐变，动态循环感
 const GradientArcLogo = ({
@@ -11,7 +12,9 @@ const GradientArcLogo = ({
   thickness = 12,               // 线条粗细
   strokeWidth = 2,              // (被覆盖，兼容全局)
   colors = ['#1a1a1a', '#ffffff'],
+  commonStyles = {},
 }) => {
+  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
   const arcPaths = useMemo(() => {
     const result = [];
     const angleStep = 360 / arcs;
@@ -67,7 +70,7 @@ const GradientArcLogo = ({
           );
         })}
       </defs>
-      <g fill="none" strokeLinecap={roundCap ? 'round' : 'butt'}>
+      <g fill="none" {...strokeProps} strokeLinecap={roundCap ? 'round' : 'butt'}>
         {arcPaths.map((arc) => (
           <path
             key={arc.id}

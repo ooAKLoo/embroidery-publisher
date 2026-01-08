@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { getSvgStrokeProps } from '../constants/commonStyles';
 
 // 禅圆 Logo - 日本书法风格的单笔圆，带有自然的不完美感
 const EnsoCircleLogo = ({
@@ -14,7 +15,9 @@ const EnsoCircleLogo = ({
   rotation = 0,               // 整体旋转角度
   strokeWidth = 2,
   colors = ['#1a1a1a', '#ffffff'],
+  commonStyles = {},
 }) => {
+  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
   const elements = useMemo(() => {
     const result = [];
     const cx = 150, cy = 150;
@@ -187,7 +190,7 @@ const EnsoCircleLogo = ({
           <feDisplacementMap in="SourceGraphic" in2="noise" scale="2" xChannelSelector="R" yChannelSelector="G" />
         </filter>
       </defs>
-      <g transform={`rotate(${rotation}, 150, 150)`}>
+      <g transform={`rotate(${rotation}, 150, 150)`} {...strokeProps}>
         {elements.map((el) => {
           if (el.type === 'enso') {
             return (

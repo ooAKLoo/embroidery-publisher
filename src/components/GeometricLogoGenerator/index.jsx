@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { LOGO_TYPES, getLogoType } from './constants/logoTypes';
+import { DEFAULT_COMMON_STYLES, getSvgStrokeProps } from './constants/commonStyles';
 import CategoryNav from './components/CategoryNav';
 import PreviewToolbar from './components/PreviewToolbar';
 import ControlTabs from './components/ControlTabs';
@@ -12,6 +13,7 @@ export default function GeometricLogoGenerator() {
   const [autoRotate, setAutoRotate] = useState(false);
   const [iconScale, setIconScale] = useState(0.7); // 导出时图标占画布比例
   const [borderRadius, setBorderRadius] = useState(0.22); // 导出圆角比例，0.22 为 macOS 风格
+  const [commonStyles, setCommonStyles] = useState(DEFAULT_COMMON_STYLES); // 通用样式状态
 
   const previewRef = useRef(null);
   const previewAreaRef = useRef(null);
@@ -157,7 +159,14 @@ export default function GeometricLogoGenerator() {
                 transformOrigin: 'center center',
               }}
             >
-              {activeConfig && <activeConfig.Component {...params[activeType]} colors={globalColors} strokeWidth={globalStrokeWidth} />}
+              {activeConfig && (
+                <activeConfig.Component
+                  {...params[activeType]}
+                  colors={globalColors}
+                  strokeWidth={globalStrokeWidth}
+                  commonStyles={commonStyles}
+                />
+              )}
             </div>
             {/* 缩放提示 - 点击可重置 */}
             {zoom !== 100 && (
@@ -193,6 +202,8 @@ export default function GeometricLogoGenerator() {
               setStrokeWidth={setGlobalStrokeWidth}
               bgColor={bgColor}
               setBgColor={setBgColor}
+              commonStyles={commonStyles}
+              setCommonStyles={setCommonStyles}
               activeType={activeType}
               activeConfig={activeConfig}
               params={params[activeType] || {}}

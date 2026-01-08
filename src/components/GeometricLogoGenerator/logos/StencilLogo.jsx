@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { getSvgStrokeProps } from '../constants/commonStyles';
 
 // 镂空模板风格 Logo - 军事/工业风格字母
 const StencilLogo = ({
@@ -10,7 +11,9 @@ const StencilLogo = ({
   boldness = 'bold',          // 'regular' | 'bold' | 'heavy'
   strokeWidth = 2,
   colors = ['#1a1a1a', '#ffffff'],
+  commonStyles = {},
 }) => {
+  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
   const elements = useMemo(() => {
     const result = [];
     const cx = 150, cy = 150;
@@ -231,7 +234,7 @@ const StencilLogo = ({
 
   return (
     <svg viewBox="0 0 300 300" className="w-full h-full">
-      <g fill="none" stroke={color} strokeLinecap="square" strokeLinejoin="miter">
+      <g fill="none" stroke={color} {...strokeProps}>
         {elements.map((el) => {
           if (el.type === 'letter') {
             return (

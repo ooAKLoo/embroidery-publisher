@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { getSvgStrokeProps } from '../constants/commonStyles';
 
 // 欧普艺术 Logo - 利用视觉错觉的几何图案
 const OpArtLogo = ({
@@ -9,7 +10,9 @@ const OpArtLogo = ({
   contrast = true,             // 高对比度（交替填充）
   strokeWidth = 2,
   colors = ['#1a1a1a', '#ffffff'],
+  commonStyles = {},
 }) => {
+  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
   const elements = useMemo(() => {
     const result = [];
     const cx = 150, cy = 150;
@@ -250,7 +253,7 @@ const OpArtLogo = ({
           <stop offset="100%" stopColor={primaryColor} stopOpacity="0.4" />
         </linearGradient>
       </defs>
-      <g clipPath="url(#opArtClip)">
+      <g clipPath="url(#opArtClip)" {...strokeProps}>
         {elements.map((el) => {
           if (el.type === 'cell') {
             const d = `M ${el.points.map(p => `${p.x} ${p.y}`).join(' L ')} Z`;
@@ -325,6 +328,7 @@ const OpArtLogo = ({
         stroke={primaryColor}
         strokeWidth={strokeWidth * 1.5}
         opacity={0.8}
+        {...strokeProps}
       />
     </svg>
   );

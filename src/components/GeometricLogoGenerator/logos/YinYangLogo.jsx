@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { getSvgStrokeProps } from '../constants/commonStyles';
 
 // 太极变体 Logo - 阴阳鱼的几何变体
 const YinYangLogo = ({
@@ -10,7 +11,9 @@ const YinYangLogo = ({
   outline = true,             // 显示外轮廓
   strokeWidth = 2,
   colors = ['#1a1a1a', '#ffffff'],
+  commonStyles = {},
 }) => {
+  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
   const elements = useMemo(() => {
     const result = [];
     const cx = 150, cy = 150;
@@ -177,7 +180,7 @@ const YinYangLogo = ({
           <stop offset="100%" stopColor={primaryColor} stopOpacity="0.8" />
         </linearGradient>
       </defs>
-      <g>
+      <g {...strokeProps}>
         {elements.map((el) => {
           if (el.type === 'circle' && el.isOutline) {
             return (

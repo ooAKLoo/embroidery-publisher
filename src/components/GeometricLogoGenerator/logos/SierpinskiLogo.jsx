@@ -1,13 +1,16 @@
 import { useMemo } from 'react';
 import { GradientDefs, generateGradientId, getStroke } from '../utils/gradient';
+import { getSvgStrokeProps } from '../constants/commonStyles';
 
 const SierpinskiLogo = ({
   iterations = 5,
   size = 110,
   rotation = 0,
   strokeWidth = 1,
-  colors = ['#ec4899', '#f43f5e']
+  colors = ['#ec4899', '#f43f5e'],
+  commonStyles = {}
 }) => {
+  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
   const gradientId = generateGradientId('sierpinski', colors);
   const triangles = useMemo(() => {
     const result = [];
@@ -31,7 +34,7 @@ const SierpinskiLogo = ({
   return (
     <svg viewBox="0 0 300 300" className="w-full h-full">
       <GradientDefs id={gradientId} colors={colors} />
-      <g transform={`rotate(${rotation}, 150, 150)`} stroke={getStroke(gradientId, colors)} strokeWidth={strokeWidth} fill="none">
+      <g transform={`rotate(${rotation}, 150, 150)`} stroke={getStroke(gradientId, colors)} strokeWidth={strokeWidth} fill="none" {...strokeProps}>
         {triangles.map((d, i) => <path key={i} d={d} />)}
       </g>
     </svg>

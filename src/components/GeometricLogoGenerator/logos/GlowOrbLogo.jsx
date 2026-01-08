@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { getSvgStrokeProps } from '../constants/commonStyles';
 
 // 渐变光晕Logo - 高斯模糊圆、多层叠加
 const GlowOrbLogo = ({
@@ -11,7 +12,9 @@ const GlowOrbLogo = ({
   rotation = 0,                // 旋转角度
   strokeWidth = 0,
   colors = ['#1a1a1a', '#ffffff'],
+  commonStyles = {},
 }) => {
+  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
   const seededRandom = (s) => {
     const x = Math.sin(s) * 10000;
     return x - Math.floor(x);
@@ -114,7 +117,7 @@ const GlowOrbLogo = ({
           <stop offset="100%" stopColor={color} stopOpacity="0" />
         </radialGradient>
       </defs>
-      <g transform={`rotate(${rotation}, 150, 150)`}>
+      <g transform={`rotate(${rotation}, 150, 150)`} {...strokeProps}>
         {orbs.map((orb) => (
           <circle
             key={orb.id}

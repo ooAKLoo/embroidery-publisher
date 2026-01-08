@@ -2,17 +2,21 @@ import { useMemo } from 'react';
 import { rotateX, rotateY, rotateZ } from '../utils/math';
 import { GradientDefs, generateGradientId, getStroke } from '../utils/gradient';
 import { PLATONIC_SOLIDS } from '../constants/polyhedra';
+import { getSvgStrokeProps } from '../constants/commonStyles';
 
-const PlatonicLogo = ({ 
-  solid = 'icosahedron', 
-  rotationX: rx = 0.5, 
-  rotationY: ry = 0.3, 
-  rotationZ: rz = 0, 
-  scale = 70, 
-  strokeWidth = 2.5, 
-  colors = ['#f97316', '#ec4899', '#a855f7', '#6366f1'] 
+const PlatonicLogo = ({
+  solid = 'icosahedron',
+  rotationX: rx = 0.5,
+  rotationY: ry = 0.3,
+  rotationZ: rz = 0,
+  scale = 70,
+  strokeWidth = 2.5,
+  colors = ['#f97316', '#ec4899', '#a855f7', '#6366f1'],
+  commonStyles = {}
 }) => {
   const gradientId = generateGradientId('platonic', colors);
+  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
+
   const projected = useMemo(() => {
     const { vertices, edges } = PLATONIC_SOLIDS[solid];
     const maxDist = Math.max(...vertices.map(v => Math.sqrt(v[0]**2 + v[1]**2 + v[2]**2)));
@@ -30,7 +34,7 @@ const PlatonicLogo = ({
   return (
     <svg viewBox="0 0 300 300" className="w-full h-full">
       <GradientDefs id={gradientId} colors={colors} />
-      <g stroke={getStroke(gradientId, colors)} strokeWidth={strokeWidth} fill="none" strokeLinecap="round" strokeLinejoin="round">
+      <g stroke={getStroke(gradientId, colors)} strokeWidth={strokeWidth} fill="none" {...strokeProps}>
         {projected.map((e, i) => <line key={i} x1={e.from.x} y1={e.from.y} x2={e.to.x} y2={e.to.y} opacity={0.5 + (e.depth + 1) * 0.25} />)}
       </g>
     </svg>

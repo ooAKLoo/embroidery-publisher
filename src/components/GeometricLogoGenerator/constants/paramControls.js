@@ -116,17 +116,6 @@ export const PARAM_CONTROLS = {
     { key: 'roundCap', type: 'checkbox', label: '圆角端点' },
   ],
   // 网格/点阵类
-  grid: [
-    { key: 'gridType', type: 'select', label: '网格类型', options: [
-      { value: 'square', label: '方形网格' },
-      { value: 'isometric', label: '等距网格' },
-      { value: 'radial', label: '极坐标网格' },
-      { value: 'contour', label: '等高线' },
-    ]},
-    { key: 'lineCount', type: 'range', label: '线条数量', min: 4, max: 16, step: 1 },
-    { key: 'distortion', type: 'range', label: '扭曲程度', min: 0, max: 50, step: 5, hint: '仅等高线模式' },
-    { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 5, suffix: '°' },
-  ],
   particle: [
     { key: 'particleCount', type: 'range', label: '粒子数量', min: 20, max: 100, step: 5 },
     { key: 'distribution', type: 'select', label: '分布方式', options: [

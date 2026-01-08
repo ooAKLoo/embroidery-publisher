@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { getSvgStrokeProps } from '../constants/commonStyles';
 
 // 迷宫/回路Logo - 路径生成、循环结构
 const MazeLogo = ({
@@ -10,7 +11,9 @@ const MazeLogo = ({
   rotation = 0,                // 旋转角度
   strokeWidth = 2,
   colors = ['#1a1a1a', '#ffffff'],
+  commonStyles = {},
 }) => {
+  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
   const seededRandom = (s) => {
     const x = Math.sin(s) * 10000;
     return x - Math.floor(x);
@@ -196,7 +199,7 @@ const MazeLogo = ({
           <stop offset="100%" stopColor={color} stopOpacity="0.5" />
         </radialGradient>
       </defs>
-      <g transform={`rotate(${rotation}, 150, 150)`} fill="none" stroke="url(#mazeGrad)" strokeWidth={strokeWidth} strokeLinecap="round">
+      <g transform={`rotate(${rotation}, 150, 150)`} fill="none" stroke="url(#mazeGrad)" strokeWidth={strokeWidth} {...strokeProps}>
         {paths.map((p) => (
           <path
             key={p.id}

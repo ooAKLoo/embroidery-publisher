@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { getSvgStrokeProps } from '../constants/commonStyles';
 
 // 同心圆Logo - 多层圆环、波纹扩散
 const ConcentricRingsLogo = ({
@@ -10,7 +11,9 @@ const ConcentricRingsLogo = ({
   rotation = 0,                // 旋转角度
   strokeWidth = 2,
   colors = ['#1a1a1a', '#ffffff'],
+  commonStyles = {},
 }) => {
+  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
   const rings = useMemo(() => {
     const result = [];
     const cx = 150, cy = 150;
@@ -77,7 +80,7 @@ const ConcentricRingsLogo = ({
           <stop offset="100%" stopColor={color} stopOpacity="1" />
         </radialGradient>
       </defs>
-      <g transform={`rotate(${rotation}, 150, 150)`} fill="none">
+      <g transform={`rotate(${rotation}, 150, 150)`} fill="none" {...strokeProps}>
         {rings.map((ring) => (
           <path
             key={ring.id}

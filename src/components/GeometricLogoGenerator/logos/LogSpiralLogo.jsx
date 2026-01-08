@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { GradientDefs, generateGradientId, getStroke } from '../utils/gradient';
+import { getSvgStrokeProps } from '../constants/commonStyles';
 
 const LogSpiralLogo = ({
   a = 5,
@@ -7,9 +8,11 @@ const LogSpiralLogo = ({
   turns = 4,
   rotation = 0,
   strokeWidth = 2,
-  colors = ['#14b8a6', '#06b6d4', '#3b82f6']
+  colors = ['#14b8a6', '#06b6d4', '#3b82f6'],
+  commonStyles = {}
 }) => {
   const gradientId = generateGradientId('logspiral', colors);
+  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
   const path = useMemo(() => {
     const pts = [];
     for (let t = 0; t <= turns * 2 * Math.PI; t += 0.03) {
@@ -25,7 +28,7 @@ const LogSpiralLogo = ({
     <svg viewBox="0 0 300 300" className="w-full h-full">
       <GradientDefs id={gradientId} colors={colors} />
       <g transform={`rotate(${rotation}, 150, 150)`}>
-        <path d={path} stroke={getStroke(gradientId, colors)} strokeWidth={strokeWidth} fill="none" />
+        <path d={path} stroke={getStroke(gradientId, colors)} strokeWidth={strokeWidth} fill="none" {...strokeProps} />
       </g>
     </svg>
   );

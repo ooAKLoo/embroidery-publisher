@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { getSvgStrokeProps } from '../constants/commonStyles';
 
 // 旋转叶片Logo - 弯曲线条渐变风格
 const SpinnerBladesLogo = ({
@@ -9,7 +10,9 @@ const SpinnerBladesLogo = ({
   rotation = 0,             // 整体旋转角度
   strokeWidth = 8,
   colors = ['#1a1a1a', '#ffffff'],
+  commonStyles = {},
 }) => {
+  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
   const paths = useMemo(() => {
     const result = [];
     const cx = 150, cy = 150;
@@ -62,16 +65,17 @@ const SpinnerBladesLogo = ({
           </linearGradient>
         ))}
       </defs>
-      {paths.map((p) => (
-        <path
-          key={p.id}
-          d={p.path}
-          stroke={`url(#spinnerGrad-${p.id})`}
-          strokeWidth={strokeWidth}
-          strokeLinecap="round"
-          fill="none"
-        />
-      ))}
+      <g {...strokeProps}>
+        {paths.map((p) => (
+          <path
+            key={p.id}
+            d={p.path}
+            stroke={`url(#spinnerGrad-${p.id})`}
+            strokeWidth={strokeWidth}
+            fill="none"
+          />
+        ))}
+      </g>
     </svg>
   );
 };

@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { GradientDefs, generateGradientId, getStroke } from '../utils/gradient';
+import { getSvgStrokeProps } from '../constants/commonStyles';
 
 const WireframeLogo = ({
   vertices = 6,
@@ -7,8 +8,10 @@ const WireframeLogo = ({
   rotation = 0,
   innerConnections = true,
   strokeWidth = 2.5,
-  colors = ['#f97316', '#c084fc', '#60a5fa']
+  colors = ['#f97316', '#c084fc', '#60a5fa'],
+  commonStyles = {}
 }) => {
+  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
   const gradientId = generateGradientId('wireframe', colors);
   const rotationRad = (rotation * Math.PI) / 180;
   const { points, innerPoints } = useMemo(() => {
@@ -31,7 +34,7 @@ const WireframeLogo = ({
   return (
     <svg viewBox="0 0 300 300" className="w-full h-full">
       <GradientDefs id={gradientId} colors={colors} />
-      <g stroke={getStroke(gradientId, colors)} strokeWidth={strokeWidth} fill="none">
+      <g stroke={getStroke(gradientId, colors)} strokeWidth={strokeWidth} fill="none" {...strokeProps}>
         <path d={outerPath} />
         {connectionLines.map((d, i) => <path key={i} d={d} />)}
       </g>

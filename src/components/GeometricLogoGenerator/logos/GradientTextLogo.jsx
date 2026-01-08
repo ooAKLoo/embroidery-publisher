@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { getSvgStrokeProps } from '../constants/commonStyles';
 
 // 渐变填充文字 Logo - 现代科技感
 const GradientTextLogo = ({
@@ -11,7 +12,9 @@ const GradientTextLogo = ({
   fontWeight = 'bold',        // 'light' | 'regular' | 'bold'
   strokeWidth = 2,
   colors = ['#1a1a1a', '#ffffff'],
+  commonStyles = {},
 }) => {
+  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
   const elements = useMemo(() => {
     const result = [];
     const cx = 150, cy = 150;
@@ -252,8 +255,7 @@ const GradientTextLogo = ({
             fill="none"
             stroke={color}
             strokeWidth={strokeWidth}
-            strokeLinecap="round"
-            strokeLinejoin="round"
+            {...strokeProps}
           />
         ))}
 

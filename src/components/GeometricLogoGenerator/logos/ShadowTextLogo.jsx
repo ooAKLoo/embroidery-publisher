@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { getSvgStrokeProps } from '../constants/commonStyles';
 
 // 3D 阴影效果 Logo - 立体投影文字
 const ShadowTextLogo = ({
@@ -10,7 +11,9 @@ const ShadowTextLogo = ({
   fontWeight = 'bold',        // 'light' | 'regular' | 'bold'
   strokeWidth = 2,
   colors = ['#1a1a1a', '#ffffff'],
+  commonStyles = {},
 }) => {
+  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
   const elements = useMemo(() => {
     const result = [];
     const cx = 150, cy = 150;
@@ -248,7 +251,7 @@ const ShadowTextLogo = ({
           ))}
         </clipPath>
       </defs>
-      <g fill="none" strokeLinecap="round" strokeLinejoin="round">
+      <g fill="none" {...strokeProps}>
         {/* 阴影层 */}
         {elements.filter(el => el.type === 'shadow' || el.type === 'shadowLayer').map((el) => {
           let opacity = 0.3;

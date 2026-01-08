@@ -1,8 +1,25 @@
 import { useState, useRef } from 'react';
 import { COLOR_PRESETS } from '../constants/colors';
 import { PARAM_CONTROLS } from '../constants/paramControls';
+import {
+  COMMON_STYLE_CONTROLS,
+  DEFAULT_COMMON_STYLES,
+  supportsBorderControl,
+} from '../constants/commonStyles';
 
-const StylePanel = ({ colors, setColors, strokeWidth, setStrokeWidth, bgColor, setBgColor, activeType, params, updateParam }) => {
+const StylePanel = ({
+  colors,
+  setColors,
+  strokeWidth,
+  setStrokeWidth,
+  bgColor,
+  setBgColor,
+  activeType,
+  params,
+  updateParam,
+  commonStyles = DEFAULT_COMMON_STYLES,
+  setCommonStyles,
+}) => {
   // 检查当前类型是否支持 rotation 参数（2D 图形的旋转）
   const rotationControl = PARAM_CONTROLS[activeType]?.find(c => c.key === 'rotation');
   const currentRotation = params?.rotation ?? rotationControl?.min ?? 0;
@@ -166,6 +183,53 @@ const StylePanel = ({ colors, setColors, strokeWidth, setStrokeWidth, bgColor, s
             onChange={(e) => updateParam('rotation', parseFloat(e.target.value))}
             className="w-full accent-slate-900"
           />
+        </div>
+      )}
+
+      {/* 通用样式控制 */}
+      {setCommonStyles && (
+        <div className="pt-4 border-t border-slate-200">
+          <label className="block text-xs font-medium text-slate-600 mb-3">通用样式</label>
+          <div className="space-y-3">
+            {COMMON_STYLE_CONTROLS.map(control => (
+              <div key={control.key}>
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-xs text-slate-500">{control.label}</span>
+                </div>
+                <select
+                  value={commonStyles[control.key] || DEFAULT_COMMON_STYLES[control.key]}
+                  onChange={(e) => setCommonStyles({ ...commonStyles, [control.key]: e.target.value })}
+                  className="w-full px-2 py-1.5 bg-slate-100 rounded-lg text-xs appearance-none cursor-pointer hover:bg-slate-200 transition-colors"
+                >
+                  {control.options.map(opt => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
+              </div>
+            ))}
+
+            {/* 显示外边界 - 仅部分图形支持 */}
+            {supportsBorderControl(activeType) && (
+              <label className="flex items-center justify-between cursor-pointer py-1">
+                <span className="text-xs text-slate-500">显示外边界</span>
+                <button
+                  onClick={() => setCommonStyles({
+                    ...commonStyles,
+                    showOuterBorder: !commonStyles.showOuterBorder
+                  })}
+                  className={`relative w-9 h-5 rounded-full transition-colors ${
+                    commonStyles.showOuterBorder !== false ? 'bg-slate-700' : 'bg-slate-300'
+                  }`}
+                >
+                  <span
+                    className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform ${
+                      commonStyles.showOuterBorder !== false ? 'translate-x-4' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
+              </label>
+            )}
+          </div>
         </div>
       )}
     </div>

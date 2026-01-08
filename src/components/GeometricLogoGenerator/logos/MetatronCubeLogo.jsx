@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { getSvgStrokeProps } from '../constants/commonStyles';
 
 // 梅塔特隆立方 Logo - 神圣几何学图案，包含柏拉图立体
 const MetatronCubeLogo = ({
@@ -10,7 +11,9 @@ const MetatronCubeLogo = ({
   rotation = 0,               // 旋转角度
   strokeWidth = 2,
   colors = ['#1a1a1a', '#ffffff'],
+  commonStyles = {},
 }) => {
+  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
   const elements = useMemo(() => {
     const result = [];
     const cx = 150, cy = 150;
@@ -235,7 +238,7 @@ const MetatronCubeLogo = ({
           <stop offset="100%" stopColor={color} stopOpacity="0.4" />
         </linearGradient>
       </defs>
-      <g stroke={color} fill="none">
+      <g stroke={color} fill="none" {...strokeProps}>
         {elements.map((el) => {
           if (el.type === 'circle') {
             const dash = getDashArray(circleStyle);

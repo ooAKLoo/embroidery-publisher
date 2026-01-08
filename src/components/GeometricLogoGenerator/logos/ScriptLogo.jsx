@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { getSvgStrokeProps } from '../constants/commonStyles';
 
 // 连笔书法风格 Logo - 类似 "Six" 设计的流畅手写体
 const ScriptLogo = ({
@@ -11,7 +12,9 @@ const ScriptLogo = ({
   gradientEffect = true,       // 渐变效果
   strokeWidth = 2,
   colors = ['#1a1a1a', '#ffffff'],
+  commonStyles = {},
 }) => {
+  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
   const elements = useMemo(() => {
     const result = [];
     const cx = 150, cy = 150;
@@ -283,11 +286,10 @@ const ScriptLogo = ({
           </linearGradient>
         )}
       </defs>
-      <g 
-        fill="none" 
+      <g
+        fill="none"
         stroke={gradientEffect ? `url(#${gradientId})` : color}
-        strokeLinecap="round" 
-        strokeLinejoin="round"
+        {...strokeProps}
       >
         {elements.map((el) => {
           if (el.type === 'letter') {

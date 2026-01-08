@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { getSvgStrokeProps } from '../constants/commonStyles';
 
 // 六边形/蜂窝Logo - 六边形网格、渐变填充
 const HoneycombLogo = ({
@@ -9,7 +10,9 @@ const HoneycombLogo = ({
   rotation = 0,                // 旋转角度
   strokeWidth = 2,
   colors = ['#1a1a1a', '#ffffff'],
+  commonStyles = {}
 }) => {
+  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
   const hexagons = useMemo(() => {
     const result = [];
     const cx = 150, cy = 150;
@@ -86,7 +89,7 @@ const HoneycombLogo = ({
           <stop offset="100%" stopColor={color1} stopOpacity="0.2" />
         </radialGradient>
       </defs>
-      <g transform={`rotate(${rotation}, 150, 150)`}>
+      <g transform={`rotate(${rotation}, 150, 150)`} {...strokeProps}>
         {hexagons.map((hex) => {
           let fill = 'none';
           let stroke = color1;

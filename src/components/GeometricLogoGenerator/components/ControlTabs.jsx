@@ -15,6 +15,9 @@ const ControlTabs = ({
   setStrokeWidth,
   bgColor,
   setBgColor,
+  // Common styles props
+  commonStyles,
+  setCommonStyles,
   // Param props
   activeType,
   activeConfig,
@@ -61,6 +64,8 @@ const ControlTabs = ({
               activeType={activeType}
               params={params}
               updateParam={updateParam}
+              commonStyles={commonStyles}
+              setCommonStyles={setCommonStyles}
             />
 
             {/* 图形参数 */}

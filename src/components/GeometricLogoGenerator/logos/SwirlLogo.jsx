@@ -1,4 +1,6 @@
 import React, { useMemo } from 'react';
+import { GradientDefs, generateGradientId, getFill } from '../utils/gradient';
+import { getSvgStrokeProps } from '../constants/commonStyles';
 
 // 旋涡叶片Logo (Samyang/漩涡风格)
 const SwirlLogo = ({
@@ -6,10 +8,15 @@ const SwirlLogo = ({
   innerRadius = 25,
   outerRadius = 70,
   rotation = 0,
-  twist = 60, // 扭曲角度
-  bladeWidth = 0.6, // 叶片宽度占比
-  color = '#ffffff',
+  twist = 60,
+  bladeWidth = 0.6,
+  colors = ['#f97316', '#ec4899'],
+  strokeWidth = 1,
+  commonStyles = {},
 }) => {
+  const gradientId = generateGradientId('swirl', colors);
+  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
+  const fillColor = getFill(gradientId, colors);
   const bladePaths = useMemo(() => {
     const result = [];
     const rotationRad = (rotation * Math.PI) / 180;
@@ -60,8 +67,9 @@ const SwirlLogo = ({
 
   return (
     <svg viewBox="0 0 300 300" className="w-full h-full">
+      <GradientDefs id={gradientId} colors={colors} />
       {bladePaths.map((b) => (
-        <path key={b.id} d={b.d} fill={color} />
+        <path key={b.id} d={b.d} fill={fillColor} {...strokeProps} />
       ))}
     </svg>
   );

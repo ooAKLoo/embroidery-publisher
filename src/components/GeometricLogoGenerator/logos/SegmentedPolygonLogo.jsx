@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { getSvgStrokeProps } from '../constants/commonStyles';
 
 // 断裂多边形Logo - 线段不连接 + 渐变消失效果
 const SegmentedPolygonLogo = ({
@@ -12,7 +13,9 @@ const SegmentedPolygonLogo = ({
   strokeWidth = 2,              // (被覆盖)
   thickness = 12,               // 实际线条粗细
   colors = ['#1a1a1a', '#ffffff'],
+  commonStyles = {},
 }) => {
+  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
   const segments = useMemo(() => {
     const result = [];
     const angleStep = (2 * Math.PI) / sides;
@@ -89,7 +92,7 @@ const SegmentedPolygonLogo = ({
           );
         })}
       </defs>
-      <g strokeLinecap={roundCap ? 'round' : 'butt'}>
+      <g {...strokeProps} strokeLinecap={roundCap ? 'round' : 'butt'}>
         {segments.map((seg) => (
           <line
             key={seg.id}

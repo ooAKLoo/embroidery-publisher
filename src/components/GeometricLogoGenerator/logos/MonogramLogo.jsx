@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { getSvgStrokeProps } from '../constants/commonStyles';
 
 // 字母组合/双向图 Logo - 几何化的字母重叠设计
 const MonogramLogo = ({
@@ -10,7 +11,9 @@ const MonogramLogo = ({
   rotation = 0,                // 旋转角度
   strokeWidth = 2,
   colors = ['#1a1a1a', '#ffffff'],
+  commonStyles = {},
 }) => {
+  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
   const elements = useMemo(() => {
     const result = [];
     const cx = 150, cy = 150;
@@ -315,7 +318,7 @@ const MonogramLogo = ({
           <stop offset="100%" stopColor={color} stopOpacity="0.7" />
         </linearGradient>
       </defs>
-      <g fill="none" strokeLinecap="round" strokeLinejoin="round">
+      <g fill="none" {...strokeProps}>
         {elements.map((el) => {
           if (el.type === 'letter') {
             return (

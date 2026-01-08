@@ -22,7 +22,6 @@ export { default as RadialLinesLogo } from './RadialLinesLogo';
 export { default as SegmentedPolygonLogo } from './SegmentedPolygonLogo';
 export { default as GradientArcLogo } from './GradientArcLogo';
 // 新增几何图案风格
-export { default as GridPatternLogo } from './GridPatternLogo';
 export { default as ParticleFieldLogo } from './ParticleFieldLogo';
 export { default as HoneycombLogo } from './HoneycombLogo';
 export { default as ConcentricRingsLogo } from './ConcentricRingsLogo';

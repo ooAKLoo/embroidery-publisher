@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { getSvgStrokeProps } from '../constants/commonStyles';
 
 // 螺旋线Logo - 阿基米德螺线、黄金螺旋
 const SpiralLogo = ({
@@ -9,7 +10,9 @@ const SpiralLogo = ({
   rotation = 0,                // 旋转角度
   strokeWidth = 2,
   colors = ['#1a1a1a', '#ffffff'],
+  commonStyles = {},
 }) => {
+  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
   const path = useMemo(() => {
     const cx = 150, cy = 150;
     const maxRadius = 115;
@@ -84,7 +87,7 @@ const SpiralLogo = ({
         stroke="url(#spiralGrad)"
         strokeWidth={strokeWidth}
         fill="none"
-        strokeLinecap="round"
+        {...strokeProps}
       />
     </svg>
   );

@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { getSvgStrokeProps } from '../constants/commonStyles';
 
 // 彭罗斯拼贴 Logo - 非周期性对称图案
 const PenroseTileLogo = ({
@@ -9,7 +10,9 @@ const PenroseTileLogo = ({
   rotation = 0,               // 旋转角度
   strokeWidth = 2,
   colors = ['#1a1a1a', '#ffffff'],
+  commonStyles = {},
 }) => {
+  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
   const elements = useMemo(() => {
     const result = [];
     const cx = 150, cy = 150;
@@ -268,7 +271,7 @@ const PenroseTileLogo = ({
           <stop offset="100%" stopColor={color} stopOpacity="0.1" />
         </linearGradient>
       </defs>
-      <g stroke={color} strokeWidth={strokeWidth} strokeLinejoin="round">
+      <g stroke={color} strokeWidth={strokeWidth} {...strokeProps}>
         {elements.map((el) => {
           if (el.type === 'polygon') {
             const d = `M ${el.points.map(p => `${p.x} ${p.y}`).join(' L ')} Z`;

@@ -18,3 +18,6 @@ export const GradientDefs = ({ id, colors, angle = 135 }) => {
 
 // 根据颜色数组获取stroke属性
 export const getStroke = (gradientId, colors) => colors.length === 1 ? colors[0] : `url(#${gradientId})`;
+
+// 根据颜色数组获取fill属性
+export const getFill = (gradientId, colors) => colors.length === 1 ? colors[0] : `url(#${gradientId})`;

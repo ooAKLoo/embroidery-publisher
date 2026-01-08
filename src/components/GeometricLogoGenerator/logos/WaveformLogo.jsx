@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { getSvgStrokeProps } from '../constants/commonStyles';
 
 // 波形Logo - 正弦波叠加、相位偏移
 const WaveformLogo = ({
@@ -11,7 +12,9 @@ const WaveformLogo = ({
   rotation = 0,                // 旋转角度
   strokeWidth = 2,
   colors = ['#1a1a1a', '#ffffff'],
+  commonStyles = {},
 }) => {
+  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
   const waves = useMemo(() => {
     const result = [];
     const cx = 150, cy = 150;
@@ -96,7 +99,7 @@ const WaveformLogo = ({
           <stop offset="100%" stopColor={color} stopOpacity="0" />
         </linearGradient>
       </defs>
-      <g transform={`rotate(${rotation}, 150, 150)`} fill="none" strokeLinecap="round">
+      <g transform={`rotate(${rotation}, 150, 150)`} fill="none" {...strokeProps}>
         {waves.map((wave) => (
           <path
             key={wave.id}

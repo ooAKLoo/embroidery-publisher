@@ -1,13 +1,16 @@
 import { useMemo } from 'react';
 import { GradientDefs, generateGradientId, getStroke } from '../utils/gradient';
+import { getSvgStrokeProps } from '../constants/commonStyles';
 
 const DragonCurveLogo = ({
   iterations = 12,
   size = 4,
   rotation = 0,
   strokeWidth = 1.5,
-  colors = ['#f97316', '#ef4444']
+  colors = ['#f97316', '#ef4444'],
+  commonStyles = {}
 }) => {
+  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
   const gradientId = generateGradientId('dragon', colors);
   const path = useMemo(() => {
     let sequence = [1];
@@ -29,7 +32,7 @@ const DragonCurveLogo = ({
   return (
     <svg viewBox="0 0 300 300" className="w-full h-full">
       <GradientDefs id={gradientId} colors={colors} />
-      <g transform={`rotate(${rotation}, 150, 150)`}>
+      <g transform={`rotate(${rotation}, 150, 150)`} {...strokeProps}>
         <path d={path} stroke={getStroke(gradientId, colors)} strokeWidth={strokeWidth} fill="none" />
       </g>
     </svg>

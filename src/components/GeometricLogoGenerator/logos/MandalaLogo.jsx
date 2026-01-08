@@ -7,6 +7,7 @@ const MandalaLogo = ({
   complexity = 3,              // 复杂度(每层元素)
   style = 'petals',            // 'petals' | 'geometric' | 'dots' | 'mixed'
   innerRadius = 20,            // 内半径
+  rotation = 0,                // 旋转角度
   strokeWidth = 2,
   colors = ['#1a1a1a', '#ffffff'],
 }) => {
@@ -125,7 +126,7 @@ const MandalaLogo = ({
           <stop offset="100%" stopColor={color} stopOpacity="0.5" />
         </radialGradient>
       </defs>
-      <g stroke={color} strokeWidth={strokeWidth} fill="none">
+      <g transform={`rotate(${rotation}, 150, 150)`} stroke={color} strokeWidth={strokeWidth} fill="none">
         {elements.map((el) => {
           const opacity = el.layer >= 0 ? 0.4 + (el.layer / layers) * 0.6 : 1;
 

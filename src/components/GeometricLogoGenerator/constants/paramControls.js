@@ -18,45 +18,73 @@ export const PARAM_CONTROLS = {
     { key: 'rotationX', type: 'range', label: 'X轴旋转', min: 0, max: Math.PI * 2, step: 0.01 },
     { key: 'rotationY', type: 'range', label: 'Y轴旋转', min: 0, max: Math.PI * 2, step: 0.01 },
   ],
+  // 参数曲线类
+  butterfly: [
+    { key: 'scale', type: 'range', label: '缩放', min: 20, max: 50, step: 5 },
+    { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 5, suffix: '°' },
+  ],
+  cardioid: [
+    { key: 'scale', type: 'range', label: '缩放', min: 30, max: 70, step: 5 },
+    { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 5, suffix: '°' },
+  ],
+  astroid: [
+    { key: 'scale', type: 'range', label: '缩放', min: 60, max: 120, step: 5 },
+    { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 5, suffix: '°' },
+  ],
+  lemniscate: [
+    { key: 'scale', type: 'range', label: '缩放', min: 50, max: 100, step: 5 },
+    { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 5, suffix: '°' },
+  ],
   squircle: [
     { key: 'n', type: 'range', label: '圆角指数 n', min: 2, max: 10, step: 0.5, hint: 'n=2 圆形, n=4 iOS图标, n→∞ 方形' },
+    { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 5, suffix: '°' },
   ],
   koch: [
     { key: 'iterations', type: 'range', label: '迭代次数', min: 1, max: 6, step: 1 },
+    { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 5, suffix: '°' },
   ],
   sierpinski: [
     { key: 'iterations', type: 'range', label: '迭代次数', min: 1, max: 7, step: 1 },
+    { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 5, suffix: '°' },
   ],
   tree: [
     { key: 'iterations', type: 'range', label: '迭代次数', min: 4, max: 12, step: 1 },
     { key: 'angle', type: 'range', label: '分支角度', min: 10, max: 45, step: 1, suffix: '°' },
+    { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 5, suffix: '°' },
   ],
   dragon: [
     { key: 'iterations', type: 'range', label: '迭代次数', min: 6, max: 15, step: 1 },
+    { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 5, suffix: '°' },
   ],
   spirograph: [
     { key: 'R', type: 'range', label: '外圆 R', min: 40, max: 120, step: 1 },
     { key: 'r', type: 'range', label: '内圆 r', min: 10, max: 80, step: 1 },
     { key: 'd', type: 'range', label: '笔距 d', min: 10, max: 100, step: 1 },
+    { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 5, suffix: '°' },
   ],
   rose: [
     { key: 'k', type: 'range', label: '花瓣 k', min: 2, max: 12, step: 0.5 },
+    { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 5, suffix: '°' },
   ],
   lissajous: [
     { key: 'a', type: 'range', label: '频率 a', min: 1, max: 10, step: 1 },
     { key: 'b', type: 'range', label: '频率 b', min: 1, max: 10, step: 1 },
+    { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 5, suffix: '°' },
   ],
   logspiral: [
     { key: 'b', type: 'range', label: '增长率 b', min: 0.05, max: 0.3, step: 0.01 },
     { key: 'turns', type: 'range', label: '圈数', min: 2, max: 8, step: 1 },
+    { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 5, suffix: '°' },
   ],
   wireframe: [
     { key: 'vertices', type: 'range', label: '顶点数', min: 3, max: 12, step: 1 },
     { key: 'innerConnections', type: 'checkbox', label: '内部连接' },
+    { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 5, suffix: '°' },
   ],
   islamic: [
     { key: 'rings', type: 'range', label: '环数', min: 1, max: 5, step: 1 },
     { key: 'petals', type: 'range', label: '花瓣数', min: 4, max: 16, step: 1 },
+    { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 5, suffix: '°' },
   ],
   radial: [
     { key: 'lines', type: 'range', label: '线条数量', min: 3, max: 16, step: 1 },
@@ -66,6 +94,7 @@ export const PARAM_CONTROLS = {
     { key: 'spiral', type: 'range', label: '螺旋偏移', min: -45, max: 45, step: 1, suffix: '°', hint: '产生旋转动感' },
     { key: 'gradientDirection', type: 'select', label: '渐变方向', options: [{ value: 'outward', label: '向外渐变' }, { value: 'inward', label: '向内渐变' }] },
     { key: 'roundCap', type: 'checkbox', label: '圆角端点' },
+    { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 5, suffix: '°' },
   ],
   segmented: [
     { key: 'sides', type: 'range', label: '边数', min: 3, max: 12, step: 1 },
@@ -96,6 +125,7 @@ export const PARAM_CONTROLS = {
     ]},
     { key: 'lineCount', type: 'range', label: '线条数量', min: 4, max: 16, step: 1 },
     { key: 'distortion', type: 'range', label: '扭曲程度', min: 0, max: 50, step: 5, hint: '仅等高线模式' },
+    { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 5, suffix: '°' },
   ],
   particle: [
     { key: 'particleCount', type: 'range', label: '粒子数量', min: 20, max: 100, step: 5 },
@@ -109,6 +139,7 @@ export const PARAM_CONTROLS = {
     { key: 'connectionDistance', type: 'range', label: '连线距离', min: 20, max: 80, step: 5 },
     { key: 'particleSize', type: 'range', label: '粒子大小', min: 2, max: 8, step: 1 },
     { key: 'seed', type: 'range', label: '随机种子', min: 1, max: 100, step: 1, hint: '改变随机分布' },
+    { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 5, suffix: '°' },
   ],
   honeycomb: [
     { key: 'rings', type: 'range', label: '环数', min: 1, max: 5, step: 1 },
@@ -119,6 +150,7 @@ export const PARAM_CONTROLS = {
       { value: 'alternating', label: '交替填充' },
     ]},
     { key: 'gap', type: 'range', label: '间距', min: 0, max: 8, step: 1 },
+    { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 5, suffix: '°' },
   ],
   constellation: [
     { key: 'starCount', type: 'range', label: '星星数量', min: 10, max: 40, step: 2 },
@@ -132,6 +164,7 @@ export const PARAM_CONTROLS = {
     { key: 'starSize', type: 'range', label: '星星大小', min: 2, max: 8, step: 1 },
     { key: 'glowEffect', type: 'checkbox', label: '发光效果' },
     { key: 'seed', type: 'range', label: '随机种子', min: 1, max: 100, step: 1 },
+    { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 5, suffix: '°' },
   ],
   // 圆形/环形类
   concentric: [
@@ -149,6 +182,7 @@ export const PARAM_CONTROLS = {
       { value: 'exponential', label: '指数' },
     ]},
     { key: 'waveAmplitude', type: 'range', label: '波动幅度', min: 0, max: 20, step: 2, hint: '仅波浪模式' },
+    { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 5, suffix: '°' },
   ],
   spiral: [
     { key: 'spiralType', type: 'select', label: '螺旋类型', options: [
@@ -175,6 +209,7 @@ export const PARAM_CONTROLS = {
       { value: 'mixed', label: '混合' },
     ]},
     { key: 'innerRadius', type: 'range', label: '内半径', min: 10, max: 40, step: 5 },
+    { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 5, suffix: '°' },
   ],
   // 动态/流体类
   flowing: [
@@ -188,6 +223,7 @@ export const PARAM_CONTROLS = {
     { key: 'amplitude', type: 'range', label: '振幅', min: 10, max: 80, step: 5 },
     { key: 'frequency', type: 'range', label: '频率', min: 1, max: 5, step: 0.5 },
     { key: 'phase', type: 'range', label: '相位', min: 0, max: 360, step: 15, suffix: '°' },
+    { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 5, suffix: '°' },
   ],
   waveform: [
     { key: 'waveCount', type: 'range', label: '波形数量', min: 1, max: 6, step: 1 },
@@ -205,6 +241,7 @@ export const PARAM_CONTROLS = {
       { value: 'vertical', label: '垂直' },
       { value: 'circular', label: '环形' },
     ]},
+    { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 5, suffix: '°' },
   ],
   glowOrb: [
     { key: 'orbCount', type: 'range', label: '光球数量', min: 1, max: 6, step: 1 },
@@ -218,6 +255,7 @@ export const PARAM_CONTROLS = {
     { key: 'intensity', type: 'range', label: '强度', min: 0.3, max: 1, step: 0.1 },
     { key: 'orbSize', type: 'range', label: '光球大小', min: 30, max: 100, step: 10 },
     { key: 'seed', type: 'range', label: '随机种子', min: 1, max: 100, step: 1, hint: '改变分布' },
+    { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 5, suffix: '°' },
   ],
   // 纹理/碎片类
   noise: [
@@ -231,6 +269,7 @@ export const PARAM_CONTROLS = {
     ]},
     { key: 'intensity', type: 'range', label: '强度', min: 0.5, max: 2, step: 0.1 },
     { key: 'seed', type: 'range', label: '随机种子', min: 1, max: 100, step: 1 },
+    { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 5, suffix: '°' },
   ],
   shard: [
     { key: 'shardCount', type: 'range', label: '碎片数量', min: 6, max: 20, step: 2 },
@@ -238,6 +277,7 @@ export const PARAM_CONTROLS = {
     { key: 'irregularity', type: 'range', label: '不规则度', min: 0, max: 0.6, step: 0.1, hint: '边缘扭曲程度' },
     { key: 'fillOpacity', type: 'range', label: '填充透明度', min: 0.1, max: 0.6, step: 0.1 },
     { key: 'seed', type: 'range', label: '随机种子', min: 1, max: 100, step: 1 },
+    { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 5, suffix: '°' },
   ],
   maze: [
     { key: 'mazeType', type: 'select', label: '迷宫类型', options: [
@@ -253,6 +293,7 @@ export const PARAM_CONTROLS = {
       { value: 'thick', label: '粗' },
     ]},
     { key: 'seed', type: 'range', label: '随机种子', min: 1, max: 100, step: 1 },
+    { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 5, suffix: '°' },
   ],
   // 旋转叶片
   spinner: [
@@ -295,6 +336,7 @@ export const PARAM_CONTROLS = {
     { key: 'inkSplash', type: 'checkbox', label: '墨迹飞溅' },
     { key: 'innerCircle', type: 'checkbox', label: '内圈装饰' },
     { key: 'seed', type: 'range', label: '随机种子', min: 1, max: 100, step: 1 },
+    { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 5, suffix: '°' },
   ],
   // 彭罗斯拼贴
   penrose: [

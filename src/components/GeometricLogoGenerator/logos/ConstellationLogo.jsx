@@ -9,6 +9,7 @@ const ConstellationLogo = ({
   starSize = 4,                // 星星大小
   glowEffect = true,           // 发光效果
   seed = 42,                   // 随机种子
+  rotation = 0,                // 旋转角度
   strokeWidth = 1,
   colors = ['#1a1a1a', '#ffffff'],
 }) => {
@@ -140,7 +141,7 @@ const ConstellationLogo = ({
           <stop offset="100%" stopColor={color} stopOpacity="0.5" />
         </radialGradient>
       </defs>
-      <g>
+      <g transform={`rotate(${rotation}, 150, 150)`}>
         {/* 连接线 */}
         {connections.map((c) => (
           <line

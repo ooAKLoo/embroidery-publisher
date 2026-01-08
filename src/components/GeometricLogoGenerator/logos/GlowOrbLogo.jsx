@@ -8,6 +8,7 @@ const GlowOrbLogo = ({
   intensity = 0.8,             // 强度
   orbSize = 60,                // 光球大小
   seed = 42,                   // 随机种子
+  rotation = 0,                // 旋转角度
   strokeWidth = 0,
   colors = ['#1a1a1a', '#ffffff'],
 }) => {
@@ -113,7 +114,7 @@ const GlowOrbLogo = ({
           <stop offset="100%" stopColor={color} stopOpacity="0" />
         </radialGradient>
       </defs>
-      <g>
+      <g transform={`rotate(${rotation}, 150, 150)`}>
         {orbs.map((orb) => (
           <circle
             key={orb.id}

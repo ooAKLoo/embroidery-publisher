@@ -1,11 +1,12 @@
 import { useMemo } from 'react';
 import { GradientDefs, generateGradientId, getStroke } from '../utils/gradient';
 
-const RoseCurveLogo = ({ 
-  k = 5, 
-  radius = 100, 
-  strokeWidth = 2, 
-  colors = ['#1a1a1a'] 
+const RoseCurveLogo = ({
+  k = 5,
+  radius = 100,
+  rotation = 0,
+  strokeWidth = 2,
+  colors = ['#1a1a1a']
 }) => {
   const gradientId = generateGradientId('rose', colors);
   const path = useMemo(() => {
@@ -23,7 +24,9 @@ const RoseCurveLogo = ({
   return (
     <svg viewBox="0 0 300 300" className="w-full h-full">
       <GradientDefs id={gradientId} colors={colors} />
-      <path d={path} stroke={getStroke(gradientId, colors)} strokeWidth={strokeWidth} fill="none" />
+      <g transform={`rotate(${rotation}, 150, 150)`}>
+        <path d={path} stroke={getStroke(gradientId, colors)} strokeWidth={strokeWidth} fill="none" />
+      </g>
     </svg>
   );
 };

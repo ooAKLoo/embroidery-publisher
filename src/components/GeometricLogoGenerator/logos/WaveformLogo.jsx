@@ -8,6 +8,7 @@ const WaveformLogo = ({
   phase = 0,                   // 相位
   waveType = 'sine',           // 'sine' | 'square' | 'triangle' | 'sawtooth'
   orientation = 'horizontal',  // 'horizontal' | 'vertical' | 'circular'
+  rotation = 0,                // 旋转角度
   strokeWidth = 2,
   colors = ['#1a1a1a', '#ffffff'],
 }) => {
@@ -95,7 +96,7 @@ const WaveformLogo = ({
           <stop offset="100%" stopColor={color} stopOpacity="0" />
         </linearGradient>
       </defs>
-      <g fill="none" strokeLinecap="round">
+      <g transform={`rotate(${rotation}, 150, 150)`} fill="none" strokeLinecap="round">
         {waves.map((wave) => (
           <path
             key={wave.id}

@@ -7,6 +7,7 @@ const FlowingCurvesLogo = ({
   amplitude = 40,              // 波动幅度
   frequency = 2,               // 波动频率
   phase = 0,                   // 相位偏移
+  rotation = 0,                // 旋转角度
   strokeWidth = 2,
   colors = ['#1a1a1a', '#ffffff'],
 }) => {
@@ -94,7 +95,7 @@ const FlowingCurvesLogo = ({
           <stop offset="100%" stopColor={color} stopOpacity="0" />
         </linearGradient>
       </defs>
-      <g fill="none" strokeLinecap="round">
+      <g transform={`rotate(${rotation}, 150, 150)`} fill="none" strokeLinecap="round">
         {curves.map((curve) => (
           <path
             key={curve.id}

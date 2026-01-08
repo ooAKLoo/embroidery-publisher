@@ -1,10 +1,11 @@
 import { useMemo } from 'react';
 import { GradientDefs, generateGradientId, getStroke } from '../utils/gradient';
 
-const ButterflyCurveLogo = ({ 
-  scale = 35, 
-  strokeWidth = 1.5, 
-  colors = ['#f472b6', '#e879f9', '#a855f7'] 
+const ButterflyCurveLogo = ({
+  scale = 35,
+  rotation = 0,
+  strokeWidth = 1.5,
+  colors = ['#f472b6', '#e879f9', '#a855f7']
 }) => {
   const gradientId = generateGradientId('butterfly', colors);
   const path = useMemo(() => {
@@ -21,7 +22,9 @@ const ButterflyCurveLogo = ({
   return (
     <svg viewBox="0 0 300 300" className="w-full h-full">
       <GradientDefs id={gradientId} colors={colors} />
-      <path d={path} stroke={getStroke(gradientId, colors)} strokeWidth={strokeWidth} fill="none" />
+      <g transform={`rotate(${rotation}, 150, 150)`}>
+        <path d={path} stroke={getStroke(gradientId, colors)} strokeWidth={strokeWidth} fill="none" />
+      </g>
     </svg>
   );
 };

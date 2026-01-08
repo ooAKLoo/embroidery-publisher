@@ -6,6 +6,7 @@ const GridPatternLogo = ({
   gridSize = 20,               // 网格大小
   lineCount = 8,               // 线条数量
   distortion = 0,              // 扭曲程度 0-50
+  rotation = 0,                // 旋转角度
   strokeWidth = 2,
   colors = ['#1a1a1a', '#ffffff'],
 }) => {
@@ -108,7 +109,7 @@ const GridPatternLogo = ({
           <stop offset="100%" stopColor={gradientColor} stopOpacity="0.2" />
         </radialGradient>
       </defs>
-      <g fill="none" stroke="url(#gridGrad)" strokeWidth={strokeWidth}>
+      <g transform={`rotate(${rotation}, 150, 150)`} fill="none" stroke="url(#gridGrad)" strokeWidth={strokeWidth}>
         {paths.map((p) => (
           <path key={p.id} d={p.d} opacity={p.opacity} />
         ))}

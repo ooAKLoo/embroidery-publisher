@@ -6,7 +6,7 @@ const RadialLinesLogo = ({
   length = 60,                  // 线条长度
   thickness = 12,               // 线条粗细
   gap = 30,                     // 中心间距(内半径)
-  rotation = 0,                 // 整体旋转角度(弧度)
+  rotation = 0,                 // 整体旋转角度(度数)
   spiral = 0,                   // 螺旋偏移角度(度) -45 到 45
   gradientDirection = 'outward', // 渐变方向: 'outward' | 'inward'
   roundCap = true,              // 是否圆角端点
@@ -16,9 +16,10 @@ const RadialLinesLogo = ({
   const segments = useMemo(() => {
     const result = [];
     const spiralRad = (spiral * Math.PI) / 180;
+    const rotationRad = (rotation * Math.PI) / 180;
 
     for (let i = 0; i < lines; i++) {
-      const baseAngle = (i * 2 * Math.PI) / lines + rotation;
+      const baseAngle = (i * 2 * Math.PI) / lines + rotationRad;
       const startR = gap;
       const endR = gap + length;
 

@@ -7,6 +7,7 @@ const MazeLogo = ({
   openings = 2,                // 每层开口数
   lineWeight = 'medium',       // 'thin' | 'medium' | 'thick'
   seed = 42,                   // 随机种子
+  rotation = 0,                // 旋转角度
   strokeWidth = 2,
   colors = ['#1a1a1a', '#ffffff'],
 }) => {
@@ -195,7 +196,7 @@ const MazeLogo = ({
           <stop offset="100%" stopColor={color} stopOpacity="0.5" />
         </radialGradient>
       </defs>
-      <g fill="none" stroke="url(#mazeGrad)" strokeWidth={strokeWidth} strokeLinecap="round">
+      <g transform={`rotate(${rotation}, 150, 150)`} fill="none" stroke="url(#mazeGrad)" strokeWidth={strokeWidth} strokeLinecap="round">
         {paths.map((p) => (
           <path
             key={p.id}

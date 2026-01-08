@@ -1,11 +1,12 @@
 import { useMemo } from 'react';
 import { GradientDefs, generateGradientId, getStroke } from '../utils/gradient';
 
-const DragonCurveLogo = ({ 
-  iterations = 12, 
-  size = 4, 
-  strokeWidth = 1.5, 
-  colors = ['#f97316', '#ef4444'] 
+const DragonCurveLogo = ({
+  iterations = 12,
+  size = 4,
+  rotation = 0,
+  strokeWidth = 1.5,
+  colors = ['#f97316', '#ef4444']
 }) => {
   const gradientId = generateGradientId('dragon', colors);
   const path = useMemo(() => {
@@ -28,7 +29,9 @@ const DragonCurveLogo = ({
   return (
     <svg viewBox="0 0 300 300" className="w-full h-full">
       <GradientDefs id={gradientId} colors={colors} />
-      <path d={path} stroke={getStroke(gradientId, colors)} strokeWidth={strokeWidth} fill="none" />
+      <g transform={`rotate(${rotation}, 150, 150)`}>
+        <path d={path} stroke={getStroke(gradientId, colors)} strokeWidth={strokeWidth} fill="none" />
+      </g>
     </svg>
   );
 };

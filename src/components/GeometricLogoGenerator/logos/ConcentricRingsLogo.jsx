@@ -7,6 +7,7 @@ const ConcentricRingsLogo = ({
   ringStyle = 'solid',         // 'solid' | 'dashed' | 'dotted' | 'wave'
   spacing = 'equal',           // 'equal' | 'fibonacci' | 'exponential'
   waveAmplitude = 0,           // 波动幅度 (wave样式)
+  rotation = 0,                // 旋转角度
   strokeWidth = 2,
   colors = ['#1a1a1a', '#ffffff'],
 }) => {
@@ -76,7 +77,7 @@ const ConcentricRingsLogo = ({
           <stop offset="100%" stopColor={color} stopOpacity="1" />
         </radialGradient>
       </defs>
-      <g fill="none">
+      <g transform={`rotate(${rotation}, 150, 150)`} fill="none">
         {rings.map((ring) => (
           <path
             key={ring.id}

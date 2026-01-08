@@ -7,6 +7,7 @@ const NoiseTextureLogo = ({
   noiseType = 'circles',       // 'circles' | 'lines' | 'mesh' | 'cloud'
   intensity = 1,               // 强度
   seed = 42,                   // 随机种子
+  rotation = 0,                // 旋转角度
   strokeWidth = 2,
   colors = ['#1a1a1a', '#ffffff'],
 }) => {
@@ -173,7 +174,7 @@ const NoiseTextureLogo = ({
           <stop offset="100%" stopColor={color} stopOpacity="0.3" />
         </radialGradient>
       </defs>
-      <g fill="url(#noiseGrad)" stroke={color} strokeWidth={strokeWidth}>
+      <g transform={`rotate(${rotation}, 150, 150)`} fill="url(#noiseGrad)" stroke={color} strokeWidth={strokeWidth}>
         {elements.map((el) => {
           if (el.type === 'circle') {
             return (

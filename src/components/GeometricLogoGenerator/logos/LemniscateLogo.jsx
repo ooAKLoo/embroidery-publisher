@@ -1,10 +1,11 @@
 import { useMemo } from 'react';
 import { GradientDefs, generateGradientId, getStroke } from '../utils/gradient';
 
-const LemniscateLogo = ({ 
-  scale = 80, 
-  strokeWidth = 3, 
-  colors = ['#6366f1', '#8b5cf6'] 
+const LemniscateLogo = ({
+  scale = 80,
+  rotation = 0,
+  strokeWidth = 3,
+  colors = ['#6366f1', '#8b5cf6']
 }) => {
   const gradientId = generateGradientId('lemniscate', colors);
   const path = useMemo(() => {
@@ -21,7 +22,9 @@ const LemniscateLogo = ({
   return (
     <svg viewBox="0 0 300 300" className="w-full h-full">
       <GradientDefs id={gradientId} colors={colors} />
-      <path d={path} stroke={getStroke(gradientId, colors)} strokeWidth={strokeWidth} fill="none" />
+      <g transform={`rotate(${rotation}, 150, 150)`}>
+        <path d={path} stroke={getStroke(gradientId, colors)} strokeWidth={strokeWidth} fill="none" />
+      </g>
     </svg>
   );
 };

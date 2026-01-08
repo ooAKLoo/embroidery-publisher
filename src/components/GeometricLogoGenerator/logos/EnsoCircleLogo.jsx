@@ -11,6 +11,7 @@ const EnsoCircleLogo = ({
   inkSplash = false,          // 墨迹飞溅效果
   innerCircle = false,        // 内圈装饰
   seed = 42,                  // 随机种子
+  rotation = 0,               // 整体旋转角度
   strokeWidth = 2,
   colors = ['#1a1a1a', '#ffffff'],
 }) => {
@@ -186,7 +187,7 @@ const EnsoCircleLogo = ({
           <feDisplacementMap in="SourceGraphic" in2="noise" scale="2" xChannelSelector="R" yChannelSelector="G" />
         </filter>
       </defs>
-      <g>
+      <g transform={`rotate(${rotation}, 150, 150)`}>
         {elements.map((el) => {
           if (el.type === 'enso') {
             return (

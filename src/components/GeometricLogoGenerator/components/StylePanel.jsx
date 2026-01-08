@@ -1,7 +1,11 @@
 import { useState, useRef } from 'react';
 import { COLOR_PRESETS } from '../constants/colors';
+import { PARAM_CONTROLS } from '../constants/paramControls';
 
-const StylePanel = ({ colors, setColors, strokeWidth, setStrokeWidth, bgColor, setBgColor }) => {
+const StylePanel = ({ colors, setColors, strokeWidth, setStrokeWidth, bgColor, setBgColor, activeType, params, updateParam }) => {
+  // 检查当前类型是否支持 rotation 参数（2D 图形的旋转）
+  const rotationControl = PARAM_CONTROLS[activeType]?.find(c => c.key === 'rotation');
+  const currentRotation = params?.rotation ?? rotationControl?.min ?? 0;
   const [colorMode, setColorMode] = useState(colors.length === 1 ? 'solid' : 'gradient');
   const [c1, setC1] = useState(colors[0] || '#6366f1');
   const [c2, setC2] = useState(colors[colors.length - 1] || '#f97316');
@@ -146,6 +150,24 @@ const StylePanel = ({ colors, setColors, strokeWidth, setStrokeWidth, bgColor, s
           className="w-full accent-slate-900"
         />
       </div>
+
+      {/* 旋转角度 - 仅 2D 图形支持 */}
+      {rotationControl && updateParam && (
+        <div>
+          <label className="block text-xs font-medium text-slate-600 mb-2">
+            旋转角度: {currentRotation}{rotationControl.suffix || '°'}
+          </label>
+          <input
+            type="range"
+            min={rotationControl.min}
+            max={rotationControl.max}
+            step={rotationControl.step}
+            value={currentRotation}
+            onChange={(e) => updateParam('rotation', parseFloat(e.target.value))}
+            className="w-full accent-slate-900"
+          />
+        </div>
+      )}
     </div>
   );
 };

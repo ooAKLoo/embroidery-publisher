@@ -1,12 +1,13 @@
 import { useMemo } from 'react';
 import { GradientDefs, generateGradientId, getStroke } from '../utils/gradient';
 
-const SpirographLogo = ({ 
-  R = 80, 
-  r = 35, 
-  d = 50, 
-  strokeWidth = 1.5, 
-  colors = ['#1a1a1a'] 
+const SpirographLogo = ({
+  R = 80,
+  r = 35,
+  d = 50,
+  rotation = 0,
+  strokeWidth = 1.5,
+  colors = ['#1a1a1a']
 }) => {
   const gradientId = generateGradientId('spiro', colors);
   const path = useMemo(() => {
@@ -22,7 +23,9 @@ const SpirographLogo = ({
   return (
     <svg viewBox="0 0 300 300" className="w-full h-full">
       <GradientDefs id={gradientId} colors={colors} />
-      <path d={path} stroke={getStroke(gradientId, colors)} strokeWidth={strokeWidth} fill="none" />
+      <g transform={`rotate(${rotation}, 150, 150)`}>
+        <path d={path} stroke={getStroke(gradientId, colors)} strokeWidth={strokeWidth} fill="none" />
+      </g>
     </svg>
   );
 };

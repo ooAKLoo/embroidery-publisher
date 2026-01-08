@@ -6,6 +6,7 @@ const HoneycombLogo = ({
   cellSize = 25,               // 单元格大小
   fillMode = 'gradient',       // 'outline' | 'gradient' | 'alternating'
   gap = 3,                     // 单元格间距
+  rotation = 0,                // 旋转角度
   strokeWidth = 2,
   colors = ['#1a1a1a', '#ffffff'],
 }) => {
@@ -85,7 +86,7 @@ const HoneycombLogo = ({
           <stop offset="100%" stopColor={color1} stopOpacity="0.2" />
         </radialGradient>
       </defs>
-      <g>
+      <g transform={`rotate(${rotation}, 150, 150)`}>
         {hexagons.map((hex) => {
           let fill = 'none';
           let stroke = color1;

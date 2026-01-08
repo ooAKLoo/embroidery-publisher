@@ -58,6 +58,9 @@ const ControlTabs = ({
               setStrokeWidth={setStrokeWidth}
               bgColor={bgColor}
               setBgColor={setBgColor}
+              activeType={activeType}
+              params={params}
+              updateParam={updateParam}
             />
 
             {/* 图形参数 */}

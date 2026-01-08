@@ -1,12 +1,13 @@
 import { useMemo } from 'react';
 import { GradientDefs, generateGradientId, getStroke } from '../utils/gradient';
 
-const SquircleLogo = ({ 
-  n = 4, 
-  size = 100, 
-  strokeWidth = 3, 
-  colors = ['#6366f1', '#8b5cf6'], 
-  filled = false 
+const SquircleLogo = ({
+  n = 4,
+  size = 100,
+  rotation = 0,
+  strokeWidth = 3,
+  colors = ['#6366f1', '#8b5cf6'],
+  filled = false
 }) => {
   const gradientId = generateGradientId('squircle', colors);
   const path = useMemo(() => {
@@ -24,7 +25,9 @@ const SquircleLogo = ({
   return (
     <svg viewBox="0 0 300 300" className="w-full h-full">
       <GradientDefs id={gradientId} colors={colors} />
-      <path d={path} stroke={stroke} strokeWidth={strokeWidth} fill={filled ? stroke : 'none'} fillOpacity={filled ? 0.1 : 0} />
+      <g transform={`rotate(${rotation}, 150, 150)`}>
+        <path d={path} stroke={stroke} strokeWidth={strokeWidth} fill={filled ? stroke : 'none'} fillOpacity={filled ? 0.1 : 0} />
+      </g>
     </svg>
   );
 };

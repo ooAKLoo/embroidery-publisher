@@ -7,6 +7,7 @@ const GeometricShardLogo = ({
   irregularity = 0.3,          // 不规则程度 0-1
   fillOpacity = 0.3,           // 填充透明度
   seed = 42,                   // 随机种子
+  rotation = 0,                // 旋转角度
   strokeWidth = 2,
   colors = ['#1a1a1a', '#ffffff'],
 }) => {
@@ -97,7 +98,7 @@ const GeometricShardLogo = ({
           <stop offset="100%" stopColor={color} stopOpacity="0.5" />
         </radialGradient>
       </defs>
-      <g>
+      <g transform={`rotate(${rotation}, 150, 150)`}>
         {shards.map((shard) => (
           <path
             key={shard.id}

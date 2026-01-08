@@ -14,8 +14,21 @@ const SpirographLogo = ({
   const gradientId = generateGradientId('spiro', colors);
   const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
   const path = useMemo(() => {
+    // 计算最大公约数
+    const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
+    
+    // 计算完整闭合需要的圈数
+    // 螺旋图闭合条件: t = 2π × LCM(R, r) / r
+    const absR = Math.abs(Math.round(R));
+    const absr = Math.abs(Math.round(r)) || 1; // 防止除零
+    const lcm = (absR * absr) / gcd(absR, absr);
+    const fullRevolutions = lcm / absr;
+    
+    // 限制最大圈数以避免性能问题，同时确保闭合
+    const maxT = Math.min(2 * Math.PI * fullRevolutions, 100 * Math.PI);
+    
     const pts = [];
-    for (let t = 0; t <= 16 * Math.PI; t += 0.02) {
+    for (let t = 0; t <= maxT; t += 0.02) {
       const x = 150 + (R - r) * Math.cos(t) + d * Math.cos(((R - r) / r) * t);
       const y = 150 + (R - r) * Math.sin(t) - d * Math.sin(((R - r) / r) * t);
       pts.push(`${pts.length === 0 ? 'M' : 'L'} ${x.toFixed(2)} ${y.toFixed(2)}`);

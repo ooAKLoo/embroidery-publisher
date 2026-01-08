@@ -33,14 +33,14 @@ const ControlTabs = ({
   return (
     <div className="flex flex-col h-full">
       {/* Tab 导航 */}
-      <div className="flex gap-1 p-1 bg-slate-100 rounded-xl mb-4">
+      <div className="flex gap-1 p-1 bg-white rounded-xl mb-4">
         {TABS.map(tab => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={`flex-1 py-2 text-xs font-medium rounded-lg transition-all flex items-center justify-center gap-1.5 ${
               activeTab === tab.id
-                ? 'bg-white text-slate-800 shadow-sm'
+                ? 'bg-[#f8f8f8] text-slate-800'
                 : 'text-slate-500 hover:text-slate-700'
             }`}
           >
@@ -124,6 +124,7 @@ const ControlTabs = ({
             </div>
           </div>
         )}
+
       </div>
     </div>
   );

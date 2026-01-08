@@ -1,7 +1,13 @@
 // 统一导出所有 Logo 组件
+// 3D 立体
 export { default as PlatonicLogo } from './PlatonicLogo';
 export { default as TesseractLogo } from './TesseractLogo';
 export { default as MobiusLogo } from './MobiusLogo';
+export { default as NestedCubesLogo } from './NestedCubesLogo';
+export { default as StellatedPolyhedronLogo } from './StellatedPolyhedronLogo';
+export { default as BuckyballLogo } from './BuckyballLogo';
+export { default as TorusKnotLogo } from './TorusKnotLogo';
+export { default as StereographicGridLogo } from './StereographicGridLogo';
 export { default as SquircleLogo } from './SquircleLogo';
 export { default as KochSnowflakeLogo } from './KochSnowflakeLogo';
 export { default as SierpinskiLogo } from './SierpinskiLogo';
@@ -59,3 +65,5 @@ export { default as SwirlLogo } from './SwirlLogo';
 export { default as SpinningTrianglesLogo } from './SpinningTrianglesLogo';
 export { default as PinwheelLogo } from './PinwheelLogo';
 export { default as CircleFlowerLogo } from './CircleFlowerLogo';
+// 通用多边形
+export { default as PolygonLogo } from './PolygonLogo';

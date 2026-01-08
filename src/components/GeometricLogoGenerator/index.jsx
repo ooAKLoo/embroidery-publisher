@@ -4,6 +4,7 @@ import { DEFAULT_COMMON_STYLES, getSvgStrokeProps } from './constants/commonStyl
 import CategoryNav from './components/CategoryNav';
 import PreviewToolbar from './components/PreviewToolbar';
 import ControlTabs from './components/ControlTabs';
+import { initDatabase, saveConfig, getAllConfigs, deleteConfig as dbDeleteConfig } from './services/database';
 
 export default function GeometricLogoGenerator() {
   const [activeType, setActiveType] = useState('platonic');
@@ -14,6 +15,10 @@ export default function GeometricLogoGenerator() {
   const [iconScale, setIconScale] = useState(0.7); // 导出时图标占画布比例
   const [borderRadius, setBorderRadius] = useState(0.22); // 导出圆角比例，0.22 为 macOS 风格
   const [commonStyles, setCommonStyles] = useState(DEFAULT_COMMON_STYLES); // 通用样式状态
+
+  // 保存的配置
+  const [savedConfigs, setSavedConfigs] = useState([]);
+  const [saving, setSaving] = useState(false);
 
   const previewRef = useRef(null);
   const previewAreaRef = useRef(null);
@@ -30,6 +35,67 @@ export default function GeometricLogoGenerator() {
     LOGO_TYPES.forEach(t => { initial[t.id] = { ...t.defaultProps }; });
     return initial;
   });
+
+  // 初始化数据库并加载保存的配置
+  useEffect(() => {
+    const loadSavedConfigs = async () => {
+      try {
+        await initDatabase();
+        const configs = await getAllConfigs();
+        setSavedConfigs(configs);
+      } catch (error) {
+        console.error('加载保存的配置失败:', error);
+      }
+    };
+    loadSavedConfigs();
+  }, []);
+
+  // 保存当前配置
+  const handleSaveConfig = useCallback(async (name) => {
+    setSaving(true);
+    try {
+      await saveConfig({
+        name,
+        activeType,
+        params: params[activeType],
+        colors: globalColors,
+        strokeWidth: globalStrokeWidth,
+        bgColor,
+        commonStyles,
+        thumbnail: null // 可以后续添加缩略图生成
+      });
+      // 重新加载配置列表
+      const configs = await getAllConfigs();
+      setSavedConfigs(configs);
+    } catch (error) {
+      console.error('保存配置失败:', error);
+    } finally {
+      setSaving(false);
+    }
+  }, [activeType, params, globalColors, globalStrokeWidth, bgColor, commonStyles]);
+
+  // 加载配置
+  const handleLoadConfig = useCallback((config) => {
+    setActiveType(config.activeType);
+    setParams(prev => ({
+      ...prev,
+      [config.activeType]: config.params
+    }));
+    setGlobalColors(config.colors);
+    setGlobalStrokeWidth(config.strokeWidth);
+    setBgColor(config.bgColor);
+    setCommonStyles(config.commonStyles);
+  }, []);
+
+  // 删除配置
+  const handleDeleteConfig = useCallback(async (id) => {
+    try {
+      await dbDeleteConfig(id);
+      setSavedConfigs(prev => prev.filter(c => c.id !== id));
+    } catch (error) {
+      console.error('删除配置失败:', error);
+    }
+  }, []);
 
   // 自动旋转
   useEffect(() => {
@@ -138,6 +204,9 @@ export default function GeometricLogoGenerator() {
           colors={globalColors}
           strokeWidth={globalStrokeWidth}
           bgColor={bgColor}
+          savedConfigs={savedConfigs}
+          onLoadConfig={handleLoadConfig}
+          onDeleteConfig={handleDeleteConfig}
         />
 
         {/* 中间：预览区 */}
@@ -190,6 +259,8 @@ export default function GeometricLogoGenerator() {
             setIconScale={setIconScale}
             borderRadius={borderRadius}
             setBorderRadius={setBorderRadius}
+            onSave={handleSaveConfig}
+            saving={saving}
           />
         </div>
 

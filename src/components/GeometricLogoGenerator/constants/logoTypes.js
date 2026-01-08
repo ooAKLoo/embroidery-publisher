@@ -17,15 +17,20 @@ import {
   // 字母排版风格
   ScriptLogo, StencilLogo, NeonLogo, RetroLogo, GradientTextLogo, ShadowTextLogo,
   // 有机形态
-  PetalLogo, SwirlLogo, SpinningTrianglesLogo, PinwheelLogo, CircleFlowerLogo
+  PetalLogo, SwirlLogo, SpinningTrianglesLogo, PinwheelLogo, CircleFlowerLogo,
+  // 通用多边形
+  PolygonLogo,
+  // 新增3D立体
+  NestedCubesLogo, StellatedPolyhedronLogo, BuckyballLogo, TorusKnotLogo, StereographicGridLogo
 } from '../logos';
 
 // Logo 类型配置 - 按分类组织
 export const LOGO_TYPES = [
   // ========== 🎨 几何图形 (Geometric) ==========
   // 基础形状
+  { id: 'polygon', name: '通用多边形', category: '几何-基础形状', Component: PolygonLogo, defaultProps: { sides: 6, radius: 100, roundness: 0, hollowRatio: 0, rotation: 0, skewX: 0, skewY: 0, scaleX: 1, scaleY: 1, splitMode: 'none', splitGap: 10, innerPolygons: 0, innerRotation: 15, showVertices: false, vertexSize: 6, filled: false } },
   { id: 'squircle', name: '超椭圆', category: '几何-基础形状', Component: SquircleLogo, defaultProps: { n: 4, size: 100, rotation: 0 } },
-  { id: 'wireframe', name: '线框多边形', category: '几何-基础形状', Component: WireframeLogo, defaultProps: { vertices: 5, rotation: -90, innerConnections: true } },
+  { id: 'wireframe', name: '线框多边形', category: '几何-基础形状', Component: WireframeLogo, defaultProps: { vertices: 6, rotation: 0, shapeType: 'regular', innerRadiusRatio: 0.4, roundness: 0, connectionStyle: 'center', showVertices: false, vertexRadius: 4, layers: 1, layerScale: 0.6, layerRotation: 15 } },
   { id: 'segmented', name: '断裂多边形', category: '几何-基础形状', Component: SegmentedPolygonLogo, defaultProps: { sides: 6, radius: 100, rotation: -90, segmentRatio: 0.7, gapPosition: 'end', thickness: 12, gradientDirection: 'clockwise', roundCap: true } },
   // 分形
   { id: 'koch', name: '科赫雪花', category: '几何-分形', Component: KochSnowflakeLogo, defaultProps: { iterations: 4, size: 100, rotation: 0 } },
@@ -53,6 +58,11 @@ export const LOGO_TYPES = [
   { id: 'platonic', name: '柏拉图立体', category: '3D立体', Component: PlatonicLogo, defaultProps: { solid: 'icosahedron', rotationX: 0.6, rotationY: 0.4, rotationZ: 0.2, scale: 80 }, has3D: true },
   { id: 'tesseract', name: '超立方体', category: '3D立体', Component: TesseractLogo, defaultProps: { rotationXW: 0.5, rotationYW: 0.3, scale: 60 }, has3D: true },
   { id: 'mobius', name: '莫比乌斯带', category: '3D立体', Component: MobiusLogo, defaultProps: { rotationX: 0.5, rotationY: 0.3, scale: 80 }, has3D: true },
+  { id: 'nestedCubes', name: '嵌套立方体', category: '3D立体', Component: NestedCubesLogo, defaultProps: { layers: 3, layerScale: 0.6, layerRotation: 15, rotationX: 0.5, rotationY: 0.4, rotationZ: 0.1, scale: 80 }, has3D: true },
+  { id: 'stellated', name: '星形多面体', category: '3D立体', Component: StellatedPolyhedronLogo, defaultProps: { baseShape: 'icosahedron', stellationDepth: 1.5, showBase: true, rotationX: 0.5, rotationY: 0.4, rotationZ: 0, scale: 70 }, has3D: true },
+  { id: 'buckyball', name: '巴克球', category: '3D立体', Component: BuckyballLogo, defaultProps: { rotationX: 0.4, rotationY: 0.3, rotationZ: 0, scale: 85 }, has3D: true },
+  { id: 'torusKnot', name: '圆环结', category: '3D立体', Component: TorusKnotLogo, defaultProps: { p: 2, q: 3, tubeRadius: 0.3, segments: 200, rotationX: 0.3, rotationY: 0.2, rotationZ: 0, scale: 80 }, has3D: true },
+  { id: 'stereographic', name: '球极投影', category: '3D立体', Component: StereographicGridLogo, defaultProps: { latitudeLines: 6, longitudeLines: 12, gridStyle: 'full', showEquator: true, rotationX: 0.3, rotationY: 0.2, rotationZ: 0, scale: 90 }, has3D: true },
 
   // ========== ☯️ 符号与神圣几何 (Sacred & Cultural) ==========
   // 文化符号

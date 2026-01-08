@@ -2,6 +2,31 @@ import { PLATONIC_SOLIDS } from '../constants/polyhedra';
 
 // 参数控制配置
 export const PARAM_CONTROLS = {
+  // 通用多边形
+  polygon: [
+    { key: 'sides', type: 'range', label: '边数', min: 3, max: 12, step: 1, hint: '3=三角, 4=方形, 6=六边形' },
+    { key: 'radius', type: 'range', label: '大小', min: 60, max: 130, step: 5 },
+    { key: 'roundness', type: 'range', label: '圆角程度', min: 0, max: 1, step: 0.1, hint: '0=尖角, 1=圆滑' },
+    { key: 'hollowRatio', type: 'range', label: '镂空比例', min: 0, max: 0.8, step: 0.1, hint: '0=实心' },
+    { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 5, suffix: '°' },
+    { key: 'skewX', type: 'range', label: 'X倾斜', min: -30, max: 30, step: 5, suffix: '°' },
+    { key: 'skewY', type: 'range', label: 'Y倾斜', min: -30, max: 30, step: 5, suffix: '°' },
+    { key: 'scaleX', type: 'range', label: 'X缩放', min: 0.5, max: 1.5, step: 0.1 },
+    { key: 'scaleY', type: 'range', label: 'Y缩放', min: 0.5, max: 1.5, step: 0.1 },
+    { key: 'splitMode', type: 'select', label: '切割模式', options: [
+      { value: 'none', label: '无' },
+      { value: 'horizontal', label: '水平切割' },
+      { value: 'vertical', label: '垂直切割' },
+      { value: 'diagonal', label: '对角切割' },
+      { value: 'radial', label: '径向切割' },
+    ]},
+    { key: 'splitGap', type: 'range', label: '切割间隙', min: 2, max: 30, step: 2 },
+    { key: 'innerPolygons', type: 'range', label: '嵌套层数', min: 0, max: 5, step: 1 },
+    { key: 'innerRotation', type: 'range', label: '嵌套旋转', min: 0, max: 45, step: 5, suffix: '°' },
+    { key: 'showVertices', type: 'checkbox', label: '显示顶点' },
+    { key: 'vertexSize', type: 'range', label: '顶点大小', min: 2, max: 12, step: 2 },
+    { key: 'filled', type: 'checkbox', label: '填充' },
+  ],
   platonic: [
     { key: 'solid', type: 'select', label: '立体类型', options: Object.keys(PLATONIC_SOLIDS).map(k => ({ value: k, label: PLATONIC_SOLIDS[k].name })) },
     { key: 'rotationX', type: 'range', label: 'X轴旋转', min: 0, max: Math.PI * 2, step: 0.01 },
@@ -17,6 +42,64 @@ export const PARAM_CONTROLS = {
   mobius: [
     { key: 'rotationX', type: 'range', label: 'X轴旋转', min: 0, max: Math.PI * 2, step: 0.01 },
     { key: 'rotationY', type: 'range', label: 'Y轴旋转', min: 0, max: Math.PI * 2, step: 0.01 },
+  ],
+  // 新增3D立体
+  nestedCubes: [
+    { key: 'layers', type: 'range', label: '嵌套层数', min: 2, max: 5, step: 1 },
+    { key: 'styleType', type: 'select', label: '样式类型', options: [{ value: 'line', label: '线条' }, { value: 'solid', label: '实心' }] },
+    { key: 'layerScale', type: 'range', label: '层缩放比', min: 0.4, max: 0.8, step: 0.05, hint: '每层相对上层的缩放' },
+    { key: 'layerRotation', type: 'range', label: '层旋转', min: 0, max: 45, step: 5, suffix: '°', hint: '每层额外旋转' },
+    { key: 'rotationX', type: 'range', label: 'X轴旋转', min: 0, max: Math.PI * 2, step: 0.01 },
+    { key: 'rotationY', type: 'range', label: 'Y轴旋转', min: 0, max: Math.PI * 2, step: 0.01 },
+    { key: 'rotationZ', type: 'range', label: 'Z轴旋转', min: 0, max: Math.PI * 2, step: 0.01 },
+    { key: 'scale', type: 'range', label: '缩放', min: 50, max: 100, step: 5 },
+  ],
+  stellated: [
+    { key: 'baseShape', type: 'select', label: '基础形状', options: [
+      { value: 'tetrahedron', label: '正四面体' },
+      { value: 'octahedron', label: '正八面体' },
+      { value: 'icosahedron', label: '正二十面体' },
+    ]},
+    { key: 'stellationDepth', type: 'range', label: '星形深度', min: 0.5, max: 3, step: 0.1, hint: '尖角突出程度' },
+    { key: 'styleType', type: 'select', label: '样式类型', options: [{ value: 'line', label: '线条' }, { value: 'solid', label: '实心' }] },
+    { key: 'showBase', type: 'checkbox', label: '显示基础形状' },
+    { key: 'rotationX', type: 'range', label: 'X轴旋转', min: 0, max: Math.PI * 2, step: 0.01 },
+    { key: 'rotationY', type: 'range', label: 'Y轴旋转', min: 0, max: Math.PI * 2, step: 0.01 },
+    { key: 'rotationZ', type: 'range', label: 'Z轴旋转', min: 0, max: Math.PI * 2, step: 0.01 },
+    { key: 'scale', type: 'range', label: '缩放', min: 40, max: 100, step: 5 },
+  ],
+  buckyball: [
+    { key: 'styleType', type: 'select', label: '样式类型', options: [{ value: 'line', label: '线条' }, { value: 'solid', label: '实心' }] },
+    { key: 'rotationX', type: 'range', label: 'X轴旋转', min: 0, max: Math.PI * 2, step: 0.01 },
+    { key: 'rotationY', type: 'range', label: 'Y轴旋转', min: 0, max: Math.PI * 2, step: 0.01 },
+    { key: 'rotationZ', type: 'range', label: 'Z轴旋转', min: 0, max: Math.PI * 2, step: 0.01 },
+    { key: 'scale', type: 'range', label: '缩放', min: 50, max: 110, step: 5 },
+  ],
+  torusKnot: [
+    { key: 'p', type: 'range', label: 'P值', min: 1, max: 5, step: 1, hint: '绕大圆圈数' },
+    { key: 'styleType', type: 'select', label: '样式类型', options: [{ value: 'line', label: '线条' }, { value: 'solid', label: '实心' }] },
+    { key: 'q', type: 'range', label: 'Q值', min: 1, max: 8, step: 1, hint: '绕小圆圈数' },
+    { key: 'tubeRadius', type: 'range', label: '管道半径', min: 0.1, max: 0.6, step: 0.05 },
+    { key: 'segments', type: 'range', label: '细分数', min: 100, max: 300, step: 50, hint: '曲线平滑度' },
+    { key: 'rotationX', type: 'range', label: 'X轴旋转', min: 0, max: Math.PI * 2, step: 0.01 },
+    { key: 'rotationY', type: 'range', label: 'Y轴旋转', min: 0, max: Math.PI * 2, step: 0.01 },
+    { key: 'rotationZ', type: 'range', label: 'Z轴旋转', min: 0, max: Math.PI * 2, step: 0.01 },
+    { key: 'scale', type: 'range', label: '缩放', min: 50, max: 100, step: 5 },
+  ],
+  stereographic: [
+    { key: 'latitudeLines', type: 'range', label: '纬线数', min: 3, max: 12, step: 1 },
+    { key: 'longitudeLines', type: 'range', label: '经线数', min: 6, max: 24, step: 2 },
+    { key: 'styleType', type: 'select', label: '样式类型', options: [{ value: 'line', label: '线条' }, { value: 'solid', label: '实心' }] },
+    { key: 'gridStyle', type: 'select', label: '网格样式', options: [
+      { value: 'full', label: '完整球面' },
+      { value: 'hemisphere', label: '半球' },
+      { value: 'quarter', label: '四分之一' },
+    ]},
+    { key: 'showEquator', type: 'checkbox', label: '强调赤道' },
+    { key: 'rotationX', type: 'range', label: 'X轴旋转', min: 0, max: Math.PI * 2, step: 0.01 },
+    { key: 'rotationY', type: 'range', label: 'Y轴旋转', min: 0, max: Math.PI * 2, step: 0.01 },
+    { key: 'rotationZ', type: 'range', label: 'Z轴旋转', min: 0, max: Math.PI * 2, step: 0.01 },
+    { key: 'scale', type: 'range', label: '缩放', min: 60, max: 110, step: 5 },
   ],
   // 参数曲线类
   butterfly: [
@@ -77,8 +160,29 @@ export const PARAM_CONTROLS = {
     { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 5, suffix: '°' },
   ],
   wireframe: [
+    // 基础形状
+    { key: 'shapeType', type: 'select', label: '形状类型', options: [
+      { value: 'regular', label: '正多边形' },
+      { value: 'star', label: '星形' },
+      { value: 'rounded', label: '圆角多边形' },
+    ]},
     { key: 'vertices', type: 'range', label: '顶点数', min: 3, max: 12, step: 1 },
-    { key: 'innerConnections', type: 'checkbox', label: '内部连接' },
+    { key: 'innerRadiusRatio', type: 'range', label: '内圈比例', min: 0.1, max: 0.8, step: 0.05, hint: '星形内圈大小', showWhen: { shapeType: 'star' } },
+    { key: 'roundness', type: 'range', label: '圆角程度', min: 0, max: 1, step: 0.1, hint: '0=直角, 1=最大圆角', showWhen: { shapeType: 'rounded' } },
+    // 连接样式
+    { key: 'connectionStyle', type: 'select', label: '连接方式', options: [
+      { value: 'none', label: '无连接' },
+      { value: 'center', label: '连接中心' },
+      { value: 'adjacent', label: '隔点连接' },
+      { value: 'all', label: '全连接网络' },
+    ]},
+    { key: 'showVertices', type: 'checkbox', label: '显示顶点' },
+    { key: 'vertexRadius', type: 'range', label: '顶点大小', min: 2, max: 10, step: 1, showWhen: { showVertices: true } },
+    // 层次嵌套
+    { key: 'layers', type: 'range', label: '嵌套层数', min: 1, max: 5, step: 1 },
+    { key: 'layerScale', type: 'range', label: '层缩放比', min: 0.4, max: 0.9, step: 0.05, hint: '每层相对上层的缩放', showWhen: (params) => params.layers > 1 },
+    { key: 'layerRotation', type: 'range', label: '层旋转偏移', min: 0, max: 60, step: 5, suffix: '°', hint: '每层相对上层的旋转', showWhen: (params) => params.layers > 1 },
+    // 整体旋转
     { key: 'rotation', type: 'range', label: '旋转角度', min: 0, max: 360, step: 5, suffix: '°' },
   ],
   islamic: [

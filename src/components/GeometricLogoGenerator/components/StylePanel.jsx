@@ -78,18 +78,18 @@ const StylePanel = ({
         <div className="flex items-center justify-between mb-2">
           <label className="text-xs font-medium text-slate-600">预设配色</label>
           {hoveredPreset && (
-            <span className="text-[10px] text-purple-500 animate-pulse">预览中...</span>
+            <span className="text-[10px] text-slate-500 animate-pulse">预览中...</span>
           )}
         </div>
         <div className="grid grid-cols-4 gap-2">
           {COLOR_PRESETS.map((p) => (
-            <button 
-              key={p.name} 
+            <button
+              key={p.name}
               onClick={() => handlePresetClick(p)}
               onMouseEnter={() => handlePresetHover(p)}
               onMouseLeave={handlePresetLeave}
-              className="group relative h-8 rounded-lg overflow-hidden hover:ring-2 hover:ring-purple-400 hover:scale-105 transition-all"
-              style={{ background: p.colors.length === 1 ? p.colors[0] : `linear-gradient(135deg, ${p.colors.join(', ')})` }} 
+              className="group relative h-8 rounded-lg overflow-hidden hover:ring-2 hover:ring-slate-400 hover:scale-105 transition-all"
+              style={{ background: p.colors.length === 1 ? p.colors[0] : `linear-gradient(135deg, ${p.colors.join(', ')})` }}
               title={p.name}
             >
               <span className="absolute inset-0 flex items-center justify-center text-[10px] font-medium text-white opacity-0 group-hover:opacity-100 bg-black/30 transition-opacity">{p.name}</span>

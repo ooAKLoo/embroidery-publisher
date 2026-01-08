@@ -14,14 +14,35 @@ const RoseCurveLogo = ({
   const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
   const path = useMemo(() => {
     const pts = [];
-    const maxT = k % 1 === 0 ? (k % 2 === 0 ? 2 : 1) * Math.PI : 2 * Math.PI * 10;
-    for (let t = 0; t <= maxT; t += 0.02) {
+    
+    // 玫瑰曲线闭合周期计算:
+    // - k 为整数且为奇数: 周期 = π (k个花瓣)
+    // - k 为整数且为偶数: 周期 = 2π (2k个花瓣)
+    // - k 为分数 p/q (最简形式): 周期 = π × q (若 p 和 q 都是奇数) 或 2π × q
+    let maxT;
+    if (k % 1 === 0) {
+      // 整数 k
+      maxT = (k % 2 === 0 ? 2 : 1) * Math.PI;
+    } else {
+      // 分数 k - 需要找到闭合周期
+      // 对于常见的半整数如 2.5, 3.5 等，周期是 2π × 2 = 4π
+      const decimal = k % 1;
+      if (Math.abs(decimal - 0.5) < 0.01) {
+        maxT = 4 * Math.PI; // 半整数
+      } else {
+        maxT = 20 * Math.PI; // 其他分数，用足够大的值确保闭合
+      }
+    }
+    
+    for (let t = 0; t <= maxT; t += 0.01) {
       const r = radius * Math.cos(k * t);
       const x = 150 + r * Math.cos(t);
       const y = 150 + r * Math.sin(t);
       pts.push(`${pts.length === 0 ? 'M' : 'L'} ${x.toFixed(2)} ${y.toFixed(2)}`);
     }
-    return pts.join(' ');
+    
+    // 闭合路径
+    return pts.join(' ') + ' Z';
   }, [k, radius]);
 
   return (

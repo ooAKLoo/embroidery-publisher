@@ -3,14 +3,28 @@ import { PLATONIC_SOLIDS } from '../constants/polyhedra';
 
 const ParamControls = ({ type, params, updateParam }) => {
   const controls = getParamControls(type);
-  
+
   if (controls.length === 0) {
     return <p className="text-xs text-slate-400">暂无额外参数</p>;
   }
 
+  // 检查控件是否应该显示
+  const shouldShow = (ctrl) => {
+    if (!ctrl.showWhen) return true;
+    // 支持函数形式的条件
+    if (typeof ctrl.showWhen === 'function') {
+      return ctrl.showWhen(params);
+    }
+    // 支持对象形式的条件 { key: value }
+    return Object.entries(ctrl.showWhen).every(([key, val]) => params[key] === val);
+  };
+
   return (
     <div className="space-y-3">
       {controls.map(ctrl => {
+        // 条件显示检查
+        if (!shouldShow(ctrl)) return null;
+
         const value = params[ctrl.key];
         
         if (ctrl.type === 'select') {

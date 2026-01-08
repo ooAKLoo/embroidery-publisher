@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
-import { GradientDefs, generateGradientId, getStroke, getFill } from '../utils/gradient';
-import { getSvgStrokeProps } from '../constants/commonStyles';
+import { GradientDefs, generateGradientId, getStroke } from '../utils/gradient';
+import { getRenderProps } from '../constants/commonStyles';
 
 // 旋转三角/箭头Logo
 const SpinningTrianglesLogo = ({
@@ -18,9 +18,8 @@ const SpinningTrianglesLogo = ({
   commonStyles = {},
 }) => {
   const gradientId = generateGradientId('spinningtriangles', colors);
-  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
-  const strokeColor = getStroke(gradientId, colors);
-  const fillColor = getFill(gradientId, colors);
+  const stroke = getStroke(gradientId, colors);
+  const renderProps = getRenderProps(commonStyles, stroke, strokeWidth);
   const triangles = useMemo(() => {
     const result = [];
     const rotationRad = (rotation * Math.PI) / 180;
@@ -71,15 +70,12 @@ const SpinningTrianglesLogo = ({
         <path
           key={t.id}
           d={t.d}
-          fill={filled ? fillColor : 'none'}
-          stroke={strokeColor}
-          strokeWidth={strokeWidth}
           strokeLinejoin="round"
-          {...strokeProps}
+          {...renderProps}
         />
       ))}
       {/* 中心圆点 */}
-      {centerDot && <circle cx="150" cy="150" r={centerRadius} fill={fillColor} />}
+      {centerDot && <circle cx="150" cy="150" r={centerRadius} {...renderProps} />}
     </svg>
   );
 };

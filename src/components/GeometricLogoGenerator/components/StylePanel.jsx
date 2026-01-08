@@ -191,22 +191,52 @@ const StylePanel = ({
         <div className="pt-4 border-t border-slate-200">
           <label className="block text-xs font-medium text-slate-600 mb-3">通用样式</label>
           <div className="space-y-3">
-            {COMMON_STYLE_CONTROLS.map(control => (
-              <div key={control.key}>
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-xs text-slate-500">{control.label}</span>
+            {COMMON_STYLE_CONTROLS.map(control => {
+              // 检查 showWhen 条件
+              if (control.showWhen && !control.showWhen(commonStyles)) {
+                return null;
+              }
+
+              // slider 类型控件
+              if (control.type === 'slider') {
+                const value = commonStyles[control.key] ?? DEFAULT_COMMON_STYLES[control.key];
+                return (
+                  <div key={control.key}>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-xs text-slate-500">{control.label}</span>
+                      <span className="text-xs text-slate-400">{value}</span>
+                    </div>
+                    <input
+                      type="range"
+                      min={control.min}
+                      max={control.max}
+                      step={control.step}
+                      value={value}
+                      onChange={(e) => setCommonStyles({ ...commonStyles, [control.key]: parseFloat(e.target.value) })}
+                      className="w-full accent-slate-900"
+                    />
+                  </div>
+                );
+              }
+
+              // select 类型控件（默认）
+              return (
+                <div key={control.key}>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-xs text-slate-500">{control.label}</span>
+                  </div>
+                  <select
+                    value={commonStyles[control.key] || DEFAULT_COMMON_STYLES[control.key]}
+                    onChange={(e) => setCommonStyles({ ...commonStyles, [control.key]: e.target.value })}
+                    className="w-full px-2 py-1.5 bg-slate-100 rounded-lg text-xs appearance-none cursor-pointer hover:bg-slate-200 transition-colors"
+                  >
+                    {control.options.map(opt => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </select>
                 </div>
-                <select
-                  value={commonStyles[control.key] || DEFAULT_COMMON_STYLES[control.key]}
-                  onChange={(e) => setCommonStyles({ ...commonStyles, [control.key]: e.target.value })}
-                  className="w-full px-2 py-1.5 bg-slate-100 rounded-lg text-xs appearance-none cursor-pointer hover:bg-slate-200 transition-colors"
-                >
-                  {control.options.map(opt => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                  ))}
-                </select>
-              </div>
-            ))}
+              );
+            })}
 
             {/* 显示外边界 - 仅部分图形支持 */}
             {supportsBorderControl(activeType) && (

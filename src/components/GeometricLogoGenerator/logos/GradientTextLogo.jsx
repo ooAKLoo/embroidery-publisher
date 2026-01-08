@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { getSvgStrokeProps } from '../constants/commonStyles';
+import { getRenderProps } from '../constants/commonStyles';
+import { getStroke } from '../utils/gradient';
 
 // 渐变填充文字 Logo - 现代科技感
 const GradientTextLogo = ({
@@ -14,7 +15,9 @@ const GradientTextLogo = ({
   colors = ['#1a1a1a', '#ffffff'],
   commonStyles = {},
 }) => {
-  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
+  const gradientId = 'textGrad';
+  const stroke = getStroke(gradientId, colors);
+  const renderProps = getRenderProps(commonStyles, stroke, strokeWidth);
   const elements = useMemo(() => {
     const result = [];
     const cx = 150, cy = 150;
@@ -206,21 +209,21 @@ const GradientTextLogo = ({
     <svg viewBox="0 0 300 300" className="w-full h-full">
       <defs>
         {gradientType === 'linear' && (
-          <linearGradient id="textGrad" x1={`${x1}%`} y1={`${y1}%`} x2={`${x2}%`} y2={`${y2}%`}>
+          <linearGradient id={gradientId} x1={`${x1}%`} y1={`${y1}%`} x2={`${x2}%`} y2={`${y2}%`}>
             {gradientStops.map((stop, i) => (
               <stop key={i} offset={stop.offset} stopColor={color} stopOpacity={stop.opacity} />
             ))}
           </linearGradient>
         )}
         {gradientType === 'radial' && (
-          <radialGradient id="textGrad" cx="50%" cy="50%" r="50%">
+          <radialGradient id={gradientId} cx="50%" cy="50%" r="50%">
             {gradientStops.map((stop, i) => (
               <stop key={i} offset={stop.offset} stopColor={color} stopOpacity={stop.opacity} />
             ))}
           </radialGradient>
         )}
         {gradientType === 'conic' && (
-          <linearGradient id="textGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
             {gradientStops.map((stop, i) => (
               <stop key={i} offset={stop.offset} stopColor={color} stopOpacity={stop.opacity} />
             ))}
@@ -242,7 +245,7 @@ const GradientTextLogo = ({
           <path
             key={el.id}
             d={el.d}
-            fill="url(#textGrad)"
+            fill={`url(#${gradientId})`}
             stroke="none"
           />
         ))}
@@ -252,10 +255,7 @@ const GradientTextLogo = ({
           <path
             key={el.id}
             d={el.d}
-            fill="none"
-            stroke={color}
-            strokeWidth={strokeWidth}
-            {...strokeProps}
+            {...renderProps}
           />
         ))}
 

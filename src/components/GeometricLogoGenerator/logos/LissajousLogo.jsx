@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { GradientDefs, generateGradientId, getStroke } from '../utils/gradient';
-import { getSvgStrokeProps } from '../constants/commonStyles';
+import { getRenderProps } from '../constants/commonStyles';
 
 const LissajousLogo = ({
   a = 3,
@@ -13,7 +13,8 @@ const LissajousLogo = ({
   commonStyles = {}
 }) => {
   const gradientId = generateGradientId('lissajous', colors);
-  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
+  const stroke = getStroke(gradientId, colors);
+  const renderProps = getRenderProps(commonStyles, stroke, strokeWidth);
   const path = useMemo(() => {
     const pts = [];
     for (let t = 0; t <= 2 * Math.PI; t += 0.02) {
@@ -28,7 +29,7 @@ const LissajousLogo = ({
     <svg viewBox="0 0 300 300" className="w-full h-full">
       <GradientDefs id={gradientId} colors={colors} />
       <g transform={`rotate(${rotation}, 150, 150)`}>
-        <path d={path} stroke={getStroke(gradientId, colors)} strokeWidth={strokeWidth} fill="none" {...strokeProps} />
+        <path d={path} {...renderProps} />
       </g>
     </svg>
   );

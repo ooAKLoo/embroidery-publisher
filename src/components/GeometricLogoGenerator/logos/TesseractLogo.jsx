@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { rotateXW, rotateYW, rotateZW } from '../utils/math';
 import { GradientDefs, generateGradientId, getStroke } from '../utils/gradient';
 import { TESSERACT } from '../constants/polyhedra';
-import { getSvgStrokeProps } from '../constants/commonStyles';
+import { getRenderProps } from '../constants/commonStyles';
 
 const TesseractLogo = ({
   rotationXY = 0,
@@ -15,7 +15,8 @@ const TesseractLogo = ({
   commonStyles = {}
 }) => {
   const gradientId = generateGradientId('tesseract', colors);
-  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
+  const stroke = getStroke(gradientId, colors);
+  const renderProps = getRenderProps(commonStyles, stroke, strokeWidth);
 
   const projected = useMemo(() => {
     const { vertices, edges } = TESSERACT;
@@ -34,8 +35,8 @@ const TesseractLogo = ({
   return (
     <svg viewBox="0 0 300 300" className="w-full h-full">
       <GradientDefs id={gradientId} colors={colors} />
-      <g stroke={getStroke(gradientId, colors)} strokeWidth={strokeWidth} fill="none" {...strokeProps}>
-        {projected.map((e, i) => <line key={i} x1={e.from.x} y1={e.from.y} x2={e.to.x} y2={e.to.y} opacity={0.4 + (e.depth + 1) * 0.3} />)}
+      <g {...renderProps}>
+        {projected.map((e, i) => <line key={i} x1={e.from.x} y1={e.from.y} x2={e.to.x} y2={e.to.y} stroke={renderProps.stroke === 'none' ? renderProps.fill : renderProps.stroke} opacity={0.4 + (e.depth + 1) * 0.3} />)}
       </g>
     </svg>
   );

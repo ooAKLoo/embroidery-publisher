@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { getSvgStrokeProps } from '../constants/commonStyles';
+import { getRenderProps } from '../constants/commonStyles';
+import { getStroke } from '../utils/gradient';
 
 // 霓虹灯效果 Logo - 发光管风格
 const NeonLogo = ({
@@ -13,7 +14,9 @@ const NeonLogo = ({
   colors = ['#ff00ff', '#ffffff'],
   commonStyles = {},
 }) => {
-  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
+  const gradientId = 'neonGrad';
+  const stroke = getStroke(gradientId, colors);
+  const renderProps = getRenderProps(commonStyles, stroke, strokeWidth);
   const elements = useMemo(() => {
     const result = [];
     const cx = 150, cy = 150;
@@ -205,7 +208,7 @@ const NeonLogo = ({
           <stop offset="100%" stopColor={color} stopOpacity="0.7" />
         </linearGradient>
       </defs>
-      <g fill="none" {...strokeProps}>
+      <g {...renderProps}>
         {/* 背板 */}
         {elements.filter(el => el.type === 'backing').map((el) => (
           <rect

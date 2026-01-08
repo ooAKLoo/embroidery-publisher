@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { getSvgStrokeProps } from '../constants/commonStyles';
+import { getRenderProps } from '../constants/commonStyles';
+import { getStroke } from '../utils/gradient';
 
 // 几何碎片Logo - 三角形镶嵌、低多边形风格
 const GeometricShardLogo = ({
@@ -13,7 +14,9 @@ const GeometricShardLogo = ({
   colors = ['#1a1a1a', '#ffffff'],
   commonStyles = {},
 }) => {
-  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
+  const gradientId = 'shardGrad';
+  const stroke = getStroke(gradientId, colors);
+  const renderProps = getRenderProps(commonStyles, stroke, strokeWidth);
   const seededRandom = (s) => {
     const x = Math.sin(s) * 10000;
     return x - Math.floor(x);
@@ -101,15 +104,12 @@ const GeometricShardLogo = ({
           <stop offset="100%" stopColor={color} stopOpacity="0.5" />
         </radialGradient>
       </defs>
-      <g transform={`rotate(${rotation}, 150, 150)`} {...strokeProps}>
+      <g transform={`rotate(${rotation}, 150, 150)`} {...renderProps}>
         {shards.map((shard) => (
           <path
             key={shard.id}
             d={shard.d}
-            fill={color}
             fillOpacity={fillOpacity * (0.3 + shard.brightness * 0.7)}
-            stroke={color}
-            strokeWidth={strokeWidth}
             strokeOpacity={0.8}
           />
         ))}

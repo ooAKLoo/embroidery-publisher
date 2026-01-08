@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { getSvgStrokeProps } from '../constants/commonStyles';
+import { getRenderProps } from '../constants/commonStyles';
+import { getStroke } from '../utils/gradient';
 
 // 复古排版 Logo - 多层轮廓/阴影，复古风格文字
 const RetroLogo = ({
@@ -13,7 +14,9 @@ const RetroLogo = ({
   colors = ['#1a1a1a', '#ffffff'],
   commonStyles = {},
 }) => {
-  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
+  const gradientId = 'retroGrad';
+  const stroke = getStroke(gradientId, colors);
+  const renderProps = getRenderProps(commonStyles, stroke, strokeWidth);
   const elements = useMemo(() => {
     const result = [];
     const cx = 150, cy = 150;
@@ -307,12 +310,12 @@ const RetroLogo = ({
   return (
     <svg viewBox="0 0 300 300" className="w-full h-full">
       <defs>
-        <linearGradient id="retroGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor={color} stopOpacity="1" />
           <stop offset="100%" stopColor={color} stopOpacity="0.7" />
         </linearGradient>
       </defs>
-      <g fill="none" {...strokeProps}>
+      <g {...renderProps}>
         {elements.map((el) => {
           if (el.type === 'letterLayer') {
             const opacity = el.isTop ? 1 : 0.3 + (1 - el.layer / layers) * 0.3;

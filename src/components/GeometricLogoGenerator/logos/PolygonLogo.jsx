@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { GradientDefs, generateGradientId, getStroke } from '../utils/gradient';
-import { getSvgStrokeProps } from '../constants/commonStyles';
+import { getRenderProps } from '../constants/commonStyles';
 
 /**
  * 通用多边形 Logo 组件
@@ -34,12 +34,11 @@ const PolygonLogo = ({
   // 样式参数
   strokeWidth = 2.5,
   colors = ['#6366f1', '#8b5cf6'],
-  filled = false,
-  fillOpacity = 0.1,
   commonStyles = {}
 }) => {
   const gradientId = generateGradientId('polygon', colors);
-  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
+  const stroke = getStroke(gradientId, colors);
+  const renderProps = getRenderProps(commonStyles, stroke, strokeWidth);
   const cx = 150, cy = 150; // 中心点
 
   // 生成圆角多边形路径
@@ -232,8 +231,6 @@ const PolygonLogo = ({
     });
   }, [showVertices, sides, radius, cx, cy]);
 
-  const stroke = getStroke(gradientId, colors);
-
   // 变换字符串
   const transformStr = `
     rotate(${rotation}, ${cx}, ${cy})
@@ -245,14 +242,10 @@ const PolygonLogo = ({
   const renderPolygon = (polygon, index, clipStyle = null) => {
     const pathProps = {
       d: polygon.path,
-      stroke: polygon.isHollow ? 'none' : stroke,
-      strokeWidth: polygon.isHollow ? 0 : strokeWidth,
-      fill: polygon.isHollow
-        ? (filled ? 'var(--bg-color, #0f172a)' : 'none')
-        : (filled ? stroke : 'none'),
-      fillOpacity: polygon.isHollow ? 1 : (filled ? fillOpacity : 0),
+      ...(polygon.isHollow
+        ? { stroke: 'none', strokeWidth: 0, fill: renderProps.fill !== 'none' ? 'var(--bg-color, #0f172a)' : 'none', fillOpacity: 1 }
+        : renderProps),
       opacity: polygon.opacity || 1,
-      ...strokeProps
     };
 
     if (clipStyle) {
@@ -320,11 +313,7 @@ const PolygonLogo = ({
         <path
           key={`${index}-radial-${segIdx}`}
           d={sectorPath}
-          stroke={stroke}
-          strokeWidth={strokeWidth}
-          fill={filled ? stroke : 'none'}
-          fillOpacity={filled ? fillOpacity : 0}
-          {...strokeProps}
+          {...renderProps}
         />
       );
     });
@@ -357,7 +346,7 @@ const PolygonLogo = ({
             cx={v.x}
             cy={v.y}
             r={vertexSize}
-            fill={stroke}
+            fill={renderProps.stroke !== 'none' ? renderProps.stroke : renderProps.fill}
           />
         ))}
       </g>

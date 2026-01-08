@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { getSvgStrokeProps } from '../constants/commonStyles';
+import { getRenderProps } from '../constants/commonStyles';
+import { getStroke } from '../utils/gradient';
 
 // 欧普艺术 Logo - 利用视觉错觉的几何图案
 const OpArtLogo = ({
@@ -12,7 +13,9 @@ const OpArtLogo = ({
   colors = ['#1a1a1a', '#ffffff'],
   commonStyles = {},
 }) => {
-  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
+  const gradientId = 'opArtGrad';
+  const stroke = getStroke(gradientId, colors);
+  const renderProps = getRenderProps(commonStyles, stroke, strokeWidth);
   const elements = useMemo(() => {
     const result = [];
     const cx = 150, cy = 150;
@@ -253,7 +256,7 @@ const OpArtLogo = ({
           <stop offset="100%" stopColor={primaryColor} stopOpacity="0.4" />
         </linearGradient>
       </defs>
-      <g clipPath="url(#opArtClip)" {...strokeProps}>
+      <g clipPath="url(#opArtClip)" {...renderProps}>
         {elements.map((el) => {
           if (el.type === 'cell') {
             const d = `M ${el.points.map(p => `${p.x} ${p.y}`).join(' L ')} Z`;
@@ -261,8 +264,6 @@ const OpArtLogo = ({
               <path
                 key={el.id}
                 d={d}
-                fill={el.fill ? primaryColor : 'none'}
-                stroke={primaryColor}
                 strokeWidth={strokeWidth * 0.5}
               />
             );
@@ -272,8 +273,6 @@ const OpArtLogo = ({
               <path
                 key={el.id}
                 d={d}
-                fill="none"
-                stroke={primaryColor}
                 strokeWidth={el.fill ? strokeWidth * 2 : strokeWidth}
                 opacity={el.fill ? 1 : 0.5}
               />
@@ -284,8 +283,6 @@ const OpArtLogo = ({
               <path
                 key={el.id}
                 d={d}
-                fill={el.fill ? 'url(#opArtGrad)' : 'none'}
-                stroke={primaryColor}
                 strokeWidth={strokeWidth}
                 opacity={el.fill ? 0.3 : 1}
               />
@@ -298,8 +295,6 @@ const OpArtLogo = ({
                 y={el.cy - el.size / 2}
                 width={el.size}
                 height={el.size}
-                fill={el.fill ? primaryColor : 'none'}
-                stroke={primaryColor}
                 strokeWidth={strokeWidth * 0.5}
               />
             );
@@ -309,8 +304,6 @@ const OpArtLogo = ({
               <path
                 key={el.id}
                 d={d}
-                fill={el.fill ? primaryColor : 'none'}
-                stroke={primaryColor}
                 strokeWidth={strokeWidth * 0.5}
                 opacity={el.fill ? 0.8 : 0.3}
               />
@@ -324,11 +317,9 @@ const OpArtLogo = ({
         cx="150"
         cy="150"
         r="110"
-        fill="none"
-        stroke={primaryColor}
         strokeWidth={strokeWidth * 1.5}
         opacity={0.8}
-        {...strokeProps}
+        {...renderProps}
       />
     </svg>
   );

@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { rotateX, rotateY, rotateZ } from '../utils/math';
 import { GradientDefs, generateGradientId, getStroke } from '../utils/gradient';
 import { PLATONIC_SOLIDS } from '../constants/polyhedra';
-import { getSvgStrokeProps } from '../constants/commonStyles';
+import { getRenderProps } from '../constants/commonStyles';
 
 const PlatonicLogo = ({
   solid = 'icosahedron',
@@ -15,7 +15,8 @@ const PlatonicLogo = ({
   commonStyles = {}
 }) => {
   const gradientId = generateGradientId('platonic', colors);
-  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
+  const stroke = getStroke(gradientId, colors);
+  const renderProps = getRenderProps(commonStyles, stroke, strokeWidth);
 
   const projected = useMemo(() => {
     const { vertices, edges } = PLATONIC_SOLIDS[solid];
@@ -31,11 +32,29 @@ const PlatonicLogo = ({
     return edgesWithDepth;
   }, [solid, rx, ry, rz, scale]);
 
+  // 3D 线框图形主要使用线条
+  const lineColor = renderProps.stroke !== 'none' ? renderProps.stroke : renderProps.fill;
+
   return (
     <svg viewBox="0 0 300 300" className="w-full h-full">
       <GradientDefs id={gradientId} colors={colors} />
-      <g stroke={getStroke(gradientId, colors)} strokeWidth={strokeWidth} fill="none" {...strokeProps}>
-        {projected.map((e, i) => <line key={i} x1={e.from.x} y1={e.from.y} x2={e.to.x} y2={e.to.y} opacity={0.5 + (e.depth + 1) * 0.25} />)}
+      <g
+        stroke={lineColor}
+        strokeWidth={renderProps.strokeWidth}
+        strokeLinecap={renderProps.strokeLinecap}
+        strokeLinejoin={renderProps.strokeLinejoin}
+        fill="none"
+      >
+        {projected.map((e, i) => (
+          <line
+            key={i}
+            x1={e.from.x}
+            y1={e.from.y}
+            x2={e.to.x}
+            y2={e.to.y}
+            opacity={(0.5 + (e.depth + 1) * 0.25) * (renderProps.fillOpacity || 1)}
+          />
+        ))}
       </g>
     </svg>
   );

@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { getSvgStrokeProps } from '../constants/commonStyles';
+import { getRenderProps } from '../constants/commonStyles';
+import { GradientDefs, generateGradientId, getStroke } from '../utils/gradient';
 
 // 弧线Logo - 圆弧段渐变，动态循环感
 const GradientArcLogo = ({
@@ -14,7 +15,10 @@ const GradientArcLogo = ({
   colors = ['#1a1a1a', '#ffffff'],
   commonStyles = {},
 }) => {
-  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
+  const gradientId = generateGradientId('arc', colors);
+  const stroke = getStroke(gradientId, colors);
+  const renderProps = getRenderProps(commonStyles, stroke, strokeWidth);
+
   const arcPaths = useMemo(() => {
     const result = [];
     const angleStep = 360 / arcs;
@@ -50,6 +54,7 @@ const GradientArcLogo = ({
 
   return (
     <svg viewBox="0 0 300 300" className="w-full h-full">
+      <GradientDefs id={gradientId} colors={colors} />
       <defs>
         {arcPaths.map((arc) => {
           const isClockwise = gradientDirection === 'clockwise';
@@ -70,7 +75,7 @@ const GradientArcLogo = ({
           );
         })}
       </defs>
-      <g fill="none" {...strokeProps} strokeLinecap={roundCap ? 'round' : 'butt'}>
+      <g {...renderProps} strokeLinecap={roundCap ? 'round' : 'butt'}>
         {arcPaths.map((arc) => (
           <path
             key={arc.id}

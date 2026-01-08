@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { rotateX, rotateY, rotateZ } from '../utils/math';
 import { GradientDefs, generateGradientId, getStroke } from '../utils/gradient';
-import { getSvgStrokeProps } from '../constants/commonStyles';
+import { getRenderProps } from '../constants/commonStyles';
 import { PLATONIC_SOLIDS } from '../constants/polyhedra';
 
 /**
@@ -20,7 +20,8 @@ const BuckyballLogo = ({
   commonStyles = {}
 }) => {
   const gradientId = generateGradientId('buckyball', colors);
-  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
+  const stroke = getStroke(gradientId, colors);
+  const renderProps = getRenderProps(commonStyles, stroke, strokeWidth);
 
   // 通过截角二十面体构建几何体 (Truncated Icosahedron)
   const geometry = useMemo(() => {
@@ -251,24 +252,20 @@ const BuckyballLogo = ({
   return (
     <svg viewBox="0 0 300 300" className="w-full h-full">
       <GradientDefs id={gradientId} colors={colors} />
-      <g stroke={styleType === 'line' ? getStroke(gradientId, colors) : 'none'} 
-         strokeWidth={strokeWidth} 
-         fill="none" 
-         strokeLinecap="round" 
-         strokeLinejoin="round" 
-         {...strokeProps}
-      >
+      <g strokeLinecap="round" strokeLinejoin="round">
         {renderedElements.map((el, i) => {
             if (el.type === 'line') {
                 return (
-                    <line key={i} x1={el.from.x} y1={el.from.y} x2={el.to.x} y2={el.to.y} 
+                    <line key={i} x1={el.from.x} y1={el.from.y} x2={el.to.x} y2={el.to.y}
+                          {...renderProps}
+                          stroke={renderProps.stroke === 'none' ? renderProps.fill : renderProps.stroke}
                           opacity={0.4 + (el.depth + 1) * 0.3} />
                 );
             } else {
                 const baseColor = el.faceType === 'hex' ? colors[0] : (colors[1] || colors[0]);
                 const opacity = 0.6 + (el.depth + 1.2) * 0.25;
                 const clampedOpacity = Math.max(0.2, Math.min(0.95, opacity));
-                
+
                 return (
                     <path key={i} d={el.d} fill={baseColor} fillOpacity={clampedOpacity}
                           stroke={el.faceType === 'hex' ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.2)'}

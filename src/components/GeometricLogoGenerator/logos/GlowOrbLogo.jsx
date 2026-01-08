@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { getSvgStrokeProps } from '../constants/commonStyles';
+import { getRenderProps } from '../constants/commonStyles';
+import { getStroke } from '../utils/gradient';
 
 // 渐变光晕Logo - 高斯模糊圆、多层叠加
 const GlowOrbLogo = ({
@@ -14,7 +15,9 @@ const GlowOrbLogo = ({
   colors = ['#1a1a1a', '#ffffff'],
   commonStyles = {},
 }) => {
-  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
+  const gradientId = 'glowGrad';
+  const stroke = getStroke(gradientId, colors);
+  const renderProps = getRenderProps(commonStyles, stroke, strokeWidth);
   const seededRandom = (s) => {
     const x = Math.sin(s) * 10000;
     return x - Math.floor(x);
@@ -117,14 +120,13 @@ const GlowOrbLogo = ({
           <stop offset="100%" stopColor={color} stopOpacity="0" />
         </radialGradient>
       </defs>
-      <g transform={`rotate(${rotation}, 150, 150)`} {...strokeProps}>
+      <g transform={`rotate(${rotation}, 150, 150)`} {...renderProps}>
         {orbs.map((orb) => (
           <circle
             key={orb.id}
             cx={orb.cx}
             cy={orb.cy}
             r={orb.r}
-            fill="url(#glowGrad)"
             opacity={orb.opacity}
             filter={`url(#glowBlur-${orb.id})`}
           />

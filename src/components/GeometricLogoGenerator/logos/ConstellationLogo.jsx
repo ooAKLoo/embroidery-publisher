@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { getSvgStrokeProps } from '../constants/commonStyles';
+import { getRenderProps } from '../constants/commonStyles';
+import { getStroke } from '../utils/gradient';
 
 // 星座/连接点Logo - 随机点+最近邻连线
 const ConstellationLogo = ({
@@ -15,7 +16,9 @@ const ConstellationLogo = ({
   colors = ['#1a1a1a', '#ffffff'],
   commonStyles = {}
 }) => {
-  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
+  const gradientId = 'starGrad';
+  const stroke = getStroke(gradientId, colors);
+  const renderProps = getRenderProps(commonStyles, stroke, strokeWidth);
   const seededRandom = (s) => {
     const x = Math.sin(s) * 10000;
     return x - Math.floor(x);
@@ -144,7 +147,7 @@ const ConstellationLogo = ({
           <stop offset="100%" stopColor={color} stopOpacity="0.5" />
         </radialGradient>
       </defs>
-      <g transform={`rotate(${rotation}, 150, 150)`} {...strokeProps}>
+      <g transform={`rotate(${rotation}, 150, 150)`} {...renderProps}>
         {/* 连接线 */}
         {connections.map((c) => (
           <line
@@ -153,8 +156,6 @@ const ConstellationLogo = ({
             y1={c.y1}
             x2={c.x2}
             y2={c.y2}
-            stroke={color}
-            strokeWidth={strokeWidth}
             opacity={c.opacity * 0.6}
           />
         ))}
@@ -165,7 +166,6 @@ const ConstellationLogo = ({
               cx={star.x}
               cy={star.y}
               r={star.size}
-              fill="url(#starGrad)"
               opacity={star.brightness}
             />
             {/* 十字光芒 */}
@@ -176,7 +176,6 @@ const ConstellationLogo = ({
                   y1={star.y}
                   x2={star.x + star.size * 1.5}
                   y2={star.y}
-                  stroke={color}
                   strokeWidth={0.5}
                   opacity={star.brightness * 0.5}
                 />
@@ -185,7 +184,6 @@ const ConstellationLogo = ({
                   y1={star.y - star.size * 1.5}
                   x2={star.x}
                   y2={star.y + star.size * 1.5}
-                  stroke={color}
                   strokeWidth={0.5}
                   opacity={star.brightness * 0.5}
                 />

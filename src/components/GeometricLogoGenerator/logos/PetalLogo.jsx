@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
-import { GradientDefs, generateGradientId, getStroke, getFill } from '../utils/gradient';
-import { getSvgStrokeProps } from '../constants/commonStyles';
+import { GradientDefs, generateGradientId, getStroke } from '../utils/gradient';
+import { getRenderProps } from '../constants/commonStyles';
 
 // 花瓣/水滴形Logo
 const PetalLogo = ({
@@ -16,8 +16,8 @@ const PetalLogo = ({
   commonStyles = {},
 }) => {
   const gradientId = generateGradientId('petal', colors);
-  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
-  const fillColor = getFill(gradientId, colors);
+  const stroke = getStroke(gradientId, colors);
+  const renderProps = getRenderProps(commonStyles, stroke, strokeWidth);
   const petalPaths = useMemo(() => {
     const result = [];
     const rotationRad = (rotation * Math.PI) / 180;
@@ -90,19 +90,18 @@ const PetalLogo = ({
               cy={p.cy}
               rx={p.rx}
               ry={p.ry}
-              fill={fillColor}
               transform={`rotate(${p.rotate} ${p.cx} ${p.cy})`}
-              {...strokeProps}
+              {...renderProps}
             />
           );
         } else if (p.type === 'circle') {
-          return <circle key={p.id} cx={p.cx} cy={p.cy} r={p.r} fill={fillColor} {...strokeProps} />;
+          return <circle key={p.id} cx={p.cx} cy={p.cy} r={p.r} {...renderProps} />;
         } else {
-          return <path key={p.id} d={p.d} fill={fillColor} {...strokeProps} />;
+          return <path key={p.id} d={p.d} {...renderProps} />;
         }
       })}
       {/* 中心圆 */}
-      <circle cx="150" cy="150" r={centerRadius} fill={fillColor} {...strokeProps} />
+      <circle cx="150" cy="150" r={centerRadius} {...renderProps} />
     </svg>
   );
 };

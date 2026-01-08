@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { getSvgStrokeProps } from '../constants/commonStyles';
+import { getRenderProps, DEFAULT_COMMON_STYLES } from '../constants/commonStyles';
 
 // 断裂多边形Logo - 线段不连接 + 渐变消失效果
 const SegmentedPolygonLogo = ({
@@ -15,7 +15,8 @@ const SegmentedPolygonLogo = ({
   colors = ['#1a1a1a', '#ffffff'],
   commonStyles = {},
 }) => {
-  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
+  const renderMode = commonStyles.renderMode || DEFAULT_COMMON_STYLES.renderMode;
+  const fillOpacity = commonStyles.fillOpacity || DEFAULT_COMMON_STYLES.fillOpacity;
   const segments = useMemo(() => {
     const result = [];
     const angleStep = (2 * Math.PI) / sides;
@@ -69,6 +70,13 @@ const SegmentedPolygonLogo = ({
   const gradientColor1 = colors[0] || '#1a1a1a';
   const gradientColor2 = colors.length > 1 ? colors[1] : '#ffffff';
 
+  // 根据渲染模式决定透明度渐变
+  const getOpacityForMode = (baseOpacity) => {
+    if (renderMode === 'fill') return fillOpacity;
+    if (renderMode === 'both') return Math.min(1, baseOpacity + fillOpacity * 0.5);
+    return baseOpacity;
+  };
+
   return (
     <svg viewBox="0 0 300 300" className="w-full h-full">
       <defs>
@@ -85,14 +93,14 @@ const SegmentedPolygonLogo = ({
               y2={isClockwise ? seg.y2 : seg.y1}
               gradientUnits="userSpaceOnUse"
             >
-              <stop offset="0%" stopColor={gradientColor1} stopOpacity="1" />
-              <stop offset="70%" stopColor={gradientColor1} stopOpacity="0.6" />
+              <stop offset="0%" stopColor={gradientColor1} stopOpacity={getOpacityForMode(1)} />
+              <stop offset="70%" stopColor={gradientColor1} stopOpacity={getOpacityForMode(0.6)} />
               <stop offset="100%" stopColor={gradientColor2} stopOpacity="0" />
             </linearGradient>
           );
         })}
       </defs>
-      <g {...strokeProps} strokeLinecap={roundCap ? 'round' : 'butt'}>
+      <g strokeLinecap={roundCap ? 'round' : 'butt'}>
         {segments.map((seg) => (
           <line
             key={seg.id}

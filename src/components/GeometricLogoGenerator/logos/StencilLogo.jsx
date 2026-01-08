@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { getSvgStrokeProps } from '../constants/commonStyles';
+import { getRenderProps } from '../constants/commonStyles';
+import { getStroke } from '../utils/gradient';
 
 // 镂空模板风格 Logo - 军事/工业风格字母
 const StencilLogo = ({
@@ -13,7 +14,9 @@ const StencilLogo = ({
   colors = ['#1a1a1a', '#ffffff'],
   commonStyles = {},
 }) => {
-  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
+  const gradientId = 'stencilGrad';
+  const stroke = getStroke(gradientId, colors);
+  const renderProps = getRenderProps(commonStyles, stroke, strokeWidth);
   const elements = useMemo(() => {
     const result = [];
     const cx = 150, cy = 150;
@@ -234,7 +237,7 @@ const StencilLogo = ({
 
   return (
     <svg viewBox="0 0 300 300" className="w-full h-full">
-      <g fill="none" stroke={color} {...strokeProps}>
+      <g {...renderProps}>
         {elements.map((el) => {
           if (el.type === 'letter') {
             return (

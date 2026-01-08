@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { getSvgStrokeProps } from '../constants/commonStyles';
+import { getStroke } from '../utils/gradient';
+import { getRenderProps } from '../constants/commonStyles';
 
 // 生命之花 Logo - 多重重叠圆形组成的神圣几何学经典图案
 const FlowerOfLifeLogo = ({
@@ -12,7 +13,8 @@ const FlowerOfLifeLogo = ({
   colors = ['#1a1a1a', '#ffffff'],
   commonStyles = {},
 }) => {
-  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
+  const stroke = getStroke(null, colors);
+  const renderProps = getRenderProps(commonStyles, stroke, strokeWidth);
   const elements = useMemo(() => {
     const result = [];
     const cx = 150, cy = 150;
@@ -198,7 +200,7 @@ const FlowerOfLifeLogo = ({
           <circle cx="150" cy="150" r="115" />
         </clipPath>
       </defs>
-      <g stroke={color} fill="none" clipPath="url(#flowerClip)" {...strokeProps}>
+      <g fill="none" clipPath="url(#flowerClip)" {...renderProps}>
         {elements.map((el) => {
           if (el.type === 'circle') {
             return (
@@ -245,11 +247,10 @@ const FlowerOfLifeLogo = ({
           cx={el.cx}
           cy={el.cy}
           r={el.r}
-          stroke={color}
           strokeWidth={strokeWidth * 1.5}
           fill="none"
           opacity={0.5}
-          {...strokeProps}
+          {...renderProps}
         />
       ))}
     </svg>

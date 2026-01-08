@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { getSvgStrokeProps } from '../constants/commonStyles';
+import { getRenderProps } from '../constants/commonStyles';
+import { getStroke } from '../utils/gradient';
 
 // 旋转叶片Logo - 弯曲线条渐变风格
 const SpinnerBladesLogo = ({
@@ -12,7 +13,9 @@ const SpinnerBladesLogo = ({
   colors = ['#1a1a1a', '#ffffff'],
   commonStyles = {},
 }) => {
-  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
+  const gradientId = 'spinnerGrad';
+  const stroke = getStroke(gradientId, colors);
+  const renderProps = getRenderProps(commonStyles, stroke, strokeWidth);
   const paths = useMemo(() => {
     const result = [];
     const cx = 150, cy = 150;
@@ -65,14 +68,11 @@ const SpinnerBladesLogo = ({
           </linearGradient>
         ))}
       </defs>
-      <g {...strokeProps}>
+      <g {...renderProps}>
         {paths.map((p) => (
           <path
             key={p.id}
             d={p.path}
-            stroke={`url(#spinnerGrad-${p.id})`}
-            strokeWidth={strokeWidth}
-            fill="none"
           />
         ))}
       </g>

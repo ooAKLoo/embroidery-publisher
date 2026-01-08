@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { rotateX, rotateY, rotateZ } from '../utils/math';
 import { GradientDefs, generateGradientId, getStroke } from '../utils/gradient';
-import { getSvgStrokeProps } from '../constants/commonStyles';
+import { getRenderProps } from '../constants/commonStyles';
 
 /**
  * 圆环结 Logo (Torus Knot)
@@ -23,7 +23,8 @@ const TorusKnotLogo = ({
   commonStyles = {}
 }) => {
   const gradientId = generateGradientId('torusknot', colors);
-  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
+  const stroke = getStroke(gradientId, colors);
+  const renderProps = getRenderProps(commonStyles, stroke, strokeWidth);
 
   // 圆环结参数方程
   const curve = useMemo(() => {
@@ -133,29 +134,29 @@ const TorusKnotLogo = ({
   return (
     <svg viewBox="0 0 300 300" className="w-full h-full">
       <GradientDefs id={gradientId} colors={colors} />
-      <g strokeLinecap="round" strokeLinejoin="round" {...strokeProps} fill="none">
+      <g strokeLinecap="round" strokeLinejoin="round">
         {renderedElements.map((el, i) => {
            // 计算样式
            const isSolid = styleType === 'solid';
            const tubeWidth = tubeRadius * scale * 1.5; // 近似宽度
            // 透视校正: 深度越大(越远)，宽度越小?
-           // z范围约 -1 到 1. 
+           // z范围约 -1 到 1.
            // scale factor approx (2 / (2 - z)) or similar?
            // 简单起见，仅基于深度调整透明度或亮度
-           
-           const depthOpacity = 0.5 + (el.depth + 1) * 0.25; 
+
+           const depthOpacity = 0.5 + (el.depth + 1) * 0.25;
            const clampedOpacity = Math.max(0.2, Math.min(1, depthOpacity));
-           
+
            if (isSolid) {
                // 实体模式 (管状)
                // 使用颜色插值
                const colorIdx = Math.floor((el.index / segments) * (colors.length - 1));
                // 简单取色，或使用渐变ID
                const strokeColor = colors[colorIdx % colors.length] || colors[0];
-               
+
                // 模拟光照: 深度越深越暗
                const lightness = 50 + el.depth * 20; // 30%..70%
-               
+
                return (
                   <line
                     key={i}
@@ -164,12 +165,13 @@ const TorusKnotLogo = ({
                     x2={el.to.x}
                     y2={el.to.y}
                     stroke={strokeColor} // 暂不支持复杂光照，使用基础色
-                    strokeWidth={tubeWidth} 
-                    opacity={clampedOpacity} 
+                    strokeWidth={tubeWidth}
+                    opacity={clampedOpacity}
                   />
                );
            } else {
                // 线框模式
+               const lineStroke = renderProps.stroke === 'none' ? renderProps.fill : renderProps.stroke;
                return (
                   <line
                     key={i}
@@ -177,8 +179,8 @@ const TorusKnotLogo = ({
                     y1={el.from.y}
                     x2={el.to.x}
                     y2={el.to.y}
-                    stroke={getStroke(gradientId, colors)}
-                    strokeWidth={strokeWidth}
+                    {...renderProps}
+                    stroke={lineStroke}
                     opacity={depthOpacity}
                   />
                );

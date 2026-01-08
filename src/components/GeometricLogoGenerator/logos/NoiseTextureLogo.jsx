@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { getSvgStrokeProps } from '../constants/commonStyles';
+import { getRenderProps } from '../constants/commonStyles';
+import { getStroke } from '../utils/gradient';
 
 // 噪声纹理Logo - Perlin风格噪声图案
 const NoiseTextureLogo = ({
@@ -13,7 +14,9 @@ const NoiseTextureLogo = ({
   colors = ['#1a1a1a', '#ffffff'],
   commonStyles = {},
 }) => {
-  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
+  const gradientId = 'noiseGrad';
+  const stroke = getStroke(gradientId, colors);
+  const renderProps = getRenderProps(commonStyles, stroke, strokeWidth);
   // 简单2D噪声函数
   const noise2D = (x, y, s) => {
     const n = Math.sin(x * 12.9898 + y * 78.233 + s) * 43758.5453;
@@ -177,7 +180,7 @@ const NoiseTextureLogo = ({
           <stop offset="100%" stopColor={color} stopOpacity="0.3" />
         </radialGradient>
       </defs>
-      <g transform={`rotate(${rotation}, 150, 150)`} fill="url(#noiseGrad)" stroke={color} strokeWidth={strokeWidth} {...strokeProps}>
+      <g transform={`rotate(${rotation}, 150, 150)`} {...renderProps}>
         {elements.map((el) => {
           if (el.type === 'circle') {
             return (
@@ -195,7 +198,6 @@ const NoiseTextureLogo = ({
               <path
                 key={el.id}
                 d={el.d}
-                fill="none"
                 opacity={el.opacity}
               />
             );

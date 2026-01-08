@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { getSvgStrokeProps } from '../constants/commonStyles';
+import { getRenderProps } from '../constants/commonStyles';
+import { getStroke } from '../utils/gradient';
 
 // 波形Logo - 正弦波叠加、相位偏移
 const WaveformLogo = ({
@@ -14,7 +15,9 @@ const WaveformLogo = ({
   colors = ['#1a1a1a', '#ffffff'],
   commonStyles = {},
 }) => {
-  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
+  const gradientId = 'waveGrad';
+  const stroke = getStroke(gradientId, colors);
+  const renderProps = getRenderProps(commonStyles, stroke, strokeWidth);
   const waves = useMemo(() => {
     const result = [];
     const cx = 150, cy = 150;
@@ -99,13 +102,11 @@ const WaveformLogo = ({
           <stop offset="100%" stopColor={color} stopOpacity="0" />
         </linearGradient>
       </defs>
-      <g transform={`rotate(${rotation}, 150, 150)`} fill="none" {...strokeProps}>
+      <g transform={`rotate(${rotation}, 150, 150)`} {...renderProps}>
         {waves.map((wave) => (
           <path
             key={wave.id}
             d={wave.d}
-            stroke={orientation === 'circular' ? color : 'url(#waveGrad)'}
-            strokeWidth={strokeWidth}
             opacity={wave.opacity}
           />
         ))}

@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { getSvgStrokeProps } from '../constants/commonStyles';
+import { getRenderProps } from '../constants/commonStyles';
+import { getStroke } from '../utils/gradient';
 
 // 流体线条Logo - 曲线流动、贝塞尔曲线
 const FlowingCurvesLogo = ({
@@ -13,7 +14,9 @@ const FlowingCurvesLogo = ({
   colors = ['#1a1a1a', '#ffffff'],
   commonStyles = {},
 }) => {
-  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
+  const gradientId = 'flowGrad';
+  const stroke = getStroke(gradientId, colors);
+  const renderProps = getRenderProps(commonStyles, stroke, strokeWidth);
   const curves = useMemo(() => {
     const result = [];
     const cx = 150, cy = 150;
@@ -98,13 +101,11 @@ const FlowingCurvesLogo = ({
           <stop offset="100%" stopColor={color} stopOpacity="0" />
         </linearGradient>
       </defs>
-      <g transform={`rotate(${rotation}, 150, 150)`} fill="none" {...strokeProps}>
+      <g transform={`rotate(${rotation}, 150, 150)`} {...renderProps}>
         {curves.map((curve) => (
           <path
             key={curve.id}
             d={curve.d}
-            stroke="url(#flowGrad)"
-            strokeWidth={strokeWidth}
             opacity={curve.opacity}
           />
         ))}

@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { getSvgStrokeProps } from '../constants/commonStyles';
+import { getRenderProps } from '../constants/commonStyles';
+import { GradientDefs, generateGradientId, getStroke } from '../utils/gradient';
 
 // 放射状渐变线条 - 从中心向外发散，支持螺旋偏移
 const RadialLinesLogo = ({
@@ -15,7 +16,10 @@ const RadialLinesLogo = ({
   colors = ['#1a1a1a', '#ffffff'],
   commonStyles = {},
 }) => {
-  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
+  const gradientId = generateGradientId('radial', colors);
+  const stroke = getStroke(gradientId, colors);
+  const renderProps = getRenderProps(commonStyles, stroke, strokeWidth);
+
   const segments = useMemo(() => {
     const result = [];
     const spiralRad = (spiral * Math.PI) / 180;
@@ -46,6 +50,7 @@ const RadialLinesLogo = ({
 
   return (
     <svg viewBox="0 0 300 300" className="w-full h-full">
+      <GradientDefs id={gradientId} colors={colors} />
       <defs>
         {segments.map((seg, i) => {
           // 计算渐变方向：从线段起点到终点
@@ -83,7 +88,7 @@ const RadialLinesLogo = ({
           }
         })}
       </defs>
-      <g {...strokeProps} strokeLinecap={roundCap ? 'round' : 'butt'}>
+      <g {...renderProps} strokeLinecap={roundCap ? 'round' : 'butt'}>
         {segments.map((seg, i) => (
           <line
             key={i}

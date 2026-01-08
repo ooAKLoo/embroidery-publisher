@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { getSvgStrokeProps } from '../constants/commonStyles';
+import { getRenderProps } from '../constants/commonStyles';
+import { getStroke } from '../utils/gradient';
 
 // 3D 阴影效果 Logo - 立体投影文字
 const ShadowTextLogo = ({
@@ -13,7 +14,9 @@ const ShadowTextLogo = ({
   colors = ['#1a1a1a', '#ffffff'],
   commonStyles = {},
 }) => {
-  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
+  const gradientId = 'shadowGrad';
+  const stroke = getStroke(gradientId, colors);
+  const renderProps = getRenderProps(commonStyles, stroke, strokeWidth);
   const elements = useMemo(() => {
     const result = [];
     const cx = 150, cy = 150;
@@ -241,7 +244,7 @@ const ShadowTextLogo = ({
   return (
     <svg viewBox="0 0 300 300" className="w-full h-full">
       <defs>
-        <linearGradient id="shadowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor={color} stopOpacity="0.4" />
           <stop offset="100%" stopColor={color} stopOpacity="0.1" />
         </linearGradient>
@@ -251,7 +254,7 @@ const ShadowTextLogo = ({
           ))}
         </clipPath>
       </defs>
-      <g fill="none" {...strokeProps}>
+      <g {...renderProps}>
         {/* 阴影层 */}
         {elements.filter(el => el.type === 'shadow' || el.type === 'shadowLayer').map((el) => {
           let opacity = 0.3;

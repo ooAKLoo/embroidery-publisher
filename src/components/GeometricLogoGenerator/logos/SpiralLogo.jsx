@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { getSvgStrokeProps } from '../constants/commonStyles';
+import { getRenderProps, DEFAULT_COMMON_STYLES } from '../constants/commonStyles';
 
 // 螺旋线Logo - 阿基米德螺线、黄金螺旋
 const SpiralLogo = ({
@@ -12,7 +12,8 @@ const SpiralLogo = ({
   colors = ['#1a1a1a', '#ffffff'],
   commonStyles = {},
 }) => {
-  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
+  const color = colors[0] || '#1a1a1a';
+  const renderProps = getRenderProps(commonStyles, color, strokeWidth);
   const path = useMemo(() => {
     const cx = 150, cy = 150;
     const maxRadius = 115;
@@ -72,22 +73,25 @@ const SpiralLogo = ({
     return d;
   }, [spiralType, turns, spacing, direction, rotation]);
 
-  const color = colors[0] || '#1a1a1a';
+  // 螺旋线使用渐变效果
+  const renderMode = commonStyles.renderMode || DEFAULT_COMMON_STYLES.renderMode;
+  const fillOpacity = commonStyles.fillOpacity || DEFAULT_COMMON_STYLES.fillOpacity;
 
   return (
     <svg viewBox="0 0 300 300" className="w-full h-full">
       <defs>
         <linearGradient id="spiralGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor={color} stopOpacity={direction === 'outward' ? '0.2' : '1'} />
-          <stop offset="100%" stopColor={color} stopOpacity={direction === 'outward' ? '1' : '0.2'} />
+          <stop offset="0%" stopColor={color} stopOpacity={direction === 'outward' ? (renderMode === 'fill' ? fillOpacity * 0.2 : 0.2) : (renderMode === 'fill' ? fillOpacity : 1)} />
+          <stop offset="100%" stopColor={color} stopOpacity={direction === 'outward' ? (renderMode === 'fill' ? fillOpacity : 1) : (renderMode === 'fill' ? fillOpacity * 0.2 : 0.2)} />
         </linearGradient>
       </defs>
       <path
         d={path}
         stroke="url(#spiralGrad)"
-        strokeWidth={strokeWidth}
+        strokeWidth={renderProps.strokeWidth || strokeWidth}
+        strokeLinecap={renderProps.strokeLinecap}
+        strokeLinejoin={renderProps.strokeLinejoin}
         fill="none"
-        {...strokeProps}
       />
     </svg>
   );

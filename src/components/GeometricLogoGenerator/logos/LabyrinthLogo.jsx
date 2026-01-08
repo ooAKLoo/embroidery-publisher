@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { getSvgStrokeProps } from '../constants/commonStyles';
+import { getStroke } from '../utils/gradient';
+import { getRenderProps } from '../constants/commonStyles';
 
 // 迷宫 Logo - 单一路径迷宫（与 Maze 不同，迷宫是单一路径）
 const LabyrinthLogo = ({
@@ -12,7 +13,8 @@ const LabyrinthLogo = ({
   colors = ['#1a1a1a', '#ffffff'],
   commonStyles = {},
 }) => {
-  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
+  const stroke = getStroke(null, colors);
+  const renderProps = getRenderProps(commonStyles, stroke, strokeWidth);
   const elements = useMemo(() => {
     const result = [];
     const cx = 150, cy = 150;
@@ -298,7 +300,7 @@ const LabyrinthLogo = ({
           <stop offset="100%" stopColor={color} stopOpacity="0.1" />
         </radialGradient>
       </defs>
-      <g stroke={color} strokeWidth={strokeWidth} fill="none" {...strokeProps}>
+      <g strokeWidth={strokeWidth} fill="none" {...renderProps}>
         {elements.map((el) => {
           if (el.type === 'arc') {
             const sweepAngle = el.endAngle - el.startAngle;

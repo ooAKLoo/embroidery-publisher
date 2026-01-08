@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { getSvgStrokeProps } from '../constants/commonStyles';
+import { getRenderProps } from '../constants/commonStyles';
+import { GradientDefs, generateGradientId, getStroke } from '../utils/gradient';
 
 // 同心圆Logo - 多层圆环、波纹扩散
 const ConcentricRingsLogo = ({
@@ -13,7 +14,10 @@ const ConcentricRingsLogo = ({
   colors = ['#1a1a1a', '#ffffff'],
   commonStyles = {},
 }) => {
-  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
+  const gradientId = generateGradientId('concentric', colors);
+  const stroke = getStroke(gradientId, colors);
+  const renderProps = getRenderProps(commonStyles, stroke, strokeWidth);
+
   const rings = useMemo(() => {
     const result = [];
     const cx = 150, cy = 150;
@@ -74,19 +78,19 @@ const ConcentricRingsLogo = ({
 
   return (
     <svg viewBox="0 0 300 300" className="w-full h-full">
+      <GradientDefs id={gradientId} colors={colors} />
       <defs>
         <radialGradient id="concentricGrad" cx="50%" cy="50%" r="50%">
           <stop offset="0%" stopColor={color} stopOpacity="0.3" />
           <stop offset="100%" stopColor={color} stopOpacity="1" />
         </radialGradient>
       </defs>
-      <g transform={`rotate(${rotation}, 150, 150)`} fill="none" {...strokeProps}>
+      <g transform={`rotate(${rotation}, 150, 150)`} {...renderProps}>
         {rings.map((ring) => (
           <path
             key={ring.id}
             d={ring.d}
             stroke="url(#concentricGrad)"
-            strokeWidth={strokeWidth}
             strokeDasharray={ring.dashArray}
             opacity={ring.opacity}
           />

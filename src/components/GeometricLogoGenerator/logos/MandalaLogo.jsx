@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { getSvgStrokeProps } from '../constants/commonStyles';
+import { getRenderProps } from '../constants/commonStyles';
+import { GradientDefs, generateGradientId, getStroke } from '../utils/gradient';
 
 // 对称曼陀罗Logo - 多重对称、旋转重复
 const MandalaLogo = ({
@@ -13,7 +14,10 @@ const MandalaLogo = ({
   colors = ['#1a1a1a', '#ffffff'],
   commonStyles = {},
 }) => {
-  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
+  const gradientId = generateGradientId('mandala', colors);
+  const stroke = getStroke(gradientId, colors);
+  const renderProps = getRenderProps(commonStyles, stroke, strokeWidth);
+
   const elements = useMemo(() => {
     const result = [];
     const cx = 150, cy = 150;
@@ -123,13 +127,14 @@ const MandalaLogo = ({
 
   return (
     <svg viewBox="0 0 300 300" className="w-full h-full">
+      <GradientDefs id={gradientId} colors={colors} />
       <defs>
         <radialGradient id="mandalaGrad" cx="50%" cy="50%" r="50%">
           <stop offset="0%" stopColor={color} stopOpacity="1" />
           <stop offset="100%" stopColor={color} stopOpacity="0.5" />
         </radialGradient>
       </defs>
-      <g transform={`rotate(${rotation}, 150, 150)`} stroke={color} strokeWidth={strokeWidth} fill="none" {...strokeProps}>
+      <g transform={`rotate(${rotation}, 150, 150)`} {...renderProps}>
         {elements.map((el) => {
           const opacity = el.layer >= 0 ? 0.4 + (el.layer / layers) * 0.6 : 1;
 

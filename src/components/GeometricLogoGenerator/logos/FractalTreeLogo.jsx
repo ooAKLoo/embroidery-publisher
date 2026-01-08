@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { GradientDefs, generateGradientId, getStroke } from '../utils/gradient';
-import { getSvgStrokeProps } from '../constants/commonStyles';
+import { getRenderProps, DEFAULT_COMMON_STYLES } from '../constants/commonStyles';
 
 const FractalTreeLogo = ({
   iterations = 9,
@@ -11,8 +11,11 @@ const FractalTreeLogo = ({
   colors = ['#84cc16', '#22c55e', '#14b8a6'],
   commonStyles = {}
 }) => {
-  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
   const gradientId = generateGradientId('tree', colors);
+  const stroke = getStroke(gradientId, colors);
+  const renderProps = getRenderProps(commonStyles, stroke, strokeWidth);
+  const renderMode = commonStyles.renderMode || DEFAULT_COMMON_STYLES.renderMode;
+
   const lines = useMemo(() => {
     const result = [];
     const branch = (x, y, len, a, depth) => {
@@ -27,14 +30,26 @@ const FractalTreeLogo = ({
     return result;
   }, [iterations, angle, shrink]);
 
+  // 树形结构主要是线条，fill模式下用粗线条模拟填充效果
+  const effectiveStrokeWidth = renderMode === 'fill' ? strokeWidth * 2 : strokeWidth;
+
   return (
     <svg viewBox="0 0 300 300" className="w-full h-full">
       <GradientDefs id={gradientId} colors={colors} />
-      <g transform={`rotate(${rotation}, 150, 150)`} stroke={getStroke(gradientId, colors)} fill="none" strokeLinecap="round" {...strokeProps}>
+      <g transform={`rotate(${rotation}, 150, 150)`}>
         {lines.map((l, i) => (
-          <line key={i} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2}
-            strokeWidth={Math.max(0.5, strokeWidth * (l.depth / iterations))}
-            opacity={0.5 + 0.5 * (l.depth / iterations)} />
+          <line
+            key={i}
+            x1={l.x1}
+            y1={l.y1}
+            x2={l.x2}
+            y2={l.y2}
+            stroke={renderProps.stroke !== 'none' ? renderProps.stroke : renderProps.fill}
+            strokeWidth={Math.max(0.5, effectiveStrokeWidth * (l.depth / iterations))}
+            strokeLinecap={renderProps.strokeLinecap || 'round'}
+            strokeLinejoin={renderProps.strokeLinejoin}
+            opacity={(0.5 + 0.5 * (l.depth / iterations)) * (renderProps.fillOpacity || 1)}
+          />
         ))}
       </g>
     </svg>

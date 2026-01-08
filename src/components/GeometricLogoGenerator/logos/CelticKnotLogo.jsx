@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { getSvgStrokeProps } from '../constants/commonStyles';
+import { getStroke } from '../utils/gradient';
+import { getRenderProps } from '../constants/commonStyles';
 
 // 凯尔特结 Logo - 无始无终的编织图案
 const CelticKnotLogo = ({
@@ -12,7 +13,8 @@ const CelticKnotLogo = ({
   colors = ['#1a1a1a', '#ffffff'],
   commonStyles = {},
 }) => {
-  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
+  const stroke = getStroke(null, colors);
+  const renderProps = getRenderProps(commonStyles, stroke, strokeWidth);
   const elements = useMemo(() => {
     const result = [];
     const cx = 150, cy = 150;
@@ -311,7 +313,7 @@ const CelticKnotLogo = ({
           <stop offset="100%" stopColor={color} stopOpacity="0.6" />
         </linearGradient>
       </defs>
-      <g stroke={color} strokeWidth={actualStrokeWidth} fill="none" {...strokeProps}>
+      <g strokeWidth={actualStrokeWidth} fill="none" {...renderProps}>
         {elements.map((el) => {
           if (el.type === 'circle') {
             return (

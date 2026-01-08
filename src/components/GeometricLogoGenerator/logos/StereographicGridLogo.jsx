@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { rotateX, rotateY, rotateZ } from '../utils/math';
 import { GradientDefs, generateGradientId, getStroke } from '../utils/gradient';
-import { getSvgStrokeProps } from '../constants/commonStyles';
+import { getRenderProps } from '../constants/commonStyles';
 
 /**
  * 球极投影网格 Logo
@@ -22,7 +22,8 @@ const StereographicGridLogo = ({
   commonStyles = {}
 }) => {
   const gradientId = generateGradientId('stereographic', colors);
-  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
+  const stroke = getStroke(gradientId, colors);
+  const renderProps = getRenderProps(commonStyles, stroke, strokeWidth);
 
   // 生成网格顶点数据
   const gridData = useMemo(() => {
@@ -187,15 +188,10 @@ const StereographicGridLogo = ({
   return (
     <svg viewBox="0 0 300 300" className="w-full h-full">
       <GradientDefs id={gradientId} colors={colors} />
-      <g stroke={styleType === 'line' ? getStroke(gradientId, colors) : 'none'} 
-         strokeWidth={strokeWidth} 
-         fill="none" 
-         strokeLinecap="round" 
-         strokeLinejoin="round" 
-         {...strokeProps}
-      >
+      <g strokeLinecap="round" strokeLinejoin="round">
         {renderedElements.map((el, i) => {
             if (el.type === 'line') {
+                const lineStroke = renderProps.stroke === 'none' ? renderProps.fill : renderProps.stroke;
                 return (
                   <line
                     key={i}
@@ -203,7 +199,8 @@ const StereographicGridLogo = ({
                     y1={el.from.y}
                     x2={el.to.x}
                     y2={el.to.y}
-                    stroke={getStroke(gradientId, colors)}
+                    {...renderProps}
+                    stroke={lineStroke}
                     strokeWidth={el.isEquator ? strokeWidth * 1.5 : strokeWidth}
                     opacity={0.4 + (el.depth + 1) * 0.3}
                   />
@@ -212,9 +209,9 @@ const StereographicGridLogo = ({
                 const opacity = 0.5 + (el.depth + 1) * 0.25;
                 const clampedOpacity = Math.max(0.1, Math.min(0.9, opacity));
                 return (
-                    <path 
-                        key={i} 
-                        d={el.d} 
+                    <path
+                        key={i}
+                        d={el.d}
                         fill={colors[i % colors.length]} // Checkerboard effect? or gradient?
                         // fill={((i%2)) ? colors[0] : colors[1]} // Simple pattern
                         fillOpacity={clampedOpacity}

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
-import { GradientDefs, generateGradientId, getStroke, getFill } from '../utils/gradient';
-import { getSvgStrokeProps } from '../constants/commonStyles';
+import { GradientDefs, generateGradientId, getStroke } from '../utils/gradient';
+import { getRenderProps } from '../constants/commonStyles';
 
 /**
  * 万能多边形生成器
@@ -37,8 +37,9 @@ const WireframeLogo = ({
   colors = ['#f97316', '#c084fc', '#60a5fa'],
   commonStyles = {}
 }) => {
-  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
   const gradientId = generateGradientId('wireframe', colors);
+  const stroke = getStroke(gradientId, colors);
+  const renderProps = getRenderProps(commonStyles, stroke, strokeWidth);
   const cx = 150, cy = 150;
 
   // 兼容旧参数：innerConnections 映射到 connectionStyle
@@ -200,18 +201,30 @@ const WireframeLogo = ({
   }, [vertices, radius, rotation, shapeType, innerRadiusRatio, roundness,
       effectiveConnectionStyle, layers, layerScale, layerRotation, showVertices]);
 
+  // 获取填充颜色（顶点使用）
+  const fillColor = renderProps.stroke !== 'none' ? renderProps.stroke : renderProps.fill;
+
   return (
     <svg viewBox="0 0 300 300" className="w-full h-full">
       <GradientDefs id={gradientId} colors={colors} />
-      <g stroke={getStroke(gradientId, colors)} fill="none" {...strokeProps}>
+      <g>
         {/* 多边形路径 */}
         {allPaths.map((d, i) => (
-          <path key={`path-${i}`} d={d} strokeWidth={strokeWidth} />
+          <path key={`path-${i}`} d={d} {...renderProps} />
         ))}
 
-        {/* 连接线 */}
-        {allConnections.map((d, i) => (
-          <path key={`conn-${i}`} d={d} strokeWidth={strokeWidth * 0.6} opacity={0.7} />
+        {/* 连接线 - 只在有边线时显示 */}
+        {renderProps.stroke !== 'none' && allConnections.map((d, i) => (
+          <path
+            key={`conn-${i}`}
+            d={d}
+            stroke={renderProps.stroke}
+            strokeWidth={renderProps.strokeWidth * 0.6}
+            strokeLinecap={renderProps.strokeLinecap}
+            strokeLinejoin={renderProps.strokeLinejoin}
+            fill="none"
+            opacity={0.7}
+          />
         ))}
 
         {/* 顶点圆点 */}
@@ -221,7 +234,7 @@ const WireframeLogo = ({
             cx={v.x}
             cy={v.y}
             r={vertexRadius * (1 - v.layer * 0.2)}
-            fill={getFill(gradientId, colors)}
+            fill={fillColor}
             stroke="none"
           />
         ))}

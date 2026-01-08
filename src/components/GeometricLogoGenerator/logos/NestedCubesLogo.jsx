@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { rotateX, rotateY, rotateZ } from '../utils/math';
 import { GradientDefs, generateGradientId, getStroke } from '../utils/gradient';
-import { getSvgStrokeProps } from '../constants/commonStyles';
+import { getRenderProps } from '../constants/commonStyles';
 
 /**
  * 嵌套立方体 Logo
@@ -21,7 +21,8 @@ const NestedCubesLogo = ({
   commonStyles = {}
 }) => {
   const gradientId = generateGradientId('nestedcubes', colors);
-  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
+  const stroke = getStroke(gradientId, colors);
+  const renderProps = getRenderProps(commonStyles, stroke, strokeWidth);
 
   // 立方体顶点定义
   const cubeVertices = [
@@ -114,13 +115,7 @@ const NestedCubesLogo = ({
   return (
     <svg viewBox="0 0 300 300" className="w-full h-full">
       <GradientDefs id={gradientId} colors={colors} />
-      <g stroke={styleType === 'line' ? getStroke(gradientId, colors) : 'none'} 
-         strokeWidth={strokeWidth} 
-         fill="none" 
-         strokeLinecap="round"
-         strokeLinejoin="round"
-         {...strokeProps}
-      >
+      <g strokeLinecap="round" strokeLinejoin="round">
         {renderedElements.map((el, i) => {
             if (el.type === 'line') {
                 return (
@@ -130,6 +125,8 @@ const NestedCubesLogo = ({
                     y1={el.from.y}
                     x2={el.to.x}
                     y2={el.to.y}
+                    {...renderProps}
+                    stroke={renderProps.stroke === 'none' ? renderProps.fill : renderProps.stroke}
                     opacity={(0.4 + (el.depth + 1) * 0.3) * el.opacity}
                   />
                 );
@@ -142,10 +139,10 @@ const NestedCubesLogo = ({
                 const clampedOpacity = Math.max(0.2, Math.min(0.9, opacity));
 
                 return (
-                    <path 
-                        key={i} 
-                        d={el.d} 
-                        fill={baseColor} 
+                    <path
+                        key={i}
+                        d={el.d}
+                        fill={baseColor}
                         fillOpacity={clampedOpacity}
                         stroke="rgba(255,255,255,0.2)"
                         strokeWidth={1}

@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { getSvgStrokeProps } from '../constants/commonStyles';
+import { getRenderProps } from '../constants/commonStyles';
+import { GradientDefs, generateGradientId, getStroke } from '../utils/gradient';
 
 // 粒子/点阵Logo - 散点分布、密度渐变、连线粒子
 const ParticleFieldLogo = ({
@@ -14,7 +15,10 @@ const ParticleFieldLogo = ({
   colors = ['#1a1a1a', '#ffffff'],
   commonStyles = {}
 }) => {
-  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
+  const gradientId = generateGradientId('particle', colors);
+  const stroke = getStroke(gradientId, colors);
+  const renderProps = getRenderProps(commonStyles, stroke, strokeWidth);
+
   // 简单的伪随机数生成器
   const seededRandom = (s) => {
     const x = Math.sin(s) * 10000;
@@ -115,13 +119,14 @@ const ParticleFieldLogo = ({
 
   return (
     <svg viewBox="0 0 300 300" className="w-full h-full">
+      <GradientDefs id={gradientId} colors={colors} />
       <defs>
         <radialGradient id="particleGrad" cx="50%" cy="50%" r="50%">
           <stop offset="0%" stopColor={color} stopOpacity="1" />
           <stop offset="100%" stopColor={color} stopOpacity="0.3" />
         </radialGradient>
       </defs>
-      <g transform={`rotate(${rotation}, 150, 150)`} {...strokeProps}>
+      <g transform={`rotate(${rotation}, 150, 150)`}>
         {/* 连线 */}
         {connections.map((c) => (
           <line
@@ -130,7 +135,8 @@ const ParticleFieldLogo = ({
             y1={c.y1}
             x2={c.x2}
             y2={c.y2}
-            stroke={color}
+            stroke={stroke}
+            {...renderProps}
             strokeWidth={strokeWidth * 0.5}
             opacity={c.opacity * 0.5}
           />

@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { getSvgStrokeProps } from '../constants/commonStyles';
+import { getStroke } from '../utils/gradient';
+import { getRenderProps } from '../constants/commonStyles';
 
 // 太极变体 Logo - 阴阳鱼的几何变体
 const YinYangLogo = ({
@@ -13,7 +14,8 @@ const YinYangLogo = ({
   colors = ['#1a1a1a', '#ffffff'],
   commonStyles = {},
 }) => {
-  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
+  const stroke = getStroke(null, colors);
+  const renderProps = getRenderProps(commonStyles, stroke, strokeWidth);
   const elements = useMemo(() => {
     const result = [];
     const cx = 150, cy = 150;
@@ -180,7 +182,7 @@ const YinYangLogo = ({
           <stop offset="100%" stopColor={primaryColor} stopOpacity="0.8" />
         </linearGradient>
       </defs>
-      <g {...strokeProps}>
+      <g>
         {elements.map((el) => {
           if (el.type === 'circle' && el.isOutline) {
             return (
@@ -189,9 +191,8 @@ const YinYangLogo = ({
                 cx={el.cx}
                 cy={el.cy}
                 r={el.r}
+                {...renderProps}
                 fill="none"
-                stroke={primaryColor}
-                strokeWidth={strokeWidth}
               />
             );
           } else if (el.type === 'section') {
@@ -199,9 +200,8 @@ const YinYangLogo = ({
               <path
                 key={el.id}
                 d={el.d}
+                {...renderProps}
                 fill={el.fill ? primaryColor : 'none'}
-                stroke={primaryColor}
-                strokeWidth={strokeWidth}
               />
             );
           } else if (el.type === 'dot') {
@@ -211,9 +211,8 @@ const YinYangLogo = ({
                 cx={el.cx}
                 cy={el.cy}
                 r={el.r}
+                {...renderProps}
                 fill={el.fill ? primaryColor : 'none'}
-                stroke={primaryColor}
-                strokeWidth={strokeWidth * 0.5}
               />
             );
           }

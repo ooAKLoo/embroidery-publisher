@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
-import { GradientDefs, generateGradientId, getFill } from '../utils/gradient';
-import { getSvgStrokeProps } from '../constants/commonStyles';
+import { GradientDefs, generateGradientId, getStroke } from '../utils/gradient';
+import { getRenderProps } from '../constants/commonStyles';
 
 // 风车叶片 (更简洁的旋转)
 const PinwheelLogo = ({
@@ -13,8 +13,8 @@ const PinwheelLogo = ({
   commonStyles = {},
 }) => {
   const gradientId = generateGradientId('pinwheel', colors);
-  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
-  const fillColor = getFill(gradientId, colors);
+  const stroke = getStroke(gradientId, colors);
+  const renderProps = getRenderProps(commonStyles, stroke, strokeWidth);
   const bladePaths = useMemo(() => {
     const result = [];
     const rotationRad = (rotation * Math.PI) / 180;
@@ -54,7 +54,7 @@ const PinwheelLogo = ({
     <svg viewBox="0 0 300 300" className="w-full h-full">
       <GradientDefs id={gradientId} colors={colors} />
       {bladePaths.map((b) => (
-        <path key={b.id} d={b.d} fill={fillColor} {...strokeProps} />
+        <path key={b.id} d={b.d} {...renderProps} />
       ))}
     </svg>
   );

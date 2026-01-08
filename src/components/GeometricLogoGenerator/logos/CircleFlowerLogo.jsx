@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
-import { GradientDefs, generateGradientId, getFill } from '../utils/gradient';
-import { getSvgStrokeProps } from '../constants/commonStyles';
+import { GradientDefs, generateGradientId, getStroke } from '../utils/gradient';
+import { getRenderProps } from '../constants/commonStyles';
 
 // 圆形花朵（重叠圆形）
 const CircleFlowerLogo = ({
@@ -14,8 +14,8 @@ const CircleFlowerLogo = ({
   commonStyles = {},
 }) => {
   const gradientId = generateGradientId('circleflower', colors);
-  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
-  const fillColor = getFill(gradientId, colors);
+  const stroke = getStroke(gradientId, colors);
+  const renderProps = getRenderProps(commonStyles, stroke, strokeWidth);
   const circles = useMemo(() => {
     const result = [];
     const rotationRad = (rotation * Math.PI) / 180;
@@ -36,9 +36,9 @@ const CircleFlowerLogo = ({
     <svg viewBox="0 0 300 300" className="w-full h-full">
       <GradientDefs id={gradientId} colors={colors} />
       {circles.map((c) => (
-        <circle key={c.id} cx={c.cx} cy={c.cy} r={c.r} fill={fillColor} {...strokeProps} />
+        <circle key={c.id} cx={c.cx} cy={c.cy} r={c.r} {...renderProps} />
       ))}
-      <circle cx="150" cy="150" r={centerRadius} fill={fillColor} {...strokeProps} />
+      <circle cx="150" cy="150" r={centerRadius} {...renderProps} />
     </svg>
   );
 };

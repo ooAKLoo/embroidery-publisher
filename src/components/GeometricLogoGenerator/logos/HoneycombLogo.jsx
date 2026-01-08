@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { getSvgStrokeProps } from '../constants/commonStyles';
+import { getRenderProps } from '../constants/commonStyles';
+import { GradientDefs, generateGradientId, getStroke } from '../utils/gradient';
 
 // 六边形/蜂窝Logo - 六边形网格、渐变填充
 const HoneycombLogo = ({
@@ -12,7 +13,10 @@ const HoneycombLogo = ({
   colors = ['#1a1a1a', '#ffffff'],
   commonStyles = {}
 }) => {
-  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
+  const gradientId = generateGradientId('honeycomb', colors);
+  const stroke = getStroke(gradientId, colors);
+  const renderProps = getRenderProps(commonStyles, stroke, strokeWidth);
+
   const hexagons = useMemo(() => {
     const result = [];
     const cx = 150, cy = 150;
@@ -83,23 +87,25 @@ const HoneycombLogo = ({
 
   return (
     <svg viewBox="0 0 300 300" className="w-full h-full">
+      <GradientDefs id={gradientId} colors={colors} />
       <defs>
         <radialGradient id="honeycombGrad" cx="50%" cy="50%" r="50%">
           <stop offset="0%" stopColor={color1} stopOpacity="1" />
           <stop offset="100%" stopColor={color1} stopOpacity="0.2" />
         </radialGradient>
       </defs>
-      <g transform={`rotate(${rotation}, 150, 150)`} {...strokeProps}>
+      <g transform={`rotate(${rotation}, 150, 150)`}>
         {hexagons.map((hex) => {
           let fill = 'none';
-          let stroke = color1;
+          let hexStroke = stroke;
           let opacity = 1 - (hex.ring / (maxRing + 1)) * 0.6;
 
+          // 根据 fillMode 覆盖 fill 和 stroke
           if (fillMode === 'gradient') {
             fill = 'url(#honeycombGrad)';
             opacity = 1 - (hex.ring / (maxRing + 1)) * 0.7;
           } else if (fillMode === 'alternating') {
-            fill = hex.id % 2 === 0 ? color1 : 'none';
+            fill = hex.id % 2 === 0 ? stroke : 'none';
             opacity = fill === 'none' ? 1 : 0.3;
           }
 
@@ -108,8 +114,8 @@ const HoneycombLogo = ({
               key={hex.id}
               d={hex.d}
               fill={fill}
-              stroke={stroke}
-              strokeWidth={strokeWidth}
+              stroke={hexStroke}
+              {...renderProps}
               opacity={opacity}
             />
           );

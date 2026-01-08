@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { GradientDefs, generateGradientId, getStroke } from '../utils/gradient';
-import { getSvgStrokeProps } from '../constants/commonStyles';
+import { getRenderProps } from '../constants/commonStyles';
 
 const IslamicPatternLogo = ({
   rings = 3,
@@ -11,8 +11,9 @@ const IslamicPatternLogo = ({
   commonStyles = {}
 }) => {
   const gradientId = generateGradientId('islamic', colors);
+  const stroke = getStroke(gradientId, colors);
   const rotationRad = (rotation * Math.PI) / 180;
-  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
+  const renderProps = getRenderProps(commonStyles, stroke, strokeWidth);
   const showOuterBorder = commonStyles.showOuterBorder !== false;
 
   const paths = useMemo(() => {
@@ -50,7 +51,7 @@ const IslamicPatternLogo = ({
   return (
     <svg viewBox="0 0 300 300" className="w-full h-full">
       <GradientDefs id={gradientId} colors={colors} />
-      <g stroke={getStroke(gradientId, colors)} strokeWidth={strokeWidth} fill="none" {...strokeProps}>
+      <g {...renderProps}>
         {paths.map((d, i) => <path key={i} d={d} />)}
       </g>
     </svg>

@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { getSvgStrokeProps } from '../constants/commonStyles';
+import { getStroke } from '../utils/gradient';
+import { getRenderProps } from '../constants/commonStyles';
 
 // 衔尾蛇 Logo - 蛇/龙咬住自己尾巴，象征循环与永恒
 const OuroborosLogo = ({
@@ -13,7 +14,8 @@ const OuroborosLogo = ({
   colors = ['#1a1a1a', '#ffffff'],
   commonStyles = {},
 }) => {
-  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
+  const stroke = getStroke(null, colors);
+  const renderProps = getRenderProps(commonStyles, stroke, strokeWidth);
   const elements = useMemo(() => {
     const result = [];
     const cx = 150, cy = 150;
@@ -328,7 +330,7 @@ const OuroborosLogo = ({
           <stop offset="100%" stopColor={color} stopOpacity="0.1" />
         </radialGradient>
       </defs>
-      <g {...strokeProps}>
+      <g {...renderProps}>
         {elements.map((el) => {
           if (el.type === 'body') {
             return (

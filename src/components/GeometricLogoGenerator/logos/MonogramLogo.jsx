@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { getSvgStrokeProps } from '../constants/commonStyles';
+import { getRenderProps } from '../constants/commonStyles';
+import { getStroke } from '../utils/gradient';
 
 // 字母组合/双向图 Logo - 几何化的字母重叠设计
 const MonogramLogo = ({
@@ -13,7 +14,9 @@ const MonogramLogo = ({
   colors = ['#1a1a1a', '#ffffff'],
   commonStyles = {},
 }) => {
-  const strokeProps = getSvgStrokeProps(commonStyles, strokeWidth);
+  const gradientId = 'monogramGrad';
+  const stroke = getStroke(gradientId, colors);
+  const renderProps = getRenderProps(commonStyles, stroke, strokeWidth);
   const elements = useMemo(() => {
     const result = [];
     const cx = 150, cy = 150;
@@ -313,12 +316,12 @@ const MonogramLogo = ({
   return (
     <svg viewBox="0 0 300 300" className="w-full h-full">
       <defs>
-        <linearGradient id="monogramGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor={color} stopOpacity="1" />
           <stop offset="100%" stopColor={color} stopOpacity="0.7" />
         </linearGradient>
       </defs>
-      <g fill="none" {...strokeProps}>
+      <g {...renderProps}>
         {elements.map((el) => {
           if (el.type === 'letter') {
             return (

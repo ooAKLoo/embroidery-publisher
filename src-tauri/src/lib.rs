@@ -5,9 +5,27 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use warp::Filter;
 
+mod fred_api;
+use fred_api::{
+    build_indicator_data, clean_fred_data, detect_signals, fetch_fred_series,
+    IndicatorData, SignalResult, INDICATORS,
+};
+
 // 全局状态存储
 static CONTENT_STATE: Lazy<Arc<RwLock<ContentState>>> =
     Lazy::new(|| Arc::new(RwLock::new(ContentState::default())));
+
+// 市场指标缓存
+static MARKET_CACHE: Lazy<Arc<RwLock<MarketCache>>> =
+    Lazy::new(|| Arc::new(RwLock::new(MarketCache::default())));
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct MarketCache {
+    pub indicators: Vec<IndicatorData>,
+    pub signals: Vec<SignalResult>,
+    pub last_updated: Option<String>,
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
@@ -58,6 +76,75 @@ fn get_content() -> ContentState {
     CONTENT_STATE.read().clone()
 }
 
+// Tauri 命令：获取市场指标数据
+#[tauri::command(rename_all = "camelCase")]
+async fn fetch_market_indicators(api_key: String) -> Result<MarketCache, String> {
+    println!("收到 API Key: {}...", &api_key[..8]);
+    let mut indicators = Vec::new();
+
+    for (i, config) in INDICATORS.iter().enumerate() {
+        // 每个请求之间稍微延迟，避免限流
+        if i > 0 {
+            tokio::time::sleep(std::time::Duration::from_millis(500)).await;
+        }
+
+        match fetch_fred_series(config.series_id, &api_key, 24).await {
+            Ok(response) => {
+                let unit = response.units.clone();
+                let data = clean_fred_data(response);
+                let indicator = build_indicator_data(config, data, unit);
+                indicators.push(indicator);
+            }
+            Err(e) => {
+                eprintln!("获取 {} 失败: {}", config.name, e);
+            }
+        }
+    }
+
+    let signals = detect_signals(&indicators);
+    let now = chrono::Utc::now().format("%Y-%m-%d %H:%M:%S").to_string();
+
+    let cache = MarketCache {
+        indicators,
+        signals,
+        last_updated: Some(now),
+    };
+
+    // 更新缓存
+    {
+        let mut market_cache = MARKET_CACHE.write();
+        *market_cache = cache.clone();
+    }
+
+    Ok(cache)
+}
+
+// Tauri 命令：获取缓存的市场数据
+#[tauri::command]
+fn get_cached_market_data() -> MarketCache {
+    MARKET_CACHE.read().clone()
+}
+
+// Tauri 命令：获取单个指标数据
+#[tauri::command(rename_all = "camelCase")]
+async fn fetch_single_indicator(
+    series_id: String,
+    api_key: String,
+    limit: i32,
+) -> Result<IndicatorData, String> {
+    let config = INDICATORS
+        .iter()
+        .find(|c| c.series_id == series_id)
+        .ok_or_else(|| format!("未知的指标 ID: {}", series_id))?;
+
+    let response = fetch_fred_series(&series_id, &api_key, limit).await?;
+    let unit = response.units.clone();
+    let data = clean_fred_data(response);
+    let indicator = build_indicator_data(config, data, unit);
+
+    Ok(indicator)
+}
+
 // 启动 HTTP 服务器
 async fn start_http_server() {
     // CORS 配置
@@ -97,7 +184,14 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_sql::Builder::default().build())
-        .invoke_handler(tauri::generate_handler![update_content, get_content])
+        .plugin(tauri_plugin_http::init())
+        .invoke_handler(tauri::generate_handler![
+            update_content,
+            get_content,
+            fetch_market_indicators,
+            get_cached_market_data,
+            fetch_single_indicator
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

@@ -69,6 +69,7 @@ const PolygonLogo = ({
       // 圆角多边形 - 使用二次贝塞尔曲线
       const cornerRadius = roundness * r * 0.3; // 圆角半径
       let path = '';
+      let firstStartPt = null; // 记录第一个顶点的起始点，用于闭合
 
       for (let i = 0; i < sides; i++) {
         const curr = vertices[i];
@@ -98,6 +99,7 @@ const PolygonLogo = ({
         };
 
         if (i === 0) {
+          firstStartPt = startPt; // 保存第一个起始点
           path = `M ${startPt.x.toFixed(2)} ${startPt.y.toFixed(2)}`;
         } else {
           path += ` L ${startPt.x.toFixed(2)} ${startPt.y.toFixed(2)}`;
@@ -107,34 +109,8 @@ const PolygonLogo = ({
         path += ` Q ${curr.x.toFixed(2)} ${curr.y.toFixed(2)} ${endPt.x.toFixed(2)} ${endPt.y.toFixed(2)}`;
       }
 
-      // 连接回起点
-      const firstVertex = vertices[0];
-      const lastVertex = vertices[sides - 1];
-      const secondVertex = vertices[1];
-
-      const toFirst = { x: firstVertex.x - lastVertex.x, y: firstVertex.y - lastVertex.y };
-      const lenFirst = Math.sqrt(toFirst.x * toFirst.x + toFirst.y * toFirst.y);
-      const normFirst = { x: toFirst.x / lenFirst, y: toFirst.y / lenFirst };
-
-      const actualRadiusFirst = Math.min(cornerRadius, lenFirst / 2);
-      const closePt = {
-        x: firstVertex.x - normFirst.x * actualRadiusFirst,
-        y: firstVertex.y - normFirst.y * actualRadiusFirst
-      };
-
-      path += ` L ${closePt.x.toFixed(2)} ${closePt.y.toFixed(2)}`;
-
-      // 闭合处的圆角
-      const toSecond = { x: secondVertex.x - firstVertex.x, y: secondVertex.y - firstVertex.y };
-      const lenSecond = Math.sqrt(toSecond.x * toSecond.x + toSecond.y * toSecond.y);
-      const normSecond = { x: toSecond.x / lenSecond, y: toSecond.y / lenSecond };
-      const actualRadiusSecond = Math.min(cornerRadius, lenSecond / 2);
-      const finalPt = {
-        x: firstVertex.x + normSecond.x * actualRadiusSecond,
-        y: firstVertex.y + normSecond.y * actualRadiusSecond
-      };
-
-      path += ` Q ${firstVertex.x.toFixed(2)} ${firstVertex.y.toFixed(2)} ${finalPt.x.toFixed(2)} ${finalPt.y.toFixed(2)} Z`;
+      // 直接连接回第一个起始点，形成完整闭合
+      path += ` L ${firstStartPt.x.toFixed(2)} ${firstStartPt.y.toFixed(2)} Z`;
 
       return path;
     };

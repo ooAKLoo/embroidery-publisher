@@ -87,6 +87,7 @@ const WireframeLogo = ({
 
     const pathParts = [];
     const n = points.length;
+    let firstStartX = 0, firstStartY = 0; // 记录第一个起始点用于正确闭合
 
     for (let i = 0; i < n; i++) {
       const prev = points[(i - 1 + n) % n];
@@ -112,6 +113,8 @@ const WireframeLogo = ({
       const endY = curr.y + (toNext.y / lenNext) * offset;
 
       if (i === 0) {
+        firstStartX = startX;
+        firstStartY = startY;
         pathParts.push(`M ${startX} ${startY}`);
       } else {
         pathParts.push(`L ${startX} ${startY}`);
@@ -121,7 +124,8 @@ const WireframeLogo = ({
       pathParts.push(`Q ${curr.x} ${curr.y} ${endX} ${endY}`);
     }
 
-    pathParts.push('Z');
+    // 直接连接回第一个起始点，形成完整闭合
+    pathParts.push(`L ${firstStartX} ${firstStartY} Z`);
     return pathParts.join(' ');
   };
 

@@ -168,7 +168,7 @@ export const PARAM_CONTROLS = {
     ]},
     { key: 'vertices', type: 'range', label: '顶点数', min: 3, max: 12, step: 1 },
     { key: 'innerRadiusRatio', type: 'range', label: '内圈比例', min: 0.1, max: 0.8, step: 0.05, hint: '星形内圈大小', showWhen: { shapeType: 'star' } },
-    { key: 'roundness', type: 'range', label: '圆角程度', min: 0, max: 1, step: 0.1, hint: '0=直角, 1=最大圆角', showWhen: { shapeType: 'rounded' } },
+    { key: 'roundness', type: 'range', label: '圆角程度', min: 0, max: 1, step: 0.1, hint: '0=直角, 1=最大圆角' },
     // 连接样式
     { key: 'connectionStyle', type: 'select', label: '连接方式', options: [
       { value: 'none', label: '无连接' },

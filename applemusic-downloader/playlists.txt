@@ -1,0 +1,11 @@
+# Apple Music 播放列表链接
+# 每行一个链接
+
+https://music.apple.com/cn/playlist/%E6%9D%8E%E5%AE%97%E7%9B%9B/pl.u-GgA5kv5uZeABpgj
+https://music.apple.com/cn/playlist/%E7%BD%91%E6%98%93%E4%BA%91like/pl.u-8aAVZyeso9q2rAD
+https://music.apple.com/cn/playlist/%E6%9C%80%E8%BF%91/pl.u-gxblgE7I5v7jZ1k
+https://music.apple.com/cn/playlist/all/pl.u-GgA5kZRiZeABpgj
+https://music.apple.com/cn/playlist/latest/pl.u-NpXmzl7CmBAK7qk
+https://music.apple.com/cn/playlist/like/pl.u-NpXmzaaFmBAK7qk
+https://music.apple.com/cn/playlist/qq%E9%9F%B3%E4%B9%90/pl.u-WabZvAjtdmG2Y7x
+https://music.apple.com/cn/playlist/smart1/pl.u-kv9l2MaF7G5Z6mN

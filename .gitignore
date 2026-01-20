@@ -23,3 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 .vscode
+hifiti-automation/__pycache__
+applemusic-downloader/__pycache__
+applemusic-lrc/lyrics

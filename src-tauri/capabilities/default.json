@@ -5,6 +5,10 @@
   "windows": ["main"],
   "permissions": [
     "core:default",
+    "core:event:default",
+    "core:event:allow-listen",
+    "core:event:allow-emit",
+    "core:path:default",
     "opener:default",
     "sql:default",
     "sql:allow-load",
@@ -12,6 +16,8 @@
     "sql:allow-select",
     "sql:allow-close",
     "http:default",
+    "dialog:default",
+    "dialog:allow-open",
     {
       "identifier": "http:allow-fetch",
       "allow": [

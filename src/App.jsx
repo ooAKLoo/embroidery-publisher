@@ -9,6 +9,7 @@ import NavSidebar from './components/NavSidebar';
 import ProductManager from './components/ProductManager';
 import GeometricLogoGenerator from './components/GeometricLogoGenerator';
 import MarketAnalysis from './components/MarketAnalysis';
+import { AppleMusicPlaylist } from './modules/AppleMusic';
 import { useAIAdapter } from './hooks/useAIAdapter';
 import { DEFAULT_BRAND_PROMPT, platforms } from './config/platforms';
 
@@ -193,9 +194,10 @@ Suzhou Embroidery, Chinese Art, Silk Art, Handmade, Traditional Craft, Embroider
           <GeometricLogoGenerator />
         ) : activeModule === 'market' ? (
           // 市场分析模块
-          <div className="h-full bg-white rounded-2xl overflow-hidden">
-            <MarketAnalysis />
-          </div>
+          <MarketAnalysis />
+        ) : activeModule === 'music' ? (
+          // Apple Music 播放列表模块
+          <AppleMusicPlaylist />
         ) : null}
       </div>
     </div>

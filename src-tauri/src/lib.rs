@@ -6,10 +6,13 @@ use std::sync::Arc;
 use warp::Filter;
 
 mod fred_api;
+mod apple_music;
+
 use fred_api::{
     build_indicator_data, clean_fred_data, detect_signals, fetch_fred_series,
     IndicatorData, SignalResult, INDICATORS,
 };
+use apple_music::{fetch_apple_music_playlist, get_apple_music_token, fetch_lyrics_batch, scan_music_files, fix_music_extensions, list_music_files, embed_lyrics_batch, fetch_and_embed_lyrics, merge_copy_files};
 
 // 全局状态存储
 static CONTENT_STATE: Lazy<Arc<RwLock<ContentState>>> =
@@ -185,12 +188,22 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_sql::Builder::default().build())
         .plugin(tauri_plugin_http::init())
+        .plugin(tauri_plugin_dialog::init())
         .invoke_handler(tauri::generate_handler![
             update_content,
             get_content,
             fetch_market_indicators,
             get_cached_market_data,
-            fetch_single_indicator
+            fetch_single_indicator,
+            get_apple_music_token,
+            fetch_apple_music_playlist,
+            fetch_lyrics_batch,
+            scan_music_files,
+            fix_music_extensions,
+            list_music_files,
+            embed_lyrics_batch,
+            fetch_and_embed_lyrics,
+            merge_copy_files
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

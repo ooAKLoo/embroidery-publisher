@@ -1,0 +1,132 @@
+[
+  {
+    "name": "PHPSESSID",
+    "value": "cf9b6e3fd95754cdbb2446b4bfdf7e73",
+    "domain": "aaplmusicdownloader.com",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "_cfuvid",
+    "value": "6qtZS_g4tkO7sEKRsJejR8N8zUbsO0pwkC_YpCbKFD4-1768455536987-0.0.1.1-604800000",
+    "domain": ".challenges.cloudflare.com",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "_ga",
+    "value": "GA1.1.655294939.1768455537",
+    "domain": ".aaplmusicdownloader.com",
+    "path": "/",
+    "expires": 1803019245.962899,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "__Host-GAPS",
+    "value": "1:0x7nNhXnTS-tEgvCwXzDceDtTA3yvA:Gf5R5xJ2b9aUkrWG",
+    "domain": "accounts.google.com",
+    "path": "/",
+    "expires": 1803015543.2059,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "OTZ",
+    "value": "8435859_24_24__24_",
+    "domain": "accounts.google.com",
+    "path": "/",
+    "expires": 1771047544,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "NID",
+    "value": "528=O28rLz4X4FkaLAQcAzlh3Ui-tt0mR-aJ60l3c9bsIVITWsx40A0Chy3t7oPPaPcP3JuZRjTXoFetsI68LAEunNPcAwMyqVKTUGMijjRkRtb_kBR-GFcUfSFftgN-znBb8NrOk8eM2Y3j7LhzQEwG4w-h8PuKq51vxsUotXW_YxiaU6DixYkASMX2m4faiNPjtwNIlN5tlgyeOJqX",
+    "domain": ".google.com",
+    "path": "/",
+    "expires": 1784266743.869454,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "uemail",
+    "value": "yangdongjuooakloo%40gmail.com",
+    "domain": "aaplmusicdownloader.com",
+    "path": "/",
+    "expires": 1799991709.515255,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "upass",
+    "value": "14b57db5a72caa2ed7395812f6a8af32",
+    "domain": "aaplmusicdownloader.com",
+    "path": "/",
+    "expires": 1799991709.5153,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "client_ref_id",
+    "value": "113765",
+    "domain": "aaplmusicdownloader.com",
+    "path": "/",
+    "expires": 1768542110.085898,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "zip_limit",
+    "value": "100",
+    "domain": "aaplmusicdownloader.com",
+    "path": "/",
+    "expires": 1803019128.633121,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "rename_code",
+    "value": "a",
+    "domain": "aaplmusicdownloader.com",
+    "path": "/",
+    "expires": 1803019128.679556,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "auth_cookie",
+    "value": "b5c80b8b41e1be6975c23c1f0e464918%7C1768461045%7C115.42.62.13%7C861f749f3d4b480e0ee0608f2db2bb4d363da6964d38a16be88e6cd4f703fc3b",
+    "domain": "aaplmusicdownloader.com",
+    "path": "/",
+    "expires": 1768461045.82633,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "_ga_382FSD5WBG",
+    "value": "GS2.1.s1768459128$o2$g1$t1768459245$j6$l0$h0",
+    "domain": ".aaplmusicdownloader.com",
+    "path": "/",
+    "expires": 1803019245.962802,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  }
+]

@@ -37,6 +37,16 @@ function NavSidebar({ activeModule, setActiveModule }) {
       )
     },
     {
+      id: 'motion',
+      name: '动效演示',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12c2.5-4 5.5-6 9-6s6.5 2 9 6c-2.5 4-5.5 6-9 6s-6.5-2-9-6z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9.5l1.2 2.4 2.6.4-1.9 1.9.4 2.6-2.3-1.2-2.3 1.2.4-2.6-1.9-1.9 2.6-.4L12 9.5z" />
+        </svg>
+      )
+    },
+    {
       id: 'music',
       name: '音乐列表',
       icon: (

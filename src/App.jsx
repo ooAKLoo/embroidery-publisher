@@ -10,6 +10,9 @@ import ProductManager from './components/ProductManager';
 import GeometricLogoGenerator from './components/GeometricLogoGenerator';
 import MarketAnalysis from './components/MarketAnalysis';
 import AnimationShowcase from './components/AnimationShowcase';
+import GenerativeVectorLab from './components/GenerativeVectorLab';
+import NeonGeoLogo from './components/NeonGeoLogo';
+import ParametricLogo from './components/ParametricLogo';
 import { AppleMusicPlaylist } from './modules/AppleMusic';
 import { useAIAdapter } from './hooks/useAIAdapter';
 import { DEFAULT_BRAND_PROMPT, platforms } from './config/platforms';
@@ -202,6 +205,15 @@ Suzhou Embroidery, Chinese Art, Silk Art, Handmade, Traditional Craft, Embroider
         ) : activeModule === 'music' ? (
           // Apple Music 播放列表模块
           <AppleMusicPlaylist />
+        ) : activeModule === 'vector' ? (
+          // 矢量 Lab 模块
+          <GenerativeVectorLab />
+        ) : activeModule === 'neongeo' ? (
+          // NeonGeo Logo 模块
+          <NeonGeoLogo />
+        ) : activeModule === 'parametric' ? (
+          // 参数化 Logo 模块
+          <ParametricLogo />
         ) : null}
       </div>
     </div>

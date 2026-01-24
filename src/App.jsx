@@ -13,6 +13,7 @@ import AnimationShowcase from './components/AnimationShowcase';
 import GenerativeVectorLab from './components/GenerativeVectorLab';
 import NeonGeoLogo from './components/NeonGeoLogo';
 import ParametricLogo from './components/ParametricLogo';
+import GeoGenStudio from './components/GeoGenStudio';
 import { AppleMusicPlaylist } from './modules/AppleMusic';
 import { useAIAdapter } from './hooks/useAIAdapter';
 import { DEFAULT_BRAND_PROMPT, platforms } from './config/platforms';
@@ -214,6 +215,9 @@ Suzhou Embroidery, Chinese Art, Silk Art, Handmade, Traditional Craft, Embroider
         ) : activeModule === 'parametric' ? (
           // 参数化 Logo 模块
           <ParametricLogo />
+        ) : activeModule === 'geogen' ? (
+          // GeoGen Studio 模块
+          <GeoGenStudio />
         ) : null}
       </div>
     </div>

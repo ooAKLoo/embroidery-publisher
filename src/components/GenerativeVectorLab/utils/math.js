@@ -9,19 +9,19 @@ function polarToCartesian(centerX, centerY, radius, angleInRadians, stretch) {
 }
 
 /**
- * 生成原子路径的 SVG path 数据
+ * 生成原子路径的点集
  */
-export const generateAtomPath = (config, cx, cy) => {
+export const generateAtomPoints = (config, cx, cy) => {
   const { baseRadius, frequency, amplitude, roundness, phase, stretch } = config;
-  
+
   const steps = 120;
   const pathPoints = [];
 
   for (let i = 0; i <= steps; i++) {
     const theta = (i / steps) * 2 * Math.PI;
-    
+
     const osc = Math.cos(frequency * theta);
-    
+
     let shapedOsc = osc;
     if (roundness !== 0.5) {
       const power = roundness < 0.5 ? 0.2 + roundness : 1 + (roundness - 0.5) * 4;
@@ -35,6 +35,15 @@ export const generateAtomPath = (config, cx, cy) => {
     const point = polarToCartesian(cx, cy, safeR, theta + phase, stretch);
     pathPoints.push(point);
   }
+
+  return pathPoints;
+};
+
+/**
+ * 生成原子路径的 SVG path 数据
+ */
+export const generateAtomPath = (config, cx, cy) => {
+  const pathPoints = generateAtomPoints(config, cx, cy);
 
   if (pathPoints.length === 0) return "";
 

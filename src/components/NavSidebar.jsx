@@ -90,6 +90,58 @@ function NavSidebar({ activeModule, setActiveModule }) {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
         </svg>
       )
+    },
+    {
+      id: 'spiral',
+      name: '螺旋',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4a8 8 0 1 0 8 8" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8a4 4 0 1 0 4 4" />
+          <circle cx="12" cy="12" r="1.2" strokeWidth={1.5} />
+        </svg>
+      )
+    },
+    {
+      id: 'gravity',
+      name: 'Gravity',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" />
+        </svg>
+      )
+    },
+    {
+      id: 'gravity-layout',
+      name: '布局',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h10M4 18h7" />
+          <rect x="15" y="10" width="5" height="8" rx="1" strokeWidth={1.5} />
+        </svg>
+      )
+    },
+    {
+      id: 'gravity-tunnel',
+      name: '隧道',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <ellipse cx="12" cy="12" rx="8" ry="4.5" strokeWidth={1.5} />
+          <ellipse cx="12" cy="12" rx="5" ry="2.8" strokeWidth={1.5} />
+          <circle cx="12" cy="12" r="1.2" strokeWidth={1.5} />
+        </svg>
+      )
+    },
+    {
+      id: 'orbit',
+      name: 'Orbit',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="3.5" strokeWidth={1.5} />
+          <ellipse cx="12" cy="12" rx="8" ry="3.5" strokeWidth={1.5} />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 5l.01.01" />
+        </svg>
+      )
     }
   ];
 

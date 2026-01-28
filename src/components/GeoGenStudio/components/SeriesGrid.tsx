@@ -54,7 +54,7 @@ export const SeriesGrid = ({ baseParams, onSelect }: SeriesGridProps) => {
                     <div className="absolute top-2 left-2 text-[10px] text-slate-500 uppercase font-mono opacity-0 group-hover:opacity-100 transition-opacity">
                         Var {i + 1}
                     </div>
-                    <LogoRenderer params={p} size={80} />
+                    <LogoRenderer params={p} size={80} backgroundColor="#1e293b" />
                 </button>
             ))}
         </div>

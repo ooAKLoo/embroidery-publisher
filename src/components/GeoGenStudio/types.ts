@@ -19,6 +19,32 @@ export interface LogoParams {
     fill: boolean;
     stroke: boolean;
     strokeWidth: number;
+
+    // Depth / 3D
+    shadowEnabled: boolean;
+    shadowX: number;
+    shadowY: number;
+    shadowBlur: number;
+    shadowOpacity: number;
+    shadowColor: string;
+    innerShadowEnabled: boolean;
+    innerShadowX: number;
+    innerShadowY: number;
+    innerShadowBlur: number;
+    innerShadowOpacity: number;
+    innerShadowColor: string;
+    doubleStrokeEnabled: boolean;
+    doubleStrokeWidth: number;
+    doubleStrokeOpacity: number;
+    doubleStrokeColor: string;
+    extrudeEnabled: boolean;
+    extrudeDepth: number;
+    extrudeOffsetX: number;
+    extrudeOffsetY: number;
+    extrudeOpacity: number;
+    extrudeFade: number;
+    extrudeColor: string;
+    autoDepthColor: boolean;
 }
 
 export type Preset = {

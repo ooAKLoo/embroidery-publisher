@@ -19,6 +19,153 @@ const RADIUS_PRESETS = [
   { value: 0.5, label: '圆', desc: '50%' },
 ];
 
+const parseHexColor = (color) => {
+  if (typeof color !== 'string') return null;
+  const hex = color.trim().replace('#', '');
+  if (hex.length === 3) {
+    const r = parseInt(hex[0] + hex[0], 16);
+    const g = parseInt(hex[1] + hex[1], 16);
+    const b = parseInt(hex[2] + hex[2], 16);
+    return { r, g, b };
+  }
+  if (hex.length === 6) {
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
+    return { r, g, b };
+  }
+  return null;
+};
+
+const isDarkColor = (color) => {
+  const rgb = parseHexColor(color);
+  if (!rgb) return false;
+  const luminance = (0.2126 * rgb.r + 0.7152 * rgb.g + 0.0722 * rgb.b) / 255;
+  return luminance < 0.35;
+};
+
+const getBBoxWithPadding = (svg) => {
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  const applyBBox = (bbox) => {
+    if (!bbox || !Number.isFinite(bbox.width) || bbox.width <= 0) return;
+    minX = Math.min(minX, bbox.x);
+    minY = Math.min(minY, bbox.y);
+    maxX = Math.max(maxX, bbox.x + bbox.width);
+    maxY = Math.max(maxY, bbox.y + bbox.height);
+  };
+
+  let rootBBox;
+  try {
+    try {
+      rootBBox = svg.getBBox({ stroke: true });
+    } catch (e) {
+      rootBBox = svg.getBBox();
+    }
+  } catch (e) {
+    rootBBox = null;
+  }
+  applyBBox(rootBBox);
+
+  const contentElements = Array.from(svg.children).filter(
+    child => child.tagName.toLowerCase() !== 'defs'
+  );
+  contentElements.forEach(el => {
+    if (!el.getBBox) return;
+    try {
+      let bbox;
+      try {
+        bbox = el.getBBox({ stroke: true });
+      } catch (e) {
+        bbox = el.getBBox();
+      }
+      applyBBox(bbox);
+    } catch (e) {}
+  });
+
+  if (minX === Infinity) {
+    const viewBox = svg?.viewBox?.baseVal;
+    if (viewBox && viewBox.width > 0 && viewBox.height > 0) {
+      return { x: viewBox.x, y: viewBox.y, width: viewBox.width, height: viewBox.height };
+    }
+    return { x: 0, y: 0, width: 300, height: 300 };
+  }
+
+  let strokePadding = 0;
+  try {
+    const strokeEls = svg.querySelectorAll('[stroke-width], [style]');
+    strokeEls.forEach(el => {
+      let width = 0;
+      const attr = el.getAttribute('stroke-width');
+      if (attr) {
+        width = parseFloat(attr);
+      } else if (el.style && el.style.strokeWidth) {
+        width = parseFloat(el.style.strokeWidth);
+      } else if (typeof window !== 'undefined' && window.getComputedStyle) {
+        const computed = window.getComputedStyle(el);
+        if (computed && computed.strokeWidth) {
+          width = parseFloat(computed.strokeWidth);
+        }
+      }
+      if (Number.isFinite(width)) {
+        strokePadding = Math.max(strokePadding, width / 2);
+      }
+    });
+  } catch (e) {
+    strokePadding = 0;
+  }
+
+  if (strokePadding > 0) {
+    minX -= strokePadding;
+    minY -= strokePadding;
+    maxX += strokePadding;
+    maxY += strokePadding;
+  }
+
+  const width = maxX - minX;
+  const height = maxY - minY;
+
+  if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
+    const viewBox = svg?.viewBox?.baseVal;
+    if (viewBox && viewBox.width > 0 && viewBox.height > 0) {
+      return { x: viewBox.x, y: viewBox.y, width: viewBox.width, height: viewBox.height };
+    }
+    return { x: 0, y: 0, width: 300, height: 300 };
+  }
+
+  return {
+    x: minX,
+    y: minY,
+    width,
+    height
+  };
+};
+
+const normalizeBlendModes = (svgElement, fallback = 'normal') => {
+  if (!svgElement?.querySelectorAll) return;
+  svgElement.querySelectorAll('*').forEach((el) => {
+    if (!el?.style?.mixBlendMode) return;
+    if (el.style.mixBlendMode !== fallback) {
+      el.style.mixBlendMode = fallback;
+    }
+  });
+};
+
+const hasBlendModes = (svgElement) => {
+  if (!svgElement?.querySelectorAll) return false;
+  return Array.from(svgElement.querySelectorAll('*')).some((el) => {
+    const mode = el?.style?.mixBlendMode;
+    return mode && mode !== 'normal';
+  });
+};
+
+const svgToDataUrl = (svgData) => {
+  try {
+    return `data:image/svg+xml;base64,${window.btoa(unescape(encodeURIComponent(svgData)))}`;
+  } catch (e) {
+    return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgData)}`;
+  }
+};
+
 const PreviewToolbar = ({
   svgRef,
   logoName = 'logo',
@@ -28,6 +175,7 @@ const PreviewToolbar = ({
   setIconScale,
   borderRadius = 0.22,
   setBorderRadius,
+  readmeMeta,
   // 保存相关
   onSave,
   saving = false
@@ -36,6 +184,7 @@ const PreviewToolbar = ({
   const [previews, setPreviews] = useState([]);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [saveName, setSaveName] = useState('');
+  const isDarkBg = isDarkColor(bgColor);
 
   // 生成预览图
   useEffect(() => {
@@ -44,40 +193,15 @@ const PreviewToolbar = ({
 
     const generatePreviews = async () => {
       const newPreviews = [];
+      const useVectorPreview = hasBlendModes(svg);
 
       for (const { size } of PREVIEW_SIZES) {
         try {
-          const canvas = document.createElement('canvas');
           const displaySize = Math.min(size, 64);
-          canvas.width = displaySize;
-          canvas.height = displaySize;
 
-          const ctx = canvas.getContext('2d');
-
-          // 获取实际图形边界
-          const contentElements = Array.from(svg.children).filter(
-            child => child.tagName.toLowerCase() !== 'defs'
-          );
-
-          let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-          contentElements.forEach(el => {
-            if (el.getBBox) {
-              try {
-                const bbox = el.getBBox();
-                minX = Math.min(minX, bbox.x);
-                minY = Math.min(minY, bbox.y);
-                maxX = Math.max(maxX, bbox.x + bbox.width);
-                maxY = Math.max(maxY, bbox.y + bbox.height);
-              } catch (e) {}
-            }
-          });
-
-          if (minX === Infinity) {
-            minX = 0; minY = 0; maxX = 300; maxY = 300;
-          }
-
-          const contentWidth = maxX - minX;
-          const contentHeight = maxY - minY;
+          const bbox = getBBoxWithPadding(svg);
+          const contentWidth = bbox.width;
+          const contentHeight = bbox.height;
           const contentSize = Math.max(contentWidth, contentHeight);
 
           // 创建导出 SVG
@@ -86,6 +210,7 @@ const PreviewToolbar = ({
           exportSvg.setAttribute('width', displaySize);
           exportSvg.setAttribute('height', displaySize);
           exportSvg.setAttribute('viewBox', `0 0 ${displaySize} ${displaySize}`);
+          exportSvg.style.isolation = 'isolate';
 
           // 圆角裁剪
           if (borderRadius > 0) {
@@ -105,6 +230,7 @@ const PreviewToolbar = ({
 
           // 主内容组
           const mainGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+          mainGroup.setAttribute('style', 'isolation:isolate;');
           if (borderRadius > 0) {
             mainGroup.setAttribute('clip-path', 'url(#preview-clip)');
           }
@@ -126,8 +252,8 @@ const PreviewToolbar = ({
           const scaleRatio = targetIconSize / contentSize;
           const scaledWidth = contentWidth * scaleRatio;
           const scaledHeight = contentHeight * scaleRatio;
-          const offsetX = (displaySize - scaledWidth) / 2 - minX * scaleRatio;
-          const offsetY = (displaySize - scaledHeight) / 2 - minY * scaleRatio;
+          const offsetX = (displaySize - scaledWidth) / 2 - bbox.x * scaleRatio;
+          const offsetY = (displaySize - scaledHeight) / 2 - bbox.y * scaleRatio;
 
           // 复制 defs
           const originalDefs = svg.querySelector('defs');
@@ -154,6 +280,21 @@ const PreviewToolbar = ({
 
           mainGroup.appendChild(contentGroup);
           exportSvg.appendChild(mainGroup);
+
+          if (useVectorPreview) {
+            const svgData = new XMLSerializer().serializeToString(exportSvg);
+            const svgUrl = svgToDataUrl(svgData);
+            newPreviews.push(svgUrl);
+            continue;
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = displaySize;
+          canvas.height = displaySize;
+
+          const ctx = canvas.getContext('2d');
+
+          normalizeBlendModes(exportSvg);
 
           // 转为图片
           const svgData = new XMLSerializer().serializeToString(exportSvg);
@@ -189,7 +330,7 @@ const PreviewToolbar = ({
 
     setExporting(true);
     try {
-      await exportAllFormats(svg, logoName, bgColor, iconScale, borderRadius);
+      await exportAllFormats(svg, logoName, bgColor, iconScale, borderRadius, readmeMeta);
     } finally {
       setExporting(false);
     }
@@ -367,6 +508,9 @@ const PreviewToolbar = ({
                   width: Math.min(item.size, 48),
                   height: Math.min(item.size, 48),
                   borderRadius: borderRadius > 0 ? `${borderRadius * Math.min(item.size, 48)}px` : '4px',
+                  boxShadow: isDarkBg
+                    ? 'inset 0 0 0 1px rgba(255,255,255,0.18)'
+                    : 'inset 0 0 0 1px rgba(15,23,42,0.08)',
                 }}
               >
                 {previews[index] && (
@@ -374,7 +518,10 @@ const PreviewToolbar = ({
                     src={previews[index]}
                     alt={`${item.size}x${item.size}`}
                     className="w-full h-full object-cover"
-                    style={{ imageRendering: item.size <= 32 ? 'pixelated' : 'auto' }}
+                    style={{
+                      imageRendering: item.size <= 32 ? 'pixelated' : 'auto',
+                      filter: isDarkBg ? 'drop-shadow(0 0 6px rgba(255,255,255,0.35))' : 'none'
+                    }}
                   />
                 )}
               </div>

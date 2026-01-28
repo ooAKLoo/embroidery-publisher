@@ -259,6 +259,20 @@ export default function GeometricLogoGenerator() {
             setIconScale={setIconScale}
             borderRadius={borderRadius}
             setBorderRadius={setBorderRadius}
+            readmeMeta={{
+              generator: "GeometricLogoGenerator",
+              activeType,
+              preset: activeConfig?.name || "custom",
+              params: params[activeType] || {},
+              colors: globalColors,
+              strokeWidth: globalStrokeWidth,
+              commonStyles,
+              export: {
+                bgColor,
+                iconScale,
+                borderRadius,
+              },
+            }}
             onSave={handleSaveConfig}
             saving={saving}
           />

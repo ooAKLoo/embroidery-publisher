@@ -14,6 +14,11 @@ import GenerativeVectorLab from './components/GenerativeVectorLab';
 import NeonGeoLogo from './components/NeonGeoLogo';
 import ParametricLogo from './components/ParametricLogo';
 import GeoGenStudio from './components/GeoGenStudio';
+import GeometricSpiralGenerator from './components/GeometricSpiralGenerator';
+import GravityPosterGenerator from './components/GravityPosterGenerator';
+import GravityOrbitVisualizer from './components/GravityOrbitVisualizer';
+import GravityPosterLayout from './components/GravityPosterLayout';
+import GravityTunnelUI from './components/GravityTunnelUI';
 import { AppleMusicPlaylist } from './modules/AppleMusic';
 import { useAIAdapter } from './hooks/useAIAdapter';
 import { DEFAULT_BRAND_PROMPT, platforms } from './config/platforms';
@@ -218,6 +223,21 @@ Suzhou Embroidery, Chinese Art, Silk Art, Handmade, Traditional Craft, Embroider
         ) : activeModule === 'geogen' ? (
           // GeoGen Studio 模块
           <GeoGenStudio />
+        ) : activeModule === 'spiral' ? (
+          // 几何螺旋图标生成模块
+          <GeometricSpiralGenerator />
+        ) : activeModule === 'gravity' ? (
+          // Gravity Poster 模块
+          <GravityPosterGenerator />
+        ) : activeModule === 'orbit' ? (
+          // Gravity & Orbit 3D 模块
+          <GravityOrbitVisualizer />
+        ) : activeModule === 'gravity-layout' ? (
+          // Gravity Poster Layout 模块
+          <GravityPosterLayout />
+        ) : activeModule === 'gravity-tunnel' ? (
+          // Gravity Tunnel UI 模块
+          <GravityTunnelUI />
         ) : null}
       </div>
     </div>

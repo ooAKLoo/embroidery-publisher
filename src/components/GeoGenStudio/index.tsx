@@ -26,7 +26,31 @@ export default function GeoGenStudio() {
             blendMode: Math.random() > 0.7 ? 'multiply' : 'normal',
             fill: Math.random() > 0.2,
             stroke: Math.random() > 0.8,
-            strokeWidth: 2
+            strokeWidth: 2,
+            shadowEnabled: DEFAULT_PARAMS.shadowEnabled,
+            shadowX: DEFAULT_PARAMS.shadowX,
+            shadowY: DEFAULT_PARAMS.shadowY,
+            shadowBlur: DEFAULT_PARAMS.shadowBlur,
+            shadowOpacity: DEFAULT_PARAMS.shadowOpacity,
+            shadowColor: DEFAULT_PARAMS.shadowColor,
+            innerShadowEnabled: DEFAULT_PARAMS.innerShadowEnabled,
+            innerShadowX: DEFAULT_PARAMS.innerShadowX,
+            innerShadowY: DEFAULT_PARAMS.innerShadowY,
+            innerShadowBlur: DEFAULT_PARAMS.innerShadowBlur,
+            innerShadowOpacity: DEFAULT_PARAMS.innerShadowOpacity,
+            innerShadowColor: DEFAULT_PARAMS.innerShadowColor,
+            doubleStrokeEnabled: DEFAULT_PARAMS.doubleStrokeEnabled,
+            doubleStrokeWidth: DEFAULT_PARAMS.doubleStrokeWidth,
+            doubleStrokeOpacity: DEFAULT_PARAMS.doubleStrokeOpacity,
+            doubleStrokeColor: DEFAULT_PARAMS.doubleStrokeColor,
+            extrudeEnabled: DEFAULT_PARAMS.extrudeEnabled,
+            extrudeDepth: DEFAULT_PARAMS.extrudeDepth,
+            extrudeOffsetX: DEFAULT_PARAMS.extrudeOffsetX,
+            extrudeOffsetY: DEFAULT_PARAMS.extrudeOffsetY,
+            extrudeOpacity: DEFAULT_PARAMS.extrudeOpacity,
+            extrudeFade: DEFAULT_PARAMS.extrudeFade,
+            extrudeColor: DEFAULT_PARAMS.extrudeColor,
+            autoDepthColor: DEFAULT_PARAMS.autoDepthColor,
         });
     };
 
@@ -75,9 +99,9 @@ export default function GeoGenStudio() {
                 <div className="flex-1 flex items-center justify-center p-8 z-10 relative bg-gradient-to-br from-slate-900/50 to-slate-950/50">
                     <div
                         ref={svgRef}
-                        className="relative drop-shadow-[0_0_50px_rgba(79,70,229,0.15)] transition-all duration-300"
+                        className="relative transition-all duration-300"
                     >
-                        <LogoRenderer params={params} size={400} className="w-full h-full max-w-[400px] max-h-[400px] md:max-w-[500px] md:max-h-[500px]" />
+                        <LogoRenderer params={params} size={400} backgroundColor="#0b1120" className="w-full h-full max-w-[400px] max-h-[400px] md:max-w-[500px] md:max-h-[500px]" />
                     </div>
                 </div>
 

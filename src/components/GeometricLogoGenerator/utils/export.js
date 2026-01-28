@@ -17,6 +17,16 @@
  */
 import JSZip from 'jszip';
 
+const normalizeBlendModes = (svgElement, fallback = 'normal') => {
+  if (!svgElement?.querySelectorAll) return;
+  svgElement.querySelectorAll('*').forEach((el) => {
+    if (!el?.style?.mixBlendMode) return;
+    if (el.style.mixBlendMode !== fallback) {
+      el.style.mixBlendMode = fallback;
+    }
+  });
+};
+
 /**
  * 获取 SVG 中实际图形内容的边界框
  * @param {SVGElement} svgElement - SVG 元素
@@ -24,39 +34,100 @@ import JSZip from 'jszip';
  */
 const getContentBBox = (svgElement) => {
   try {
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    const applyBBox = (bbox) => {
+      if (!bbox || !Number.isFinite(bbox.width) || bbox.width <= 0) return;
+      minX = Math.min(minX, bbox.x);
+      minY = Math.min(minY, bbox.y);
+      maxX = Math.max(maxX, bbox.x + bbox.width);
+      maxY = Math.max(maxY, bbox.y + bbox.height);
+    };
+
+    let rootBBox;
+    try {
+      try {
+        rootBBox = svgElement.getBBox({ stroke: true });
+      } catch (e) {
+        rootBBox = svgElement.getBBox();
+      }
+    } catch (e) {
+      rootBBox = null;
+    }
+    applyBBox(rootBBox);
+
     const contentElements = Array.from(svgElement.children).filter(
       child => child.tagName.toLowerCase() !== 'defs'
     );
-
-    if (contentElements.length === 0) {
-      return { x: 0, y: 0, width: 300, height: 300 };
-    }
-
-    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-
     contentElements.forEach(el => {
-      if (el.getBBox) {
+      if (!el.getBBox) return;
+      try {
+        let bbox;
         try {
-          const bbox = el.getBBox();
-          minX = Math.min(minX, bbox.x);
-          minY = Math.min(minY, bbox.y);
-          maxX = Math.max(maxX, bbox.x + bbox.width);
-          maxY = Math.max(maxY, bbox.y + bbox.height);
+          bbox = el.getBBox({ stroke: true });
         } catch (e) {
-          // 某些元素可能无法获取 bbox
+          bbox = el.getBBox();
         }
+        applyBBox(bbox);
+      } catch (e) {
+        // 某些元素可能无法获取 bbox
       }
     });
 
     if (minX === Infinity) {
+      const viewBox = svgElement?.viewBox?.baseVal;
+      if (viewBox && viewBox.width > 0 && viewBox.height > 0) {
+        return { x: viewBox.x, y: viewBox.y, width: viewBox.width, height: viewBox.height };
+      }
+      return { x: 0, y: 0, width: 300, height: 300 };
+    }
+
+    let strokePadding = 0;
+    try {
+      const strokeEls = svgElement.querySelectorAll('[stroke-width], [style]');
+      strokeEls.forEach(el => {
+        let width = 0;
+        const attr = el.getAttribute('stroke-width');
+        if (attr) {
+          width = parseFloat(attr);
+        } else if (el.style && el.style.strokeWidth) {
+          width = parseFloat(el.style.strokeWidth);
+        } else if (typeof window !== 'undefined' && window.getComputedStyle) {
+          const computed = window.getComputedStyle(el);
+          if (computed && computed.strokeWidth) {
+            width = parseFloat(computed.strokeWidth);
+          }
+        }
+        if (Number.isFinite(width)) {
+          strokePadding = Math.max(strokePadding, width / 2);
+        }
+      });
+    } catch (e) {
+      strokePadding = 0;
+    }
+
+    if (strokePadding > 0) {
+      minX -= strokePadding;
+      minY -= strokePadding;
+      maxX += strokePadding;
+      maxY += strokePadding;
+    }
+
+    const width = maxX - minX;
+    const height = maxY - minY;
+
+    if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
+      const viewBox = svgElement?.viewBox?.baseVal;
+      if (viewBox && viewBox.width > 0 && viewBox.height > 0) {
+        return { x: viewBox.x, y: viewBox.y, width: viewBox.width, height: viewBox.height };
+      }
       return { x: 0, y: 0, width: 300, height: 300 };
     }
 
     return {
       x: minX,
       y: minY,
-      width: maxX - minX,
-      height: maxY - minY
+      width,
+      height
     };
   } catch (e) {
     return { x: 0, y: 0, width: 300, height: 300 };
@@ -101,14 +172,15 @@ const createMacOSIconSvg = (svgElement, exportSize, bgColor, iconScale = 0.7, bo
     exportSvg.appendChild(defs);
   }
 
-  // 创建内容组（整体偏移到中心）
+  // 创建内容组
   const mainGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-  mainGroup.setAttribute('transform', `translate(${contentOffset}, ${contentOffset})`);
 
   // 添加圆角背景矩形
   const bgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
   bgRect.setAttribute('width', contentSize);
   bgRect.setAttribute('height', contentSize);
+  bgRect.setAttribute('x', contentOffset);
+  bgRect.setAttribute('y', contentOffset);
   bgRect.setAttribute('fill', bgColor);
   const radius = contentSize * borderRadius;
   bgRect.setAttribute('rx', radius);
@@ -123,13 +195,31 @@ const createMacOSIconSvg = (svgElement, exportSize, bgColor, iconScale = 0.7, bo
 
   const clipPath = document.createElementNS('http://www.w3.org/2000/svg', 'clipPath');
   clipPath.setAttribute('id', 'macos-clip');
+  clipPath.setAttribute('clipPathUnits', 'userSpaceOnUse');
   const clipRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
   clipRect.setAttribute('width', contentSize);
   clipRect.setAttribute('height', contentSize);
+  clipRect.setAttribute('x', contentOffset);
+  clipRect.setAttribute('y', contentOffset);
   clipRect.setAttribute('rx', radius);
   clipRect.setAttribute('ry', radius);
   clipPath.appendChild(clipRect);
   defs.appendChild(clipPath);
+
+  // 外层裁剪（保证导出画布本身是圆角）
+  const outerClipPath = document.createElementNS('http://www.w3.org/2000/svg', 'clipPath');
+  outerClipPath.setAttribute('id', 'macos-outer-clip');
+  outerClipPath.setAttribute('clipPathUnits', 'userSpaceOnUse');
+  const outerClipRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+  outerClipRect.setAttribute('width', exportSize);
+  outerClipRect.setAttribute('height', exportSize);
+  outerClipRect.setAttribute('x', 0);
+  outerClipRect.setAttribute('y', 0);
+  const outerRadius = exportSize * borderRadius;
+  outerClipRect.setAttribute('rx', outerRadius);
+  outerClipRect.setAttribute('ry', outerRadius);
+  outerClipPath.appendChild(outerClipRect);
+  defs.appendChild(outerClipPath);
 
   // 计算图标在内容区域中的位置
   const targetIconSize = contentSize * iconScale;
@@ -143,8 +233,7 @@ const createMacOSIconSvg = (svgElement, exportSize, bgColor, iconScale = 0.7, bo
 
   // 创建图标内容组
   const iconGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-  iconGroup.setAttribute('clip-path', 'url(#macos-clip)');
-  iconGroup.setAttribute('transform', `translate(${iconOffsetX}, ${iconOffsetY}) scale(${scaleRatio})`);
+  iconGroup.setAttribute('transform', `translate(${contentOffset + iconOffsetX}, ${contentOffset + iconOffsetY}) scale(${scaleRatio})`);
 
   Array.from(svgElement.children).forEach(child => {
     if (child.tagName.toLowerCase() !== 'defs') {
@@ -153,7 +242,11 @@ const createMacOSIconSvg = (svgElement, exportSize, bgColor, iconScale = 0.7, bo
   });
 
   mainGroup.appendChild(iconGroup);
-  exportSvg.appendChild(mainGroup);
+  mainGroup.setAttribute('clip-path', 'url(#macos-clip)');
+  const rootGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  rootGroup.setAttribute('clip-path', 'url(#macos-outer-clip)');
+  rootGroup.appendChild(mainGroup);
+  exportSvg.appendChild(rootGroup);
 
   return exportSvg;
 };
@@ -261,6 +354,7 @@ const createExportSvg = (svgElement, exportSize, bgColor, iconScale = 0.7, borde
 const svgToPngBlob = (svgElement, size, bgColor = null, iconScale = 0.7, borderRadius = 0) => {
   return new Promise((resolve) => {
     const exportSvg = createExportSvg(svgElement, size, bgColor, iconScale, borderRadius);
+    normalizeBlendModes(exportSvg);
     const svgData = new XMLSerializer().serializeToString(exportSvg);
     const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
     const url = URL.createObjectURL(svgBlob);
@@ -296,6 +390,7 @@ const svgToPngBlob = (svgElement, size, bgColor = null, iconScale = 0.7, borderR
 const svgToMacOSPngBlob = (svgElement, size, bgColor, iconScale = 0.7, borderRadius = 0.22, contentRatio = 0.8) => {
   return new Promise((resolve) => {
     const exportSvg = createMacOSIconSvg(svgElement, size, bgColor, iconScale, borderRadius, contentRatio);
+    normalizeBlendModes(exportSvg);
     const svgData = new XMLSerializer().serializeToString(exportSvg);
     const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
     const url = URL.createObjectURL(svgBlob);
@@ -454,7 +549,14 @@ const generateICNS = async (svgElement, bgColor, iconScale = 0.7, borderRadius =
  * @param {number} iconScale - 图标占画布比例 (0-1)
  * @param {number} borderRadius - 圆角半径比例 (0-0.5)，macOS 风格约为 0.22
  */
-export const exportAllFormats = async (svgElement, logoName = 'logo', bgColor = '#0f172a', iconScale = 0.7, borderRadius = 0.22) => {
+export const exportAllFormats = async (
+  svgElement,
+  logoName = 'logo',
+  bgColor = '#0f172a',
+  iconScale = 0.7,
+  borderRadius = 0.22,
+  readmeMeta = null
+) => {
   if (!svgElement) return;
 
   const zip = new JSZip();
@@ -587,6 +689,17 @@ export const exportAllFormats = async (svgElement, logoName = 'logo', bgColor = 
   zip.file('public/mstile-150x150.png', mstile);
 
   // ==================== README ====================
+  const readmeMetaBlock = readmeMeta
+    ? `
+## 生成参数
+以下参数可用于复现当前图像效果：
+
+\`\`\`json
+${JSON.stringify(readmeMeta, null, 2)}
+\`\`\`
+`
+    : "";
+
   const readme = `# ${logoName} 图标资源包
 
 ## 目录结构
@@ -633,6 +746,7 @@ export const exportAllFormats = async (svgElement, logoName = 'logo', bgColor = 
 
 ### iOS / Android
 将对应目录下的图标文件复制到项目中
+${readmeMetaBlock}
 
 ---
 导出时间: ${new Date().toLocaleString('zh-CN')}

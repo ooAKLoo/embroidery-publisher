@@ -10,6 +10,16 @@ function NavSidebar({ activeModule, setActiveModule }) {
       )
     },
     {
+      id: 'avatar',
+      name: '头像预览',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 12a4 4 0 100-8 4 4 0 000 8z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 20a8 8 0 0116 0" />
+        </svg>
+      )
+    },
+    {
       id: 'products',
       name: '产品中心',
       icon: (

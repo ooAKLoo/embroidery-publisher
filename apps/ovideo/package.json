@@ -1,0 +1,33 @@
+{
+  "name": "ovideo",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "main": "electron/main.js",
+  "scripts": {
+    "dev": "concurrently -k \"vite\" \"wait-on http://localhost:5173 && electron .\"",
+    "build": "vite build",
+    "start": "electron .",
+    "render": "node electron/render-worker.mjs --payload render-payload.json"
+  },
+  "dependencies": {
+    "@remotion/player": "4.0.411",
+    "@remotion/renderer": "4.0.411",
+    "@remotion/bundler": "4.0.411",
+    "@remotion/three": "4.0.411",
+    "@react-three/drei": "10.7.7",
+    "@react-three/fiber": "9.5.0",
+    "@react-three/postprocessing": "3.0.4",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "remotion": "4.0.411",
+    "three": "0.182.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "4.6.0",
+    "concurrently": "8.2.2",
+    "electron": "31.3.1",
+    "vite": "7.3.0",
+    "wait-on": "7.2.0"
+  }
+}

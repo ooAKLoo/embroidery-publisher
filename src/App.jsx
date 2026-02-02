@@ -19,6 +19,7 @@ import GravityPosterGenerator from './components/GravityPosterGenerator';
 import GravityOrbitVisualizer from './components/GravityOrbitVisualizer';
 import GravityPosterLayout from './components/GravityPosterLayout';
 import GravityTunnelUI from './components/GravityTunnelUI';
+import SocialLensPreviewer from './components/SocialLensPreviewer';
 import { AppleMusicPlaylist } from './modules/AppleMusic';
 import { useAIAdapter } from './hooks/useAIAdapter';
 import { DEFAULT_BRAND_PROMPT, platforms } from './config/platforms';
@@ -238,6 +239,9 @@ Suzhou Embroidery, Chinese Art, Silk Art, Handmade, Traditional Craft, Embroider
         ) : activeModule === 'gravity-tunnel' ? (
           // Gravity Tunnel UI 模块
           <GravityTunnelUI />
+        ) : activeModule === 'avatar' ? (
+          // Avatar 预览模块
+          <SocialLensPreviewer />
         ) : null}
       </div>
     </div>

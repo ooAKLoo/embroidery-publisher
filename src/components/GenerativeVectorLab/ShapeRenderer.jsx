@@ -90,13 +90,16 @@ function ShapeRenderer({ config, width = 400, height = 400, className = "" }) {
   const safeScale = Math.max(0.01, config.scale);
   const strokeWidth = config.strokeWidth / safeScale;
   const showInvert = config.useNegativeSpace && config.invertFill;
-  const useGradientFill = config.useGradient && config.fill !== "none";
+  // 当 useGradient=true 时，无论 fill 是否为 none 都使用渐变填充
+  const useGradientFill = config.useGradient;
   const useGradientStroke = config.strokeUseGradient && config.stroke !== "none";
   const gradientNeeded = useGradientFill || useGradientStroke;
   const gradientType = config.gradientType || "linear";
   const strokeGradientType = config.strokeGradientType || "linear";
   const isArrayStrokeGradient = strokeGradientType === "array-cw" || strokeGradientType === "array-ccw";
   const fillValue = useGradientFill ? "url(#shape-gradient)" : config.fill;
+  // 有渐变或有填充色时需要渲染填充
+  const hasFill = useGradientFill || config.fill !== "none";
   // 对于阵列渐变，每个元素单独设置颜色，使用占位符
   const strokeValue = useGradientStroke 
     ? (isArrayStrokeGradient ? "__ARRAY_STROKE__" : "url(#stroke-gradient)") 
@@ -131,9 +134,10 @@ function ShapeRenderer({ config, width = 400, height = 400, className = "" }) {
   const isMeshStyle = styleMode === "mesh";
   const isMaterialStyle = styleMode === "material";
   const isMinimalStyle = styleMode === "minimal";
-  const primaryColor = config.fill !== "none"
-    ? config.fill
-    : (config.stroke !== "none" ? config.stroke : (config.gradientFrom ?? "#6366f1"));
+  // 主色：优先使用渐变起始色，其次是填充色，最后是描边色
+  const primaryColor = useGradientFill
+    ? (config.gradientFrom ?? "#6366f1")
+    : (config.fill !== "none" ? config.fill : (config.stroke !== "none" ? config.stroke : "#6366f1"));
   const secondaryColor = config.stroke !== "none"
     ? config.stroke
     : (config.gradientTo ?? "#22d3ee");
@@ -181,7 +185,7 @@ function ShapeRenderer({ config, width = 400, height = 400, className = "" }) {
   ];
   const shadowEnabled = Boolean(config.shadowEnabled);
   const innerShadowEnabled = Boolean(config.innerShadowEnabled);
-  const hasFill = config.fill !== "none";
+  // hasFill 已在上面定义（包含渐变填充的情况）
   const hasStroke = config.stroke !== "none";
   const allowInnerShadow = innerShadowEnabled && !showInvert && (hasFill || hasStroke);
   const doubleStrokeEnabled = Boolean(config.doubleStrokeEnabled) && config.stroke !== "none";
@@ -189,7 +193,7 @@ function ShapeRenderer({ config, width = 400, height = 400, className = "" }) {
   const doubleStrokeOpacity = config.doubleStrokeOpacity ?? 0.6;
   const doubleStrokeColor = config.doubleStrokeColor ?? "#0f172a";
   const extrudeEnabled =
-    Boolean(config.extrudeEnabled) && (config.fill !== "none" || config.stroke !== "none");
+    Boolean(config.extrudeEnabled) && (hasFill || hasStroke);
   const extrudeDepth = Math.max(1, Math.round(config.extrudeDepth ?? 0));
   const extrudeOffsetX = config.extrudeOffsetX ?? 0;
   const extrudeOffsetY = config.extrudeOffsetY ?? 0;

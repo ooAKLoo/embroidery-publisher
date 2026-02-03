@@ -1,6 +1,7 @@
 import { Composition } from 'remotion';
 import { MemoryTunnelVideo } from './compositions/MemoryTunnelVideo';
 import { PhotoMosaicVideo } from './compositions/PhotoMosaicVideo';
+import { GenerativeLogoVideo, generativeLogoDefaultProps, demoLottieData } from './compositions/GenerativeLogoVideo';
 
 const defaultProps = {
   images: [],
@@ -74,6 +75,30 @@ export const RemotionRoot = () => {
             durationInFrames: Math.round(duration * fps),
             width: resolution[0],
             height: resolution[1]
+          };
+        }}
+      />
+      <Composition
+        id="GenerativeLogoVideo"
+        component={GenerativeLogoVideo}
+        durationInFrames={90}
+        fps={60}
+        width={1080}
+        height={1080}
+        defaultProps={{
+          ...generativeLogoDefaultProps,
+          lottieData: demoLottieData, // 使用演示动画
+        }}
+        calculateMetadata={({ props }) => {
+          // 从 Lottie 数据中获取帧率和总帧数
+          const lottie = props.lottieData || demoLottieData;
+          const fps = lottie?.fr || 60;
+          const totalFrames = lottie?.op || 72;
+          return {
+            fps,
+            durationInFrames: totalFrames,
+            width: lottie?.w || 1080,
+            height: lottie?.h || 1080,
           };
         }}
       />

@@ -20,6 +20,8 @@ import GravityOrbitVisualizer from './components/GravityOrbitVisualizer';
 import GravityPosterLayout from './components/GravityPosterLayout';
 import GravityTunnelUI from './components/GravityTunnelUI';
 import SocialLensPreviewer from './components/SocialLensPreviewer';
+import StrokeLab from './components/StrokeLab';
+import GradientTubeStroke from './components/GradientTubeStroke';
 import { AppleMusicPlaylist } from './modules/AppleMusic';
 import { useAIAdapter } from './hooks/useAIAdapter';
 import { DEFAULT_BRAND_PROMPT, platforms } from './config/platforms';
@@ -242,6 +244,12 @@ Suzhou Embroidery, Chinese Art, Silk Art, Handmade, Traditional Craft, Embroider
         ) : activeModule === 'avatar' ? (
           // Avatar 预览模块
           <SocialLensPreviewer />
+        ) : activeModule === 'stroke' ? (
+          // 3D 笔触工坊模块
+          <StrokeLab />
+        ) : activeModule === 'tube' ? (
+          // 渐变管状笔触模块
+          <GradientTubeStroke />
         ) : null}
       </div>
     </div>

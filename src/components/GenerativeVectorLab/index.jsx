@@ -2,6 +2,9 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { DEFAULT_CONFIG, PRESETS } from "./constants";
 import ControlPanel from "./ControlPanel";
 import ShapeRenderer from "./ShapeRenderer";
+import AnimatedLogoIcon from "./AnimatedLogoIcon";
+import { AnimationDemoModal } from "./AnimationShowcase";
+import LottieExporter from "./LottieExporter";
 import { generateAtomPoints, generateVariation } from "./utils/math";
 import PreviewToolbar from "../GeometricLogoGenerator/components/PreviewToolbar";
 
@@ -59,6 +62,21 @@ function GenerativeVectorLab() {
   const [showImport, setShowImport] = useState(false);
   const [importText, setImportText] = useState("");
   const [importError, setImportError] = useState("");
+  const [showAnimationDemo, setShowAnimationDemo] = useState(false);
+  const [showAnimationExporter, setShowAnimationExporter] = useState(false);
+  const [selectedAnimationMode, setSelectedAnimationMode] = useState("morphScale");
+  const [previewAnimationKey, setPreviewAnimationKey] = useState(0);
+  const [isPreviewAnimating, setIsPreviewAnimating] = useState(false);
+
+  // 触发预览区动画
+  const triggerPreviewAnimation = useCallback(() => {
+    setIsPreviewAnimating(true);
+    setPreviewAnimationKey(k => k + 1);
+  }, []);
+
+  const handlePreviewAnimationComplete = useCallback(() => {
+    setIsPreviewAnimating(false);
+  }, []);
   const readmeMeta = {
     generator: "GenerativeVectorLab",
     config,
@@ -617,8 +635,49 @@ ${dropShadowClose}` : nonCustomMarkup}
         
         {/* 工具栏 */}
         <div className="h-14 border-b border-zinc-200 bg-white flex items-center justify-between px-6">
-          
+
           <div className="flex items-center gap-4">
+            {/* 动画 Logo 图标 */}
+            <AnimatedLogoIcon
+              config={config}
+              size={32}
+              mode={selectedAnimationMode}
+              autoPlay={false}
+              showMenu={true}
+              enableBreathing={true}
+              onModeChange={(mode) => {
+                setSelectedAnimationMode(mode);
+                triggerPreviewAnimation();
+              }}
+              onPlay={triggerPreviewAnimation}
+            />
+
+            {/* 动画展示按钮 */}
+            <button
+              onClick={() => setShowAnimationDemo(true)}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-zinc-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+              title="查看所有动画效果"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4V2m0 2v2m0-2h10M7 4h10m0 0V2m0 2v2m-3 4H6m10 4H6m10 4H6" />
+              </svg>
+              动画库
+            </button>
+
+            {/* Lottie 导出按钮 */}
+            <button
+              onClick={() => setShowAnimationExporter(true)}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-zinc-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+              title="导出 Lottie 动画 (通用格式)"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />
+              </svg>
+              Lottie
+            </button>
+
+            <div className="h-6 w-px bg-zinc-200" />
+
             {/* 预设按钮 */}
             {Object.entries(PRESETS).map(([name, preset]) => (
               <button
@@ -716,15 +775,37 @@ ${dropShadowClose}` : nonCustomMarkup}
             <div className="w-full h-full flex items-center justify-center">
               <div
                 ref={previewRef}
-                className="origin-center"
+                className="origin-center relative"
                 style={{ width: previewSize, height: previewSize }}
               >
-                <ShapeRenderer 
-                  config={config} 
-                  width={baseSize} 
-                  height={baseSize} 
-                  className="w-full h-full"
-                />
+                {/* 静态渲染层 - 动画播放时隐藏 */}
+                <div
+                  className="absolute inset-0 transition-opacity duration-200"
+                  style={{ opacity: isPreviewAnimating ? 0 : 1 }}
+                >
+                  <ShapeRenderer
+                    config={config}
+                    width={baseSize}
+                    height={baseSize}
+                    className="w-full h-full"
+                  />
+                </div>
+
+                {/* 动画层 - 仅在动画播放时显示 */}
+                {isPreviewAnimating && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <AnimatedLogoIcon
+                      key={previewAnimationKey}
+                      config={config}
+                      size={previewSize}
+                      mode={selectedAnimationMode}
+                      autoPlay={true}
+                      showMenu={false}
+                      enableBreathing={false}
+                      onComplete={handlePreviewAnimationComplete}
+                    />
+                  </div>
+                )}
               </div>
               {zoom !== 100 && (
                 <button
@@ -800,7 +881,7 @@ ${dropShadowClose}` : nonCustomMarkup}
               <textarea
                 value={importText}
                 onChange={(e) => setImportText(e.target.value)}
-                placeholder="粘贴 README 中的“生成参数”JSON 区块或直接粘贴 JSON"
+                placeholder={'粘贴 README 中的"生成参数"JSON 区块或直接粘贴 JSON'}
                 className="w-full h-44 text-xs font-mono text-zinc-800 bg-zinc-50 border border-zinc-200 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-indigo-200"
               />
               {importError && (
@@ -820,6 +901,36 @@ ${dropShadowClose}` : nonCustomMarkup}
                   解析并恢复
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* 动画展示弹窗 */}
+        <AnimationDemoModal
+          config={config}
+          isOpen={showAnimationDemo}
+          onClose={() => setShowAnimationDemo(false)}
+          onSelect={setSelectedAnimationMode}
+          selectedMode={selectedAnimationMode}
+        />
+
+        {/* Lottie 动画导出弹窗 */}
+        {showAnimationExporter && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div
+              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+              onClick={() => setShowAnimationExporter(false)}
+            />
+            <div className="relative w-[520px] max-w-[90vw] max-h-[85vh] overflow-auto">
+              <LottieExporter config={config} />
+              <button
+                onClick={() => setShowAnimationExporter(false)}
+                className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-lg bg-zinc-100 hover:bg-zinc-200 text-zinc-500 hover:text-zinc-700 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </div>
           </div>
         )}

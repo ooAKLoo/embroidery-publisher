@@ -11,6 +11,7 @@
     "render": "node electron/render-worker.mjs --payload render-payload.json"
   },
   "dependencies": {
+    "@remotion/lottie": "4.0.411",
     "@remotion/player": "4.0.411",
     "@remotion/renderer": "4.0.411",
     "@remotion/bundler": "4.0.411",
@@ -21,7 +22,8 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "remotion": "4.0.411",
-    "three": "0.182.0"
+    "three": "0.182.0",
+    "lottie-web": "^5.12.2"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "4.6.0",

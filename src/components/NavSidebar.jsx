@@ -225,6 +225,17 @@ function NavSidebar({ activeModule, setActiveModule }) {
           <path strokeLinecap="round" strokeWidth={1} d="M8 5c1 .5 1.5 1 2 2M16 5c-1 .5-1.5 1-2 2M6 10c1 0 2 .5 3 1M18 10c-1 0-2 .5-3 1" opacity="0.5" />
         </svg>
       )
+    },
+    {
+      id: 'music-narrative',
+      name: '音乐叙事',
+      shortName: '叙事',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2 12h2l3-7 3 14 3-10 3 6 2-3h4" />
+          <circle cx="19" cy="12" r="2" strokeWidth={1.5} />
+        </svg>
+      )
     }
   ];
 

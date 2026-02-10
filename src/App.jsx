@@ -26,6 +26,7 @@ import GenerativeVectorLab2 from './components/GenerativeVectorLab2';
 import VTracerStudio from './components/VTracerStudio';
 import NeuralCoreLivingNetwork from './components/NeuralCoreLivingNetwork';
 import TheSpirit from './components/TheSpirit';
+import MusicNarrativeEngine from './components/MusicNarrativeEngine';
 import { AppleMusicPlaylist } from './modules/AppleMusic';
 import { useAIAdapter } from './hooks/useAIAdapter';
 import { DEFAULT_BRAND_PROMPT, platforms } from './config/platforms';
@@ -266,6 +267,9 @@ Suzhou Embroidery, Chinese Art, Silk Art, Handmade, Traditional Craft, Embroider
         ) : activeModule === 'spirit' ? (
           // The Spirit - Particle Experience
           <TheSpirit />
+        ) : activeModule === 'music-narrative' ? (
+          // Music Narrative Engine - 音乐叙事背景引擎
+          <MusicNarrativeEngine />
         ) : null}
       </div>
     </div>

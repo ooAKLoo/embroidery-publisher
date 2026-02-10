@@ -9,9 +9,30 @@ export const PALETTES = {
   astral:  { name: 'Astral',  bg: '#060614', node: '#4d80cc', line: '#1a3a6b', accent: '#6699dd', glow: '#3366bb', warm: '#5588cc' },
 };
 
+// ─── Visualization Modes ────────────────────────────────────────
+export const VIZ_MODES = {
+  ripple:       { id: 0, name: '涟漪',     fftWeight: 0.15, globalWeight: 0.6  },
+  spectralRing: { id: 1, name: '频谱环',   fftWeight: 0.5,  globalWeight: 0.3  },
+  logSpiral:    { id: 2, name: '对数螺旋', fftWeight: 0.5,  globalWeight: 0.3  },
+  unified:      { id: 3, name: '统一场',   fftWeight: 0.0,  globalWeight: 1.0  },
+  aurora:       { id: 4, name: '极光',     fftWeight: 0.15, globalWeight: 0.5  },
+};
+
+// ─── Layout Shapes ──────────────────────────────────────────────
+export const LAYOUT_SHAPES = {
+  disc:   { name: '圆盘' },
+  square: { name: '方阵' },
+  hex:    { name: '蜂巢' },
+  ring:   { name: '环形' },
+  star:   { name: '星形' },
+  heart:  { name: '心形' },
+};
+
 // ─── Default configuration ──────────────────────────────────────
 export const DEFAULT_CONFIG = {
   palette: 'cosmic',
+  vizMode: 'logSpiral',
+  layoutShape: 'disc',
   bloomIntensity: 1.5,
   bloomThreshold: 0.3,
   bloomRadius: 0.4,

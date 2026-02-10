@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { AudioAnalyzer } from './audioAnalyzer';
-import { PALETTES, DEFAULT_CONFIG } from './presets';
+import { PALETTES, VIZ_MODES, LAYOUT_SHAPES, DEFAULT_CONFIG } from './presets';
 import ColumnField from './ColumnField';
 
 export default function MusicNarrativeEngine() {
@@ -159,8 +159,26 @@ export default function MusicNarrativeEngine() {
               )}
             </button>
 
-            {/* Palette chips */}
+            {/* Mode + Shape + Palette chips */}
             <div className="flex-1 flex items-center gap-1.5 overflow-x-auto scrollbar-none">
+              {Object.entries(VIZ_MODES).map(([k, v]) => (
+                <button key={k} onClick={() => set('vizMode', k)}
+                  className={`flex-shrink-0 px-2.5 py-1 rounded-md text-[10px] transition-all ${
+                    cfg.vizMode === k ? 'bg-white/15 text-white/90' : 'bg-white/[0.04] text-white/30 hover:bg-white/[0.08] hover:text-white/50'
+                  }`}>
+                  {v.name}
+                </button>
+              ))}
+              <span className="flex-shrink-0 text-white/15 text-[10px] select-none">|</span>
+              {Object.entries(LAYOUT_SHAPES).map(([k, v]) => (
+                <button key={k} onClick={() => set('layoutShape', k)}
+                  className={`flex-shrink-0 px-2.5 py-1 rounded-md text-[10px] transition-all ${
+                    cfg.layoutShape === k ? 'bg-white/15 text-white/90' : 'bg-white/[0.04] text-white/30 hover:bg-white/[0.08] hover:text-white/50'
+                  }`}>
+                  {v.name}
+                </button>
+              ))}
+              <span className="flex-shrink-0 text-white/15 text-[10px] select-none">|</span>
               {Object.entries(PALETTES).map(([k, v]) => (
                 <button key={k} onClick={() => set('palette', k)}
                   className={`flex-shrink-0 px-2.5 py-1 rounded-md text-[10px] transition-all ${

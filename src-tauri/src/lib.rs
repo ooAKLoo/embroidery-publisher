@@ -1,8 +1,12 @@
+use base64::Engine;
 use once_cell::sync::Lazy;
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
+use tauri::async_runtime;
+use visioncortex::PathSimplifyMode;
+use vtracer::{ColorImage, ColorMode, Config, Hierarchical, Preset};
 use warp::Filter;
 
 mod fred_api;
@@ -57,6 +61,117 @@ pub struct AccountProfile {
     pub avatar: Option<String>,
 }
 
+#[derive(Debug, Clone, Deserialize, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct VTracerConfigInput {
+    pub color_mode: Option<String>,
+    pub hierarchical: Option<String>,
+    pub mode: Option<String>,
+    pub filter_speckle: Option<u32>,
+    pub color_precision: Option<i32>,
+    pub layer_difference: Option<i32>,
+    pub corner_threshold: Option<i32>,
+    pub length_threshold: Option<f64>,
+    pub max_iterations: Option<u32>,
+    pub splice_threshold: Option<i32>,
+    pub path_precision: Option<u32>,
+    pub preset: Option<String>,
+}
+
+impl VTracerConfigInput {
+    fn to_config(&self) -> Result<Config, String> {
+        let mut config = if let Some(preset) = self
+            .preset
+            .as_deref()
+            .and_then(|value| parse_preset(value))
+        {
+            Config::from_preset(preset)
+        } else {
+            Config::default()
+        };
+
+        if let Some(value) = self.color_mode.as_deref() {
+            config.color_mode = parse_color_mode(value);
+        }
+        if let Some(value) = self.hierarchical.as_deref() {
+            config.hierarchical = parse_hierarchical(value);
+        }
+        if let Some(value) = self.mode.as_deref() {
+            config.mode = parse_mode(value);
+        }
+        if let Some(value) = self.filter_speckle {
+            config.filter_speckle = value as usize;
+        }
+        if let Some(value) = self.color_precision {
+            config.color_precision = value;
+        }
+        if let Some(value) = self.layer_difference {
+            config.layer_difference = value;
+        }
+        if let Some(value) = self.corner_threshold {
+            config.corner_threshold = value;
+        }
+        if let Some(value) = self.length_threshold {
+            config.length_threshold = value.max(0.0);
+        }
+        if let Some(value) = self.max_iterations {
+            config.max_iterations = value as usize;
+        }
+        if let Some(value) = self.splice_threshold {
+            config.splice_threshold = value;
+        }
+        if let Some(value) = self.path_precision {
+            config.path_precision = if value == 0 { None } else { Some(value) };
+        }
+
+        Ok(config)
+    }
+}
+
+fn parse_color_mode(value: &str) -> ColorMode {
+    match value.trim().to_lowercase().as_str() {
+        "binary" | "bw" | "b/w" => ColorMode::Binary,
+        _ => ColorMode::Color,
+    }
+}
+
+fn parse_hierarchical(value: &str) -> Hierarchical {
+    match value.trim().to_lowercase().as_str() {
+        "cutout" => Hierarchical::Cutout,
+        _ => Hierarchical::Stacked,
+    }
+}
+
+fn parse_mode(value: &str) -> PathSimplifyMode {
+    match value.trim().to_lowercase().as_str() {
+        "polygon" => PathSimplifyMode::Polygon,
+        "spline" => PathSimplifyMode::Spline,
+        "none" | "pixel" => PathSimplifyMode::None,
+        _ => PathSimplifyMode::Spline,
+    }
+}
+
+fn parse_preset(value: &str) -> Option<Preset> {
+    match value.trim().to_lowercase().as_str() {
+        "bw" | "b/w" | "binary" => Some(Preset::Bw),
+        "photo" => Some(Preset::Photo),
+        "clipart" => Some(Preset::Poster),
+        "poster" => Some(Preset::Poster),
+        _ => None,
+    }
+}
+
+fn decode_base64_image(data: &str) -> Result<Vec<u8>, String> {
+    let base64_data = if let Some((_, encoded)) = data.split_once(',') {
+        encoded
+    } else {
+        data
+    };
+    base64::engine::general_purpose::STANDARD
+        .decode(base64_data.as_bytes())
+        .map_err(|err| format!("Base64 解码失败: {err}"))
+}
+
 // Tauri 命令：更新内容状态
 #[tauri::command]
 fn update_content(
@@ -77,6 +192,34 @@ fn update_content(
 #[tauri::command]
 fn get_content() -> ContentState {
     CONTENT_STATE.read().clone()
+}
+
+// Tauri 命令：图片矢量化
+#[tauri::command]
+async fn vectorize_image(
+    image_base64: String,
+    config: VTracerConfigInput,
+) -> Result<String, String> {
+    async_runtime::spawn_blocking(move || {
+        let bytes = decode_base64_image(&image_base64)?;
+        let image =
+            image::load_from_memory(&bytes).map_err(|err| format!("读取图片失败: {err}"))?;
+        let rgba = image.to_rgba8();
+        let width = rgba.width() as usize;
+        let height = rgba.height() as usize;
+        let color_image = ColorImage {
+            pixels: rgba.into_raw(),
+            width,
+            height,
+        };
+
+        let tracer_config = config.to_config()?;
+        let svg = vtracer::convert(color_image, tracer_config)
+            .map_err(|err| format!("矢量化失败: {err}"))?;
+        Ok(svg.to_string())
+    })
+    .await
+    .map_err(|err| format!("矢量化任务失败: {err}"))?
 }
 
 // Tauri 命令：获取市场指标数据
@@ -192,6 +335,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             update_content,
             get_content,
+            vectorize_image,
             fetch_market_indicators,
             get_cached_market_data,
             fetch_single_indicator,

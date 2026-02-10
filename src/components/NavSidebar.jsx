@@ -173,41 +173,94 @@ function NavSidebar({ activeModule, setActiveModule }) {
           <circle cx="18" cy="16" r="1.2" strokeWidth={1.5} />
         </svg>
       )
+    },
+    {
+      id: 'vector2',
+      name: '矢量2.0',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 3l2.5 2.5M12 3L9.5 5.5M12 3v4" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 21l2.5-2.5M12 21l-2.5-2.5M12 21v-4" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2.5 2.5M3 12l2.5-2.5M3 12h4" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12l-2.5 2.5M21 12l-2.5-2.5M21 12h-4" />
+          <circle cx="12" cy="12" r="3" strokeWidth={1.5} />
+        </svg>
+      )
+    },
+    {
+      id: 'vtracer',
+      name: 'VTracer',
+      shortName: 'VT',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5h6l2 2h10v12a2 2 0 01-2 2H5a2 2 0 01-2-2V5z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 13l2 2 4-4" />
+        </svg>
+      )
+    },
+    {
+      id: 'neural-core',
+      name: 'Neural Core',
+      shortName: 'NC',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="3.5" strokeWidth={1.5} />
+          <circle cx="5" cy="6" r="1.5" strokeWidth={1.5} />
+          <circle cx="19" cy="6" r="1.5" strokeWidth={1.5} />
+          <circle cx="5" cy="18" r="1.5" strokeWidth={1.5} />
+          <circle cx="19" cy="18" r="1.5" strokeWidth={1.5} />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.5 10L6.5 7.5M15.5 10l2-2.5M8.5 14l-2 2.5M15.5 14l2 2.5" />
+        </svg>
+      )
+    },
+    {
+      id: 'spirit',
+      name: 'The Spirit',
+      shortName: '灵',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 3c-1.5 2-3 4.5-3 7 0 3 1.5 5 3 7 1.5-2 3-4 3-7 0-2.5-1.5-5-3-7z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 17c-2 1-4 2-5 4 2-1 4-1.5 5-1.5s3 .5 5 1.5c-1-2-3-3-5-4z" />
+          <circle cx="12" cy="8" r="1" strokeWidth={1.5} />
+          <path strokeLinecap="round" strokeWidth={1} d="M8 5c1 .5 1.5 1 2 2M16 5c-1 .5-1.5 1-2 2M6 10c1 0 2 .5 3 1M18 10c-1 0-2 .5-3 1" opacity="0.5" />
+        </svg>
+      )
     }
   ];
 
   return (
-    <div className="w-20 flex-shrink-0 bg-white rounded-2xl flex flex-col items-center py-4 gap-2">
+    <div className="w-20 flex-shrink-0 bg-white rounded-2xl flex flex-col items-center py-4 h-full overflow-hidden">
       {/* Logo */}
-      <div className="w-10 h-10 rounded-xl overflow-hidden mb-4">
+      <div className="w-10 h-10 rounded-xl overflow-hidden mb-4 flex-shrink-0">
         <img src="/icon.svg" alt="AppScope" className="w-full h-full" />
       </div>
 
-      {/* Nav Items */}
-      {modules.map(module => (
-        <button
-          key={module.id}
-          onClick={() => setActiveModule(module.id)}
-          className={`
-            w-14 h-14 rounded-xl flex flex-col items-center justify-center gap-1 transition-all
-            ${activeModule === module.id
-              ? 'bg-slate-900 text-white'
-              : 'text-slate-400 hover:bg-slate-50 hover:text-slate-600'
-            }
-          `}
-          title={module.name}
-        >
-          {module.icon}
-          <span className="text-[10px] font-medium">{module.name.slice(0, 2)}</span>
-        </button>
-      ))}
-
-      {/* Spacer */}
-      <div className="flex-1" />
+      {/* Nav Items - Scrollable */}
+      <div className="flex-1 w-full overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent hover:scrollbar-thumb-slate-300">
+        <div className="flex flex-col items-center gap-2 px-3">
+          {modules.map(module => (
+            <button
+              key={module.id}
+              onClick={() => setActiveModule(module.id)}
+              className={`
+                w-14 h-14 rounded-xl flex flex-col items-center justify-center gap-1 transition-all flex-shrink-0
+                ${activeModule === module.id
+                  ? 'bg-slate-900 text-white'
+                  : 'text-slate-400 hover:bg-slate-50 hover:text-slate-600'
+                }
+              `}
+              title={module.name}
+            >
+              {module.icon}
+              <span className="text-[10px] font-medium">{module.shortName ?? module.name.slice(0, 2)}</span>
+            </button>
+          ))}
+        </div>
+      </div>
 
       {/* Settings */}
       <button
-        className="w-10 h-10 rounded-xl text-slate-400 hover:bg-slate-50 hover:text-slate-600 flex items-center justify-center transition-colors"
+        className="w-10 h-10 rounded-xl text-slate-400 hover:bg-slate-50 hover:text-slate-600 flex items-center justify-center transition-colors mt-2 flex-shrink-0"
         title="设置"
       >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

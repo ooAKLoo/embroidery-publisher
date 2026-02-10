@@ -22,6 +22,10 @@ import GravityTunnelUI from './components/GravityTunnelUI';
 import SocialLensPreviewer from './components/SocialLensPreviewer';
 import StrokeLab from './components/StrokeLab';
 import GradientTubeStroke from './components/GradientTubeStroke';
+import GenerativeVectorLab2 from './components/GenerativeVectorLab2';
+import VTracerStudio from './components/VTracerStudio';
+import NeuralCoreLivingNetwork from './components/NeuralCoreLivingNetwork';
+import TheSpirit from './components/TheSpirit';
 import { AppleMusicPlaylist } from './modules/AppleMusic';
 import { useAIAdapter } from './hooks/useAIAdapter';
 import { DEFAULT_BRAND_PROMPT, platforms } from './config/platforms';
@@ -250,6 +254,18 @@ Suzhou Embroidery, Chinese Art, Silk Art, Handmade, Traditional Craft, Embroider
         ) : activeModule === 'tube' ? (
           // 渐变管状笔触模块
           <GradientTubeStroke />
+        ) : activeModule === 'vector2' ? (
+          // 矢量 Lab 2.0 模块
+          <GenerativeVectorLab2 />
+        ) : activeModule === 'vtracer' ? (
+          // VTracer 矢量化模块
+          <VTracerStudio />
+        ) : activeModule === 'neural-core' ? (
+          // Neural Core - Living Network
+          <NeuralCoreLivingNetwork />
+        ) : activeModule === 'spirit' ? (
+          // The Spirit - Particle Experience
+          <TheSpirit />
         ) : null}
       </div>
     </div>

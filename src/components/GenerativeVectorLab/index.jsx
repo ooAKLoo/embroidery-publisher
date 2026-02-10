@@ -5,6 +5,7 @@ import ShapeRenderer from "./ShapeRenderer";
 import AnimatedLogoIcon from "./AnimatedLogoIcon";
 import { AnimationDemoModal } from "./AnimationShowcase";
 import LottieExporter from "./LottieExporter";
+import HDAnimationExporter from "./HDAnimationExporter";
 import { generateAtomPoints, generateVariation } from "./utils/math";
 import PreviewToolbar from "../GeometricLogoGenerator/components/PreviewToolbar";
 
@@ -51,6 +52,7 @@ function GenerativeVectorLab() {
   const [variations, setVariations] = useState([]);
   const [viewMode, setViewMode] = useState("single");
   const [iconScale, setIconScale] = useState(0.7);
+  const [includeBackground, setIncludeBackground] = useState(true);
   const [borderRadius, setBorderRadius] = useState(0.22);
   const [saving, setSaving] = useState(false);
   const previewRef = useRef(null);
@@ -64,6 +66,7 @@ function GenerativeVectorLab() {
   const [importError, setImportError] = useState("");
   const [showAnimationDemo, setShowAnimationDemo] = useState(false);
   const [showAnimationExporter, setShowAnimationExporter] = useState(false);
+  const [showHDExporter, setShowHDExporter] = useState(false);
   const [selectedAnimationMode, setSelectedAnimationMode] = useState("morphScale");
   const [previewAnimationKey, setPreviewAnimationKey] = useState(0);
   const [isPreviewAnimating, setIsPreviewAnimating] = useState(false);
@@ -84,6 +87,7 @@ function GenerativeVectorLab() {
       bgColor: config.canvasBg ?? "#ffffff",
       iconScale,
       borderRadius,
+      includeBackground,
     },
   };
 
@@ -166,6 +170,9 @@ function GenerativeVectorLab() {
       if (payload?.export?.borderRadius !== undefined) {
         setBorderRadius(payload.export.borderRadius);
       }
+      if (payload?.export?.includeBackground !== undefined) {
+        setIncludeBackground(Boolean(payload.export.includeBackground));
+      }
       setViewMode("single");
       setShowImport(false);
       setImportText("");
@@ -174,7 +181,12 @@ function GenerativeVectorLab() {
     }
   }, [importText, parseReadmeConfig, setConfig]);
 
-  const buildSvgMarkup = (cfg, size = 800) => {
+  const buildSvgMarkup = (cfg, size = 800, options = {}) => {
+    const {
+      includeBackground: shouldIncludeBackground = true,
+      autoFit = true,
+      paddingRatio = 0.1,
+    } = options;
     const cx = size / 2;
     const cy = size / 2;
     const count = Math.max(1, cfg.count);
@@ -193,6 +205,21 @@ function GenerativeVectorLab() {
 
     const pathParts = [];
     const pathItems = [];
+    let minX = Number.POSITIVE_INFINITY;
+    let minY = Number.POSITIVE_INFINITY;
+    let maxX = Number.NEGATIVE_INFINITY;
+    let maxY = Number.NEGATIVE_INFINITY;
+
+    const expandBounds = (points) => {
+      for (const point of points) {
+        if (!Number.isFinite(point.x) || !Number.isFinite(point.y)) continue;
+        minX = Math.min(minX, point.x);
+        minY = Math.min(minY, point.y);
+        maxX = Math.max(maxX, point.x);
+        maxY = Math.max(maxY, point.y);
+      }
+    };
+
     for (let i = 0; i < count; i += 1) {
       const theta = i * angleStep;
       const x = cfg.arrayRadius * Math.cos(theta + globalRotRad);
@@ -214,6 +241,7 @@ function GenerativeVectorLab() {
       const d = toPath(transformed);
       pathParts.push(d);
       pathItems.push({ d, index: i });
+      expandBounds(transformed);
     }
 
     const compoundPath = pathParts.join(" ");
@@ -362,6 +390,38 @@ function GenerativeVectorLab() {
     const styleStrokeWidth = Math.max(1, cfg.strokeWidth);
     const glowRadius = Math.min(size, size) * 0.35;
     const highlightRadius = Math.min(size, size) * 0.08;
+    const hasFiniteBounds = Number.isFinite(minX) && Number.isFinite(minY) && Number.isFinite(maxX) && Number.isFinite(maxY) && maxX > minX && maxY > minY;
+    const exportPaddingRatio = Math.min(0.45, Math.max(0, paddingRatio));
+    let exportScale = 1;
+    let exportTranslateX = 0;
+    let exportTranslateY = 0;
+    if (autoFit && hasFiniteBounds) {
+      const strokePadding = Math.max(
+        hasStroke ? strokeWidth : 0,
+        hasStroke ? styleStrokeWidth : 0,
+        doubleStrokeEnabled ? strokeWidth + doubleStrokeWidth : 0
+      ) / 2;
+      const extrudePaddingX = extrudeEnabled ? Math.abs(extrudeOffsetX) : 0;
+      const extrudePaddingY = extrudeEnabled ? Math.abs(extrudeOffsetY) : 0;
+      const shadowPaddingX = shadowEnabled ? Math.abs(cfg.shadowX ?? 0) + Math.max(0, (cfg.shadowBlur ?? 0) * 3) : 0;
+      const shadowPaddingY = shadowEnabled ? Math.abs(cfg.shadowY ?? 0) + Math.max(0, (cfg.shadowBlur ?? 0) * 3) : 0;
+
+      const contentMinX = minX - strokePadding - extrudePaddingX - shadowPaddingX;
+      const contentMinY = minY - strokePadding - extrudePaddingY - shadowPaddingY;
+      const contentMaxX = maxX + strokePadding + extrudePaddingX + shadowPaddingX;
+      const contentMaxY = maxY + strokePadding + extrudePaddingY + shadowPaddingY;
+      const contentWidth = Math.max(1, contentMaxX - contentMinX);
+      const contentHeight = Math.max(1, contentMaxY - contentMinY);
+      const targetWidth = Math.max(1, size * (1 - exportPaddingRatio * 2));
+      const targetHeight = Math.max(1, size * (1 - exportPaddingRatio * 2));
+
+      exportScale = Math.min(targetWidth / contentWidth, targetHeight / contentHeight);
+      exportTranslateX = (size - contentWidth * exportScale) / 2 - contentMinX * exportScale;
+      exportTranslateY = (size - contentHeight * exportScale) / 2 - contentMinY * exportScale;
+    }
+    const exportTransformAttr = autoFit && hasFiniteBounds
+      ? ` transform="translate(${fmt(exportTranslateX)} ${fmt(exportTranslateY)}) scale(${fmt(exportScale)})"`
+      : "";
     const outerStrokePath = doubleStrokeEnabled
       ? `  <path d="${compoundPath}" fill="none" stroke="${doubleStrokeColor}" stroke-width="${fmt(strokeWidth + doubleStrokeWidth)}" stroke-linejoin="round" stroke-linecap="${strokeLinecap}"${dashAttr} fill-rule="${fillRule}" clip-rule="${fillRule}" opacity="${doubleStrokeOpacity}" />`
       : "";
@@ -557,15 +617,8 @@ ${extrudePaths}
 ${styleMarkupWithInnerShadow}
 ${outerStrokePath}
 ${dropShadowClose}`;
-    const backgroundRect = cfg.canvasBg && cfg.canvasBg !== "transparent"
-      ? `  <rect width="${size}" height="${size}" fill="${cfg.canvasBg}" />`
-      : "";
-
-    return `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
-  ${defsBlock}
-${backgroundRect}
-${isCustomStyle ? `${dropShadowOpen}
+    const rawShapeMarkup = isCustomStyle
+      ? `${dropShadowOpen}
 ${extrudePaths}
   ${
     showInvert
@@ -578,7 +631,22 @@ ${innerStrokePath}`
 ${outerStrokePath}
 ${hasStroke ? `  <path d="${compoundPath}" fill="none" stroke="${strokeValue}" stroke-width="${fmt(strokeWidth)}" stroke-linejoin="round" stroke-linecap="${strokeLinecap}"${dashAttr} fill-rule="${fillRule}" clip-rule="${fillRule}" opacity="${cfg.opacity}"${innerShadowStrokeAttr} />` : ""}`
   }
-${dropShadowClose}` : nonCustomMarkup}
+${dropShadowClose}`
+      : nonCustomMarkup;
+    const transformedShapeMarkup = autoFit && hasFiniteBounds
+      ? `  <g${exportTransformAttr}>
+${rawShapeMarkup}
+  </g>`
+      : rawShapeMarkup;
+    const backgroundRect = shouldIncludeBackground && cfg.canvasBg && cfg.canvasBg !== "transparent"
+      ? `  <rect width="${size}" height="${size}" fill="${cfg.canvasBg}" />`
+      : "";
+
+    return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+  ${defsBlock}
+${backgroundRect}
+${transformedShapeMarkup}
 </svg>`;
   };
 
@@ -610,7 +678,11 @@ ${dropShadowClose}` : nonCustomMarkup}
 
   // 导出 SVG
   const handleExport = () => {
-    const svgData = buildSvgMarkup(config, 800);
+    const svgData = buildSvgMarkup(config, 800, {
+      includeBackground,
+      autoFit: true,
+      paddingRatio: 0.1,
+    });
     const blob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -674,6 +746,18 @@ ${dropShadowClose}` : nonCustomMarkup}
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />
               </svg>
               Lottie
+            </button>
+
+            {/* HD 视频导出按钮 */}
+            <button
+              onClick={() => setShowHDExporter(true)}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-zinc-500 hover:text-violet-600 hover:bg-violet-50 rounded-lg transition-colors"
+              title="高清动画导出 (WebM 视频)"
+            >
+              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+              </svg>
+              HD 动画
             </button>
 
             <div className="h-6 w-px bg-zinc-200" />
@@ -742,6 +826,15 @@ ${dropShadowClose}` : nonCustomMarkup}
               <SparklesIcon />
               生成系列
             </button>
+            <label className="flex items-center gap-1.5 px-2 py-1 text-xs text-zinc-600 select-none">
+              <input
+                type="checkbox"
+                checked={includeBackground}
+                onChange={(e) => setIncludeBackground(e.target.checked)}
+                className="h-3.5 w-3.5 rounded border-zinc-300 text-indigo-600 focus:ring-indigo-500"
+              />
+              带背景
+            </label>
             <button
               onClick={handleExport}
               className="flex items-center gap-2 px-4 py-2 border border-zinc-200 hover:bg-zinc-100 rounded-md text-xs font-medium transition-colors"
@@ -933,6 +1026,15 @@ ${dropShadowClose}` : nonCustomMarkup}
               </button>
             </div>
           </div>
+        )}
+
+        {/* HD 动画导出弹窗 */}
+        {showHDExporter && (
+          <HDAnimationExporter
+            config={config}
+            previewRef={previewRef}
+            onClose={() => setShowHDExporter(false)}
+          />
         )}
       </div>
     </div>

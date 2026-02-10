@@ -9,44 +9,16 @@ export const PALETTES = {
   astral:  { name: 'Astral',  bg: '#060614', node: '#4d80cc', line: '#1a3a6b', accent: '#6699dd', glow: '#3366bb', warm: '#5588cc' },
 };
 
-// ─── Formation Types ────────────────────────────────────────────
-export const FORMATIONS = {
-  grid:          { name: 'Grid',          transitionSpeed: 0.045 },
-  scatter:       { name: 'Scatter',       transitionSpeed: 0.03  },
-  waveSurface:   { name: 'Wave Surface',  transitionSpeed: 0.05  },
-  converge:      { name: 'Converge',      transitionSpeed: 0.06  },
-  explode:       { name: 'Explode',       transitionSpeed: 0.08  },
-  constellation: { name: 'Constellation', transitionSpeed: 0.025 },
-};
-
-// ─── Auto-choreography energy thresholds ────────────────────────
-export const ENERGY_MAP = [
-  { max: 0.025, formation: 'constellation' },
-  { max: 0.07,  formation: 'grid' },
-  { max: 0.16,  formation: 'waveSurface' },
-  { max: 0.24,  formation: 'converge' },
-  { max: 1.0,   formation: 'explode' },
-];
-
 // ─── Default configuration ──────────────────────────────────────
 export const DEFAULT_CONFIG = {
-  cols: 30,
-  rows: 27,
   palette: 'cosmic',
-  formation: 'grid',
-  autoChoreography: true,
-  intensity: 0.75,
-  showConnections: true,
-  trailEffect: true,
-  showColumns: true,
-  modifiers: {
-    pulse: true,
-    ripple: true,
-    highlight: true,
-    breath: true,
-    bassWarp: true,
-    shimmer: true,
-    wavePropagation: true,
-    columnHeight: true,
-  },
+  bloomIntensity: 1.5,
+  bloomThreshold: 0.3,
+  bloomRadius: 0.4,
+  columnCount: 2500,
+  discRadius: 5.0,
+  maxColumnHeight: 3.0,
+  cameraOrbitSpeed: 0.1,
+  cameraDistance: 10.0,
+  cameraHeight: 5.5,
 };

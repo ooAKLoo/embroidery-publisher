@@ -30,9 +30,15 @@ export class AudioAnalyzer {
     this.onsetFreqData = null;
     this.prevSpectrum = null;
 
+    // FFT frequency data (smoothed, 0–1)
+    this.smoothedFreqData = null;
+
     // sample-rate derived
     this.sampleRate = 0;
     this.binHz = 0;
+
+    // Frame cache to avoid duplicate processing per frame
+    this._lastAnalyzeFrame = -1;
 
     // RMS
     this.rmsHistory = [];
@@ -93,12 +99,32 @@ export class AudioAnalyzer {
 
     this.sampleRate = this.ctx.sampleRate;
     this.binHz = this.sampleRate / this.analyserFreq.fftSize;
+    this.smoothedFreqData = new Float32Array(len);
     this.ready = true;
   }
 
   /** Must be called inside a user gesture before playback. */
   resume() {
     if (this.ctx?.state === 'suspended') this.ctx.resume();
+  }
+
+  /**
+   * Returns smoothed frequency data as Float32Array (0–1), length = frequencyBinCount.
+   * Uses asymmetric smoothing: fast attack (0.3), slow release (0.03).
+   */
+  getFrequencyData() {
+    if (!this.analyserFreq || !this.smoothedFreqData) return null;
+    this.analyserFreq.getByteFrequencyData(this.freqData);
+    const N = this.freqData.length;
+    const attack = 0.3;
+    const release = 0.03;
+    for (let i = 0; i < N; i++) {
+      const raw = this.freqData[i] / 255;
+      const prev = this.smoothedFreqData[i];
+      const k = raw > prev ? attack : release;
+      this.smoothedFreqData[i] = prev + k * (raw - prev);
+    }
+    return this.smoothedFreqData;
   }
 
   /** Returns feature object. Safe to call even when not ready. */
@@ -111,6 +137,11 @@ export class AudioAnalyzer {
     if (!this.analyserFreq) return zero;
 
     const now = performance.now();
+
+    // Frame cache: avoid duplicate beat detection in the same frame
+    const frame = Math.round(now);
+    if (this._lastAnalyzeFrame === frame && this._lastResult) return this._lastResult;
+    this._lastAnalyzeFrame = frame;
 
     // Grab data from both analysers
     this.analyserFreq.getByteTimeDomainData(this.timeDomain);
@@ -219,11 +250,12 @@ export class AudioAnalyzer {
     for (let i = 0; i < N; i++) { wSum += i * this.freqData[i]; wTotal += this.freqData[i]; }
     const spectralCentroid = wTotal > 0 ? wSum / wTotal / N : 0;
 
-    return {
+    this._lastResult = {
       rms, lowEnergy, midEnergy, highEnergy,
       isBeat, isDownbeat, beatStrength, bpm: this.estimatedBPM,
       isOnset, spectralCentroid,
     };
+    return this._lastResult;
   }
 
   /** Estimate BPM from recent beat timestamps via IOI median clustering. */

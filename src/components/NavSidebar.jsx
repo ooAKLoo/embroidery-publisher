@@ -228,12 +228,23 @@ function NavSidebar({ activeModule, setActiveModule }) {
     },
     {
       id: 'music-narrative',
-      name: '音乐叙事',
-      shortName: '叙事',
+      name: '音乐叙事(新)',
+      shortName: '叙事新',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2 12h2l3-7 3 14 3-10 3 6 2-3h4" />
           <circle cx="19" cy="12" r="2" strokeWidth={1.5} />
+        </svg>
+      )
+    },
+    {
+      id: 'music-narrative-old',
+      name: '音乐叙事(旧)',
+      shortName: '叙事旧',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2 12h2l3-7 3 14 3-10 3 6 2-3h4" />
+          <circle cx="19" cy="12" r="2" strokeWidth={1.5} opacity="0.4" />
         </svg>
       )
     }

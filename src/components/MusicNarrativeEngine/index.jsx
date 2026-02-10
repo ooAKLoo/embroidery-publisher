@@ -1,33 +1,12 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import { Canvas } from '@react-three/fiber';
 import { AudioAnalyzer } from './audioAnalyzer';
-import { ParticleSystem } from './particleSystem';
-import { CanvasRenderer } from './renderer';
-import { PALETTES, FORMATIONS, ENERGY_MAP, DEFAULT_CONFIG } from './presets';
+import { PALETTES, DEFAULT_CONFIG } from './presets';
+import ColumnField from './ColumnField';
 
-// ═══════════════════════════════════════════════════════════════════
-//  Choreographer — maps audio energy to formations with hysteresis
-// ═══════════════════════════════════════════════════════════════════
-function pickFormation(smoothedEnergy) {
-  for (const tier of ENERGY_MAP) {
-    if (smoothedEnergy <= tier.max) return tier.formation;
-  }
-  return 'grid';
-}
-
-// ═══════════════════════════════════════════════════════════════════
-//  Main component
-// ═══════════════════════════════════════════════════════════════════
 export default function MusicNarrativeEngine() {
-  const canvasRef   = useRef(null);
   const audioRef    = useRef(null);
   const analyzerRef = useRef(null);
-  const systemRef   = useRef(null);
-  const rendererRef = useRef(null);
-  const rafRef      = useRef(null);
-  const sizeRef     = useRef({ w: 0, h: 0 });
-  const energyRef   = useRef(0);          // smoothed energy for choreography
-  const formRef     = useRef('grid');      // current auto-formation
-  const holdRef     = useRef(0);           // hysteresis cooldown
 
   const [audioFile, setAudioFile] = useState(null);
   const [audioUrl, setAudioUrl] = useState(null);
@@ -35,12 +14,11 @@ export default function MusicNarrativeEngine() {
   const [curTime, setCurTime] = useState(0);
   const [dur, setDur] = useState(0);
   const [cfg, setCfg] = useState(DEFAULT_CONFIG);
-  const [panelOpen, setPanelOpen] = useState(true);
+
+  const pal = useMemo(() => PALETTES[cfg.palette] || PALETTES.cosmic, [cfg.palette]);
 
   // ── helpers ──
   const set = (k, v) => setCfg(prev => ({ ...prev, [k]: v }));
-  const toggleMod = (k) =>
-    setCfg(prev => ({ ...prev, modifiers: { ...prev.modifiers, [k]: !prev.modifiers[k] } }));
   const fmt = (t) => {
     const m = Math.floor(t / 60);
     const s = Math.floor(t % 60);
@@ -77,88 +55,6 @@ export default function MusicNarrativeEngine() {
     };
   }, [audioUrl]);
 
-  // ── Canvas resize observer ──
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const obs = new ResizeObserver((entries) => {
-      for (const e of entries) {
-        const { width, height } = e.contentRect;
-        if (width < 10 || height < 10) return;
-        const dpr = window.devicePixelRatio || 1;
-        canvas.width = width * dpr;
-        canvas.height = height * dpr;
-        canvas.style.width = width + 'px';
-        canvas.style.height = height + 'px';
-        canvas.getContext('2d').setTransform(dpr, 0, 0, dpr, 0, 0);
-        sizeRef.current = { w: width, h: height };
-        if (systemRef.current) systemRef.current.resize(width, height);
-      }
-    });
-    obs.observe(canvas.parentElement);
-    return () => obs.disconnect();
-  }, []);
-
-  // ── Re-init system when grid size changes ──
-  useEffect(() => {
-    const { w, h } = sizeRef.current;
-    if (w > 0 && h > 0) {
-      systemRef.current = new ParticleSystem(w, h, cfg.cols, cfg.rows);
-    }
-  }, [cfg.cols, cfg.rows]);
-
-  // ── Animation loop ──
-  useEffect(() => {
-    let alive = true;
-    const loop = () => {
-      if (!alive) return;
-      const { w, h } = sizeRef.current;
-
-      // Lazy-init
-      if (!systemRef.current && w > 0 && h > 0) {
-        systemRef.current = new ParticleSystem(w, h, cfg.cols, cfg.rows);
-      }
-      if (!rendererRef.current && canvasRef.current) {
-        rendererRef.current = new CanvasRenderer(canvasRef.current);
-      }
-      const sys = systemRef.current;
-      const ren = rendererRef.current;
-      if (!sys || !ren) { rafRef.current = requestAnimationFrame(loop); return; }
-
-      // Audio data
-      const audio = analyzerRef.current?.analyze() ||
-        { rms: 0, lowEnergy: 0, midEnergy: 0, highEnergy: 0, isBeat: false, isDownbeat: false, beatStrength: 0, bpm: 0, isOnset: false, spectralCentroid: 0 };
-
-      // ── Choreographer: auto-formation switching ──
-      if (cfg.autoChoreography) {
-        energyRef.current += (audio.rms - energyRef.current) * 0.04; // smooth
-        holdRef.current = Math.max(0, holdRef.current - 1);
-
-        const desired = pickFormation(energyRef.current);
-        if (desired !== formRef.current && holdRef.current <= 0) {
-          formRef.current = desired;
-          holdRef.current = 40; // ~40 frames cooldown (~0.67s) before next switch
-          sys.applyFormation(desired);
-        }
-      }
-
-      // Update system
-      sys.update(audio, cfg);
-
-      // Render
-      ren.render(sys, audio, {
-        palette: cfg.palette,
-        showConnections: cfg.showConnections,
-        trailEffect: cfg.trailEffect,
-        showColumns: cfg.showColumns,
-      });
-
-      rafRef.current = requestAnimationFrame(loop);
-    };
-    rafRef.current = requestAnimationFrame(loop);
-    return () => { alive = false; cancelAnimationFrame(rafRef.current); };
-  }, [cfg]);
-
   // ── Play/Pause ──
   const togglePlay = useCallback(() => {
     const a = audioRef.current;
@@ -180,32 +76,27 @@ export default function MusicNarrativeEngine() {
     a.currentTime = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width)) * dur;
   }, [dur]);
 
-  // ── Manual formation ──
-  const setFormation = (name) => {
-    set('formation', name);
-    set('autoChoreography', false);
-    formRef.current = name;
-    systemRef.current?.applyFormation(name);
-  };
-
   // ── Cleanup ──
   useEffect(() => () => {
     analyzerRef.current?.destroy();
-    rendererRef.current?.destroy();
     if (audioUrl) URL.revokeObjectURL(audioUrl);
   }, []);
 
-  // ─────────────────────────────────────────────────────────────────
-  //  Render
-  // ─────────────────────────────────────────────────────────────────
   return (
     <div className="h-full flex flex-col bg-slate-950 rounded-2xl overflow-hidden relative select-none">
       <audio ref={audioRef} crossOrigin="anonymous" preload="auto" />
 
-      {/* ── Canvas ── */}
+      {/* ── 3D Canvas ── */}
       <div className="flex-1 relative min-h-0">
         <div className="absolute inset-0">
-          <canvas ref={canvasRef} className="w-full h-full" />
+          <Canvas
+            gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}
+            dpr={[1, 1.5]}
+            style={{ background: pal.bg }}
+            camera={{ fov: 45, near: 0.1, far: 100 }}
+          >
+            <ColumnField analyzerRef={analyzerRef} palette={pal} config={cfg} />
+          </Canvas>
         </div>
 
         {/* Upload prompt */}
@@ -234,61 +125,6 @@ export default function MusicNarrativeEngine() {
               Switch
               <input type="file" accept="audio/*" onChange={onFileChange} className="hidden" />
             </label>
-          </div>
-        )}
-
-        {/* Top-right: panel toggle */}
-        <button
-          onClick={() => setPanelOpen(!panelOpen)}
-          className="absolute top-3 right-3 z-10 w-8 h-8 rounded-lg bg-black/40 backdrop-blur hover:bg-black/60 text-white/50 hover:text-white/80 flex items-center justify-center transition-all"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            {panelOpen
-              ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-            }
-          </svg>
-        </button>
-
-        {/* ── Side panel ── */}
-        {panelOpen && (
-          <div className="absolute top-14 right-3 w-56 bg-black/50 backdrop-blur-xl rounded-xl border border-white/[0.06] p-3 space-y-3.5 z-10 max-h-[calc(100%-6rem)] overflow-y-auto scrollbar-thin scrollbar-thumb-white/10">
-            {/* Formation */}
-            <Section title="Formation">
-              <Chip active={cfg.autoChoreography} onClick={() => set('autoChoreography', true)}>Auto</Chip>
-              {Object.entries(FORMATIONS).map(([k, v]) => (
-                <Chip key={k} active={!cfg.autoChoreography && cfg.formation === k} onClick={() => setFormation(k)}>{v.name}</Chip>
-              ))}
-            </Section>
-
-            {/* Palette */}
-            <Section title="Palette">
-              {Object.entries(PALETTES).map(([k, v]) => (
-                <Chip key={k} active={cfg.palette === k} onClick={() => set('palette', k)}>{v.name}</Chip>
-              ))}
-            </Section>
-
-            {/* Intensity */}
-            <Section title={`Intensity ${Math.round(cfg.intensity * 100)}%`}>
-              <input type="range" min="0" max="1" step="0.05" value={cfg.intensity}
-                onChange={e => set('intensity', +e.target.value)}
-                className="w-full h-1 appearance-none bg-white/10 rounded-full [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white/70"
-              />
-            </Section>
-
-            {/* Modifiers */}
-            <Section title="Modifiers">
-              {Object.keys(cfg.modifiers).map(k => (
-                <Chip key={k} active={cfg.modifiers[k]} onClick={() => toggleMod(k)}>{k}</Chip>
-              ))}
-            </Section>
-
-            {/* Toggles */}
-            <Section title="Render">
-              <Chip active={cfg.showColumns} onClick={() => set('showColumns', !cfg.showColumns)}>Columns</Chip>
-              <Chip active={cfg.showConnections} onClick={() => set('showConnections', !cfg.showConnections)}>Lines</Chip>
-              <Chip active={cfg.trailEffect} onClick={() => set('trailEffect', !cfg.trailEffect)}>Trail</Chip>
-            </Section>
           </div>
         )}
       </div>
@@ -323,7 +159,7 @@ export default function MusicNarrativeEngine() {
               )}
             </button>
 
-            {/* Quick palette chips */}
+            {/* Palette chips */}
             <div className="flex-1 flex items-center gap-1.5 overflow-x-auto scrollbar-none">
               {Object.entries(PALETTES).map(([k, v]) => (
                 <button key={k} onClick={() => set('palette', k)}
@@ -338,26 +174,5 @@ export default function MusicNarrativeEngine() {
         </div>
       )}
     </div>
-  );
-}
-
-// ── Tiny UI primitives ──────────────────────────────────────────
-function Section({ title, children }) {
-  return (
-    <div>
-      <div className="text-[10px] text-white/30 mb-1.5 uppercase tracking-widest font-medium">{title}</div>
-      <div className="flex flex-wrap gap-1">{children}</div>
-    </div>
-  );
-}
-
-function Chip({ active, onClick, children }) {
-  return (
-    <button onClick={onClick}
-      className={`px-2 py-[3px] rounded text-[10px] capitalize transition-all ${
-        active ? 'bg-white/15 text-white/90' : 'bg-white/[0.04] text-white/35 hover:bg-white/[0.08] hover:text-white/55'
-      }`}>
-      {children}
-    </button>
   );
 }

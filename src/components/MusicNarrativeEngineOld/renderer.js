@@ -1,4 +1,4 @@
-import { PALETTES } from './presets';
+import { PALETTES } from '../MusicNarrativeEngine/presets';
 
 // ═══════════════════════════════════════════════════════════════════
 //  GLSL Shader source — ported from the reference shader
@@ -262,7 +262,6 @@ class ShaderBackground {
 
   resize(w, h) {
     if (this.failed) return;
-    // Use lower resolution for performance (0.5x)
     const scale = 0.5;
     this.canvas.width = Math.floor(w * scale);
     this.canvas.height = Math.floor(h * scale);
@@ -280,19 +279,16 @@ class ShaderBackground {
     gl.uniform1f(u.iTime, now);
     gl.uniform2f(u.iResolution, this.canvas.width, this.canvas.height);
 
-    // Audio uniforms
     gl.uniform1f(u.uRMS, audio.rms || 0);
     gl.uniform1f(u.uLow, audio.lowEnergy || 0);
     gl.uniform1f(u.uMid, audio.midEnergy || 0);
     gl.uniform1f(u.uHigh, audio.highEnergy || 0);
 
-    // Beat decay for smooth pulse
     if (audio.isBeat) this._beatDecay = 1;
     this._beatDecay *= 0.9;
     gl.uniform1f(u.uBeat, this._beatDecay);
     gl.uniform1f(u.uBeatStrength, audio.beatStrength || 0);
 
-    // Palette colors
     const pal = palette || { node: '#4d80cc', glow: '#3366bb', bg: '#060614' };
     gl.uniform3fv(u.uColorBase, hexToVec3(pal.node));
     gl.uniform3fv(u.uColorGlow, hexToVec3(pal.glow));
@@ -320,54 +316,23 @@ function hexToVec3(hex) {
 }
 
 /**
- * CanvasRenderer — draws nodes, connections, highlights, effects,
- * with optional WebGL shader background for columns + volumetric light.
+ * CanvasRenderer — draws WebGL shader column array with vignette overlay.
  */
 export class CanvasRenderer {
   constructor(canvas) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
-    this._sprites = {};
-    this._palKey = null;
     this._bg = new ShaderBackground();
   }
 
-  // ── Sprite factory ─────────────────────────────────────────────
-  _makeSprite(color, radius) {
-    const size = Math.ceil(radius * 2);
-    const c = document.createElement('canvas');
-    c.width = size; c.height = size;
-    const g = c.getContext('2d');
-    const grad = g.createRadialGradient(radius, radius, 0, radius, radius, radius);
-    grad.addColorStop(0, color);
-    grad.addColorStop(0.35, color + 'bb');
-    grad.addColorStop(1, color + '00');
-    g.fillStyle = grad;
-    g.fillRect(0, 0, size, size);
-    return c;
-  }
-
-  _ensureSprites(palKey) {
-    if (this._palKey === palKey) return;
-    this._palKey = palKey;
-    const p = PALETTES[palKey] || PALETTES.cosmic;
-    this._sprites = {
-      node:      this._makeSprite(p.node,   10),
-      accent:    this._makeSprite(p.accent, 18),
-      highlight: this._makeSprite(p.glow,   24),
-    };
-  }
-
-  // ── Main render ────────────────────────────────────────────────
-  render(system, audio, config) {
+  render(audio, config) {
     const { ctx, canvas } = this;
     const W = canvas.width / (window.devicePixelRatio || 1);
     const H = canvas.height / (window.devicePixelRatio || 1);
     const pal = PALETTES[config.palette] || PALETTES.cosmic;
-    this._ensureSprites(config.palette);
 
-    // ── WebGL shader background ──
-    if (config.showColumns && !this._bg.failed) {
+    // WebGL shader background
+    if (!this._bg.failed) {
       if (this._bg.canvas.width !== Math.floor(W * 0.5) || this._bg.canvas.height !== Math.floor(H * 0.5)) {
         this._bg.resize(W, H);
       }
@@ -376,126 +341,20 @@ export class CanvasRenderer {
       ctx.globalAlpha = 1;
       ctx.drawImage(this._bg.canvas, 0, 0, W, H);
     } else {
-      // Fallback: standard background
       ctx.globalCompositeOperation = 'source-over';
       ctx.globalAlpha = 1;
-      if (config.trailEffect) {
-        ctx.fillStyle = pal.bg + 'e0';
-      } else {
-        ctx.fillStyle = pal.bg;
-      }
+      ctx.fillStyle = pal.bg;
       ctx.fillRect(0, 0, W, H);
     }
 
-    // ── Vignette overlay (softer when shader bg is active) ──
-    const vigStr = config.showColumns ? 'aa' : 'cc';
+    // Vignette
     const vig = ctx.createRadialGradient(W / 2, H / 2, W * 0.22, W / 2, H / 2, W * 0.68);
     vig.addColorStop(0, 'transparent');
-    vig.addColorStop(1, pal.bg + vigStr);
+    vig.addColorStop(1, pal.bg + 'aa');
     ctx.fillStyle = vig;
     ctx.fillRect(0, 0, W, H);
 
-    const nodes = system.nodes;
-    const maxDist = Math.max(W, H) / Math.max(system.cols, system.rows) * 2.2;
-
-    // ── Column glow (2D overlay — exponential height-based glow) ──
-    if (config.showColumns) {
-      ctx.globalCompositeOperation = 'lighter';
-      const colW = W / system.cols * 0.25;
-      for (const n of nodes) {
-        const h = n.renderHeight || 0;
-        if (h < 0.01) continue;
-        const glow = Math.pow(h, 3.5);
-        if (glow < 0.005) continue;
-        ctx.globalAlpha = Math.min(1, glow * 0.8);
-        const colH = h * H * 0.35;
-        // Vertical gradient column
-        const grad = ctx.createLinearGradient(n.renderX, n.renderY, n.renderX, n.renderY - colH);
-        grad.addColorStop(0, pal.glow + '00');
-        grad.addColorStop(0.3, pal.node + Math.round(glow * 80).toString(16).padStart(2, '0'));
-        grad.addColorStop(1, pal.accent + Math.round(Math.min(255, glow * 200)).toString(16).padStart(2, '0'));
-        ctx.fillStyle = grad;
-        ctx.fillRect(n.renderX - colW, n.renderY - colH, colW * 2, colH);
-      }
-      ctx.globalCompositeOperation = 'source-over';
-      ctx.globalAlpha = 1;
-    }
-
-    // ── Connections ──
-    if (config.showConnections) {
-      const conns = system.getConnections(maxDist);
-      const baseLineAlpha = 0.12 + audio.rms * 0.15;
-      ctx.lineWidth = 0.5 + audio.rms * 0.8;
-      for (const [a, b, dRatio] of conns) {
-        const alpha = (1 - dRatio * dRatio) * baseLineAlpha * (a.renderOpacity + b.renderOpacity) * 0.5;
-        if (alpha < 0.004) continue;
-        const hex = Math.round(Math.min(1, alpha) * 255).toString(16).padStart(2, '0');
-        ctx.strokeStyle = pal.line + hex;
-        ctx.beginPath();
-        ctx.moveTo(a.renderX, a.renderY);
-        ctx.lineTo(b.renderX, b.renderY);
-        ctx.stroke();
-      }
-    }
-
-    // ── Highlight arcs ──
-    const hlNodes = [];
-    for (const n of nodes) if (n.highlighted && n.highlightAge < 18) hlNodes.push(n);
-    if (hlNodes.length >= 2) {
-      ctx.lineWidth = 1;
-      ctx.strokeStyle = pal.accent + '50';
-      for (let i = 0; i < hlNodes.length - 1; i++) {
-        const a = hlNodes[i], b = hlNodes[i + 1];
-        if (Math.hypot(a.renderX - b.renderX, a.renderY - b.renderY) < maxDist * 4) {
-          ctx.beginPath();
-          ctx.moveTo(a.renderX, a.renderY);
-          const mx = (a.renderX + b.renderX) / 2 + (Math.random() - 0.5) * 12;
-          const my = (a.renderY + b.renderY) / 2 + (Math.random() - 0.5) * 12;
-          ctx.quadraticCurveTo(mx, my, b.renderX, b.renderY);
-          ctx.stroke();
-        }
-      }
-    }
-
-    // ── Ripple rings ──
-    for (const rip of system.ripples) {
-      const age = system.time - rip.t;
-      const fade = Math.max(0, 1 - age / 90);
-      if (fade <= 0) continue;
-      const radius = age * 9;
-      const hex = Math.round(fade * 25).toString(16).padStart(2, '0');
-      ctx.strokeStyle = pal.warm + hex;
-      ctx.lineWidth = 1.2 * fade;
-      ctx.beginPath();
-      ctx.arc(rip.x, rip.y, radius, 0, Math.PI * 2);
-      ctx.stroke();
-    }
-
-    // ── Nodes (additive blending for glow) ──
-    ctx.globalCompositeOperation = 'lighter';
-    const sprNode = this._sprites.node;
-    const sprHL   = this._sprites.highlight;
-    for (const n of nodes) {
-      if (n.renderOpacity < 0.01) continue;
-      // Boost opacity based on height when columns are active
-      let opacity = n.renderOpacity;
-      if (config.showColumns && n.renderHeight > 0) {
-        opacity = Math.min(1, opacity + Math.pow(n.renderHeight, 2) * 0.5);
-      }
-      ctx.globalAlpha = Math.min(1, opacity);
-      if (n.highlighted && n.highlightAge < 18) {
-        const s = 14 * n.renderScale;
-        ctx.drawImage(sprHL, n.renderX - s, n.renderY - s, s * 2, s * 2);
-      } else {
-        const baseSize = config.showColumns ? (3 + Math.pow(n.renderHeight || 0, 2) * 8) : 5;
-        const s = baseSize * n.renderScale;
-        ctx.drawImage(sprNode, n.renderX - s, n.renderY - s, s * 2, s * 2);
-      }
-    }
-    ctx.globalCompositeOperation = 'source-over';
-    ctx.globalAlpha = 1;
-
-    // ── Beat flash overlay ──
+    // Beat flash overlay
     if (audio.isBeat) {
       const alpha = audio.isDownbeat ? '24' : '12';
       const radius = audio.isDownbeat ? 0.55 : 0.45;

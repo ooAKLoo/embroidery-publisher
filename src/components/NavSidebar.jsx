@@ -247,6 +247,30 @@ function NavSidebar({ activeModule, setActiveModule }) {
           <circle cx="19" cy="12" r="2" strokeWidth={1.5} opacity="0.4" />
         </svg>
       )
+    },
+    {
+      id: 'deep-rings',
+      name: 'Deep Rings',
+      shortName: 'DR',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="8" strokeWidth={1.5} />
+          <circle cx="12" cy="12" r="5" strokeWidth={1.5} />
+          <circle cx="12" cy="12" r="2" strokeWidth={1.5} />
+        </svg>
+      )
+    },
+    {
+      id: 'torus-flower',
+      name: '环面花',
+      shortName: '花',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4c-2 3-5 5-5 8a5 5 0 0010 0c0-3-3-5-5-8z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4c3 2 5 5 8 5a5 5 0 010 10c-3 0-5-3-8-5" opacity="0.6" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4c-3 2-5 5-8 5a5 5 0 000 10c3 0 5-3 8-5" opacity="0.6" />
+        </svg>
+      )
     }
   ];
 

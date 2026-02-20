@@ -28,6 +28,8 @@ import NeuralCoreLivingNetwork from './components/NeuralCoreLivingNetwork';
 import TheSpirit from './components/TheSpirit';
 import MusicNarrativeEngine from './components/MusicNarrativeEngine';
 import MusicNarrativeEngineOld from './components/MusicNarrativeEngineOld';
+import DeepRings from './components/DeepRings';
+import TorusFlower from './components/TorusFlower';
 import { AppleMusicPlaylist } from './modules/AppleMusic';
 import { useAIAdapter } from './hooks/useAIAdapter';
 import { DEFAULT_BRAND_PROMPT, platforms } from './config/platforms';
@@ -274,6 +276,12 @@ Suzhou Embroidery, Chinese Art, Silk Art, Handmade, Traditional Craft, Embroider
         ) : activeModule === 'music-narrative-old' ? (
           // Music Narrative Engine - 旧版 Raymarching
           <MusicNarrativeEngineOld />
+        ) : activeModule === 'deep-rings' ? (
+          // Deep Rings - CSS 动画
+          <DeepRings />
+        ) : activeModule === 'torus-flower' ? (
+          // Torus Flower - 3D 环面花
+          <TorusFlower />
         ) : null}
       </div>
     </div>

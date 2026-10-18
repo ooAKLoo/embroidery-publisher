@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Download, Shuffle, Circle, BoxSelect, RotateCcw } from 'lucide-react';
-import { PRESETS } from './constants';
+import { PRESETS, DEFAULT_CONFIG } from './constants';
+import { describeArc, describeRibbon } from './utils';
 
 const toRadians = (deg) => (deg * Math.PI) / 180;
 const toDegrees = (rad) => (rad * 180) / Math.PI;
@@ -11,8 +12,8 @@ const computeArcAngle = (radius, length) => (radius > 0 ? toDegrees(length / rad
 const Slider = ({ label, value, min, max, step = 1, onChange }) => (
   <div className="mb-4">
     <div className="flex justify-between mb-1">
-      <label className="text-xs font-medium text-zinc-400 uppercase tracking-wider">{label}</label>
-      <span className="text-xs text-zinc-300 font-mono">{value}</span>
+      <label className="text-xs font-medium text-slate-500 uppercase tracking-wider">{label}</label>
+      <span className="text-xs text-slate-600 font-mono">{value}</span>
     </div>
     <input
       type="range"
@@ -21,20 +22,20 @@ const Slider = ({ label, value, min, max, step = 1, onChange }) => (
       step={step}
       value={value}
       onChange={(e) => onChange(Number(e.target.value))}
-      className="w-full h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-white hover:accent-zinc-300 transition-all"
+      className="w-full h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-indigo-500 hover:accent-indigo-400 transition-all"
     />
   </div>
 );
 
 const Select = ({ label, value, options, onChange }) => (
   <div className="mb-4">
-    <label className="block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-1">
+    <label className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1">
       {label}
     </label>
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="w-full bg-zinc-800 text-zinc-200 text-sm rounded px-2 py-1.5 border border-zinc-700 focus:outline-none focus:border-zinc-500"
+      className="w-full bg-white text-slate-700 text-sm rounded px-2 py-1.5 border border-zinc-200 focus:outline-none focus:border-indigo-300"
     >
       {options.map((opt) => (
         <option key={opt.value} value={opt.value}>
@@ -45,7 +46,81 @@ const Select = ({ label, value, options, onChange }) => (
   </div>
 );
 
-function Controls({ config, onChange, onRandomize, onDownload, onImport }) {
+const PresetThumb = ({ config: c, bgColor }) => {
+  const full = { ...DEFAULT_CONFIG, ...c };
+  const halfAngle = full.arcAngle / 2;
+  const pathD = full.shapeMode === 'ribbon'
+    ? describeRibbon(0, 0, full.arcRadius, full.strokeWidth, -halfAngle, halfAngle, full.ribbonCap)
+    : describeArc(0, 0, full.arcRadius, -halfAngle, halfAngle);
+  const segments = Math.max(1, full.segments);
+  const items = Array.from({ length: segments }, (_, i) => ({
+    id: i,
+    rotation: (360 / segments) * i + (full.rotation || 0)
+  }));
+  const gradId = `thumb-grad-${Math.random().toString(36).slice(2, 8)}`;
+  const getFill = () => {
+    if (full.fillMode === 'none') return 'none';
+    if (full.fillMode === 'solid') return full.color;
+    return `url(#${gradId})`;
+  };
+  return (
+    <svg viewBox="-300 -300 600 600" className="w-full h-full">
+      <rect x="-300" y="-300" width="600" height="600" fill={bgColor || '#000000'} />
+      <defs>
+        {full.fillMode === 'linear-gradient' && (
+          <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="0%">
+            {full.glossy ? (
+              <>
+                <stop offset="0%" stopColor={full.color} />
+                <stop offset="50%" stopColor={full.color2} />
+                <stop offset="100%" stopColor={full.color} />
+              </>
+            ) : (
+              <>
+                <stop offset="0%" stopColor={full.color} />
+                <stop offset="100%" stopColor={full.color2} />
+              </>
+            )}
+          </linearGradient>
+        )}
+        {full.fillMode === 'radial-gradient' && (
+          <radialGradient id={gradId} cx="50%" cy="50%" r="50%">
+            {full.glossy ? (
+              <>
+                <stop offset="0%" stopColor={full.color2} />
+                <stop offset="50%" stopColor={full.color} />
+                <stop offset="100%" stopColor={full.color2} />
+              </>
+            ) : (
+              <>
+                <stop offset="0%" stopColor={full.color} />
+                <stop offset="100%" stopColor={full.color2} stopOpacity="0" />
+              </>
+            )}
+          </radialGradient>
+        )}
+      </defs>
+      {items.map((item) => (
+        <g key={item.id} transform={`rotate(${item.rotation})`}>
+          <g transform={`translate(0, -${full.radius}) rotate(${full.tilt})`}>
+            <path
+              d={pathD}
+              fill={getFill()}
+              fillOpacity={full.fillMode === 'none' ? 0 : full.fillOpacity}
+              stroke={full.color}
+              strokeWidth={full.shapeMode === 'stroke' ? full.strokeWidth : 1}
+              strokeLinecap="round"
+              strokeOpacity={full.strokeOpacity}
+              style={{ mixBlendMode: full.blendMode }}
+            />
+          </g>
+        </g>
+      ))}
+    </svg>
+  );
+};
+
+function Controls({ config, onChange, onRandomize, onDownload, onImport, onExportChange }) {
   const [presetName, setPresetName] = useState('custom');
 
   const update = (key, value) => {
@@ -95,7 +170,8 @@ function Controls({ config, onChange, onRandomize, onDownload, onImport }) {
     const preset = PRESETS[presetName];
     if (preset) {
       setPresetName(presetName);
-      const next = { ...config, ...preset };
+      const presetConfig = preset.config ?? preset;
+      const next = { ...config, ...presetConfig };
       if (!next.lockArcLength) {
         next.arcLength = computeArcLength(next.arcRadius, next.arcAngle);
       } else {
@@ -104,34 +180,37 @@ function Controls({ config, onChange, onRandomize, onDownload, onImport }) {
         next.arcAngle = clamp(computeArcAngle(next.arcRadius, next.arcLength), 1, 360);
       }
       onChange(next);
+      if (preset.export && onExportChange) {
+        onExportChange(preset.export);
+      }
     }
   };
 
   return (
-    <div className="bg-zinc-900/80 backdrop-blur-md border border-zinc-800 p-6 rounded-2xl shadow-2xl w-full max-w-sm flex flex-col max-h-[90vh] overflow-y-auto">
+    <div className="p-6 rounded-2xl w-full max-w-sm flex flex-col max-h-[90vh] overflow-y-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-lg font-bold text-white">Spiral Generator</h2>
-          <p className="text-xs text-zinc-500 mt-1">几何螺旋图标生成</p>
+          <h2 className="text-lg font-semibold text-slate-800">Spiral Generator</h2>
+          <p className="text-xs text-slate-400 mt-1">几何螺旋图标生成</p>
         </div>
         <div className="flex gap-2">
           <button
             onClick={onRandomize}
-            className="p-2 hover:bg-zinc-800 rounded-full text-zinc-400 hover:text-white transition-colors"
+            className="p-2 hover:bg-zinc-100 rounded-full text-slate-500 hover:text-slate-800 transition-colors"
             title="随机生成"
           >
             <Shuffle size={18} />
           </button>
           <button
             onClick={onImport}
-            className="p-2 hover:bg-zinc-800 rounded-full text-zinc-400 hover:text-white transition-colors"
+            className="p-2 hover:bg-zinc-100 rounded-full text-slate-500 hover:text-slate-800 transition-colors"
             title="恢复参数"
           >
             <RotateCcw size={18} />
           </button>
           <button
             onClick={onDownload}
-            className="p-2 hover:bg-zinc-800 rounded-full text-zinc-400 hover:text-white transition-colors"
+            className="p-2 hover:bg-zinc-100 rounded-full text-slate-500 hover:text-slate-800 transition-colors"
             title="下载 SVG"
           >
             <Download size={18} />
@@ -140,24 +219,32 @@ function Controls({ config, onChange, onRandomize, onDownload, onImport }) {
       </div>
 
       <div className="space-y-2">
-        <div className="mb-6 border-b border-zinc-800 pb-4">
-          <Select
-            label="填色方案"
-            value={presetName}
-            onChange={applyPreset}
-            options={[
-              { label: '自定义', value: 'custom' },
-              ...Object.keys(PRESETS).map((name) => ({ label: name, value: name }))
-            ]}
-          />
+        <div className="mb-6 border-b border-zinc-200 pb-4">
+          <label className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-2">预设样式</label>
+          <div className="grid grid-cols-4 gap-1.5 mb-4">
+            {Object.entries(PRESETS).map(([name, preset]) => (
+              <button
+                key={name}
+                onClick={() => applyPreset(name)}
+                className={`aspect-square rounded-lg border overflow-hidden transition-all ${
+                  presetName === name
+                    ? 'border-indigo-500 ring-1 ring-indigo-500/50'
+                    : 'border-zinc-200 hover:border-zinc-400'
+                } bg-white`}
+                title={name}
+              >
+                <PresetThumb config={preset.config ?? preset} bgColor={preset.export?.bgColor} />
+              </button>
+            ))}
+          </div>
 
-          <div className="flex bg-zinc-800 p-1 rounded-lg mb-4">
+          <div className="flex bg-zinc-200 p-1 rounded-lg mb-4">
             <button
               onClick={() => update('shapeMode', 'stroke')}
               className={`flex-1 flex items-center justify-center gap-2 py-1.5 rounded text-xs font-medium transition-all ${
                 config.shapeMode === 'stroke'
-                  ? 'bg-zinc-600 text-white shadow-sm'
-                  : 'text-zinc-400 hover:text-zinc-200'
+                  ? 'bg-white text-slate-800 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-700'
               }`}
             >
               <Circle size={14} /> 线条
@@ -166,8 +253,8 @@ function Controls({ config, onChange, onRandomize, onDownload, onImport }) {
               onClick={() => update('shapeMode', 'ribbon')}
               className={`flex-1 flex items-center justify-center gap-2 py-1.5 rounded text-xs font-medium transition-all ${
                 config.shapeMode === 'ribbon'
-                  ? 'bg-zinc-600 text-white shadow-sm'
-                  : 'text-zinc-400 hover:text-zinc-200'
+                  ? 'bg-white text-slate-800 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-700'
               }`}
             >
               <BoxSelect size={14} /> 丝带
@@ -188,22 +275,22 @@ function Controls({ config, onChange, onRandomize, onDownload, onImport }) {
 
           <div className="flex gap-2 mb-4">
             <div className="flex-1">
-              <label className="block text-[10px] text-zinc-500 uppercase mb-1">主色</label>
+              <label className="block text-[10px] text-slate-500 uppercase mb-1">主色</label>
               <input
                 type="color"
                 value={config.color}
                 onChange={(e) => update('color', e.target.value)}
-                className="w-full h-8 bg-zinc-800 rounded cursor-pointer border border-zinc-700"
+                className="w-full h-8 bg-white rounded cursor-pointer border border-zinc-200"
               />
             </div>
             {String(config.fillMode).includes('gradient') ? (
               <div className="flex-1">
-                <label className="block text-[10px] text-zinc-500 uppercase mb-1">辅色</label>
+                <label className="block text-[10px] text-slate-500 uppercase mb-1">辅色</label>
                 <input
                   type="color"
                   value={config.color2}
                   onChange={(e) => update('color2', e.target.value)}
-                  className="w-full h-8 bg-zinc-800 rounded cursor-pointer border border-zinc-700"
+                  className="w-full h-8 bg-white rounded cursor-pointer border border-zinc-200"
                 />
               </div>
             ) : null}
@@ -211,11 +298,11 @@ function Controls({ config, onChange, onRandomize, onDownload, onImport }) {
 
           {String(config.fillMode).includes('gradient') ? (
             <div className="mb-4 flex items-center justify-between">
-              <label className="text-xs font-medium text-zinc-400 uppercase">高光</label>
+              <label className="text-xs font-medium text-slate-500 uppercase">高光</label>
               <button
                 onClick={() => update('glossy', !config.glossy)}
                 className={`w-10 h-5 rounded-full relative transition-colors ${
-                  config.glossy ? 'bg-purple-500' : 'bg-zinc-700'
+                  config.glossy ? 'bg-purple-500' : 'bg-zinc-300'
                 }`}
               >
                 <div className={`absolute top-1 left-1 w-3 h-3 bg-white rounded-full transition-transform ${config.glossy ? 'translate-x-5' : ''}`} />
@@ -258,7 +345,7 @@ function Controls({ config, onChange, onRandomize, onDownload, onImport }) {
           onChange={(v) => update('segments', v)}
         />
 
-        <div className="h-px bg-zinc-800 my-4" />
+        <div className="h-px bg-zinc-200 my-4" />
 
         <Slider
           label="Spread (Radius)"
@@ -284,7 +371,7 @@ function Controls({ config, onChange, onRandomize, onDownload, onImport }) {
           onChange={(v) => update('rotation', v)}
         />
 
-        <div className="h-px bg-zinc-800 my-4" />
+        <div className="h-px bg-zinc-200 my-4" />
 
         <Slider
           label="Curvature"
@@ -295,11 +382,11 @@ function Controls({ config, onChange, onRandomize, onDownload, onImport }) {
         />
 
         <div className="mb-3 flex items-center justify-between">
-          <label className="text-xs font-medium text-zinc-400 uppercase tracking-wider">锁定弧长</label>
+          <label className="text-xs font-medium text-slate-500 uppercase tracking-wider">锁定弧长</label>
           <button
             onClick={() => update('lockArcLength', !config.lockArcLength)}
             className={`w-10 h-5 rounded-full relative transition-colors ${
-              config.lockArcLength ? 'bg-purple-500' : 'bg-zinc-700'
+              config.lockArcLength ? 'bg-purple-500' : 'bg-zinc-300'
             }`}
           >
             <div className={`absolute top-1 left-1 w-3 h-3 bg-white rounded-full transition-transform ${config.lockArcLength ? 'translate-x-5' : ''}`} />
@@ -325,7 +412,7 @@ function Controls({ config, onChange, onRandomize, onDownload, onImport }) {
           />
         )}
 
-        <div className="h-px bg-zinc-800 my-4" />
+        <div className="h-px bg-zinc-200 my-4" />
 
         <div className="grid grid-cols-2 gap-4">
           <Slider
@@ -357,8 +444,8 @@ function Controls({ config, onChange, onRandomize, onDownload, onImport }) {
         ) : null}
       </div>
 
-      <div className="mt-6 p-4 bg-zinc-950 rounded border border-zinc-800">
-        <p className="text-xs text-zinc-500 text-center">
+      <div className="mt-6 p-4 bg-zinc-100 rounded border border-zinc-200">
+        <p className="text-xs text-slate-500 text-center">
           Tip: 试试 8 段 + 负角度倾斜，比较接近参考效果。
         </p>
       </div>

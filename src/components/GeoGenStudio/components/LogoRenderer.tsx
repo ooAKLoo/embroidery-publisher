@@ -11,7 +11,7 @@ interface LogoRendererProps {
 }
 
 export const LogoRenderer = ({ params, size = 300, className = "", backgroundColor = "#0b1120" }: LogoRendererProps) => {
-    const center = size / 2;
+    const half = size / 2;
 
     // Generate the paths based on the parameters
     const shapes = useMemo(() => {
@@ -148,9 +148,8 @@ export const LogoRenderer = ({ params, size = 300, className = "", backgroundCol
         <svg
             width={size}
             height={size}
-            viewBox={`0 0 ${size} ${size}`}
-            className={`${className} overflow-visible`.trim()}
-            style={{ overflow: 'visible' }}
+            viewBox={`-${half} -${half} ${size} ${size}`}
+            className={className}
             xmlns="http://www.w3.org/2000/svg"
         >
             <defs>
@@ -177,7 +176,7 @@ export const LogoRenderer = ({ params, size = 300, className = "", backgroundCol
                     </filter>
                 )}
             </defs>
-            <g transform={`translate(${center}, ${center})`} filter={shadowEnabled ? "url(#geo-drop-shadow)" : undefined}>
+            <g filter={shadowEnabled ? "url(#geo-drop-shadow)" : undefined}>
                 {extrudeEnabled && extrudeDepth > 0 && Array.from({ length: extrudeDepth }).map((_, idx) => {
                     const step = extrudeDepth - idx;
                     const t = step / extrudeDepth;

@@ -4,9 +4,9 @@ import { BLEND_MODES, PRESETS } from './constants';
 function Slider({ label, value, min, max, step, onChange }) {
   return (
     <div className="mb-3">
-      <div className="flex justify-between mb-1">
-        <label className="text-xs font-medium text-zinc-400">{label}</label>
-        <span className="text-xs text-zinc-500 font-mono">{value.toFixed(2)}</span>
+      <div className="flex items-center justify-between mb-1">
+        <span className="text-[9px] font-medium text-neutral-400 uppercase tracking-wide">{label}</span>
+        <span className="text-[9px] font-semibold text-neutral-700 tabular-nums">{value.toFixed(2)}</span>
       </div>
       <input
         type="range"
@@ -15,7 +15,7 @@ function Slider({ label, value, min, max, step, onChange }) {
         step={step}
         value={value}
         onChange={(e) => onChange(parseFloat(e.target.value))}
-        className="w-full h-1 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-blue-500 hover:accent-blue-400"
+        className="w-full h-1 bg-neutral-200 rounded-full appearance-none cursor-pointer"
       />
     </div>
   );
@@ -24,8 +24,8 @@ function Slider({ label, value, min, max, step, onChange }) {
 // 分组组件
 function Section({ title, children }) {
   return (
-    <div className="mb-6 p-4 bg-[#1e1e22] rounded-lg border border-zinc-800">
-      <h3 className="text-sm font-semibold text-zinc-200 mb-4 border-b border-zinc-700 pb-2">{title}</h3>
+    <div className="mb-4 p-3 bg-white rounded-xl">
+      <div className="text-[9px] font-medium text-neutral-400 uppercase tracking-wide mb-3">{title}</div>
       {children}
     </div>
   );
@@ -46,19 +46,22 @@ function Controls({ config, onChange, onPresetSelect }) {
   };
 
   return (
-    <div className="h-full overflow-y-auto pr-2 pb-20">
-      
+    <div className="h-full overflow-y-auto pr-1 pb-20">
+
       {/* 预设 */}
-      <div className="mb-6 grid grid-cols-3 gap-2">
-        {Object.keys(PRESETS).map((preset) => (
-          <button
-            key={preset}
-            onClick={() => onPresetSelect(preset)}
-            className="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 text-xs text-zinc-300 rounded border border-zinc-700 transition-colors"
-          >
-            {preset}
-          </button>
-        ))}
+      <div className="mb-4 p-3 bg-white rounded-xl">
+        <div className="text-[9px] font-medium text-neutral-400 uppercase tracking-wide mb-2">预设</div>
+        <div className="flex flex-wrap gap-1.5">
+          {Object.keys(PRESETS).map((preset) => (
+            <button
+              key={preset}
+              onClick={() => onPresetSelect(preset)}
+              className="px-2.5 py-1.5 rounded-lg text-[10px] font-medium whitespace-nowrap bg-neutral-100 text-neutral-500 hover:bg-neutral-200 transition-colors"
+            >
+              {preset}
+            </button>
+          ))}
+        </div>
       </div>
 
       <Section title="公式 (几何)">
@@ -82,31 +85,31 @@ function Controls({ config, onChange, onPresetSelect }) {
       <Section title="样式与混合">
         <div className="grid grid-cols-2 gap-3 mb-3">
           <div>
-            <label className="text-xs text-zinc-400 block mb-1">填充</label>
-            <div className="flex gap-2">
-              <input type="color" value={config.style.fillColor} onChange={(e) => updateStyle('fillColor', e.target.value)} className="h-8 w-8 bg-transparent border-0 cursor-pointer" />
-              <input type="checkbox" checked={config.style.filled} onChange={(e) => updateStyle('filled', e.target.checked)} className="my-auto accent-blue-500" />
+            <span className="text-[9px] font-medium text-neutral-400 uppercase tracking-wide block mb-1">填充</span>
+            <div className="flex gap-2 items-center">
+              <input type="color" value={config.style.fillColor} onChange={(e) => updateStyle('fillColor', e.target.value)} className="h-6 w-6 bg-transparent border-0 cursor-pointer rounded" />
+              <input type="checkbox" checked={config.style.filled} onChange={(e) => updateStyle('filled', e.target.checked)} className="my-auto accent-neutral-800" />
             </div>
           </div>
           <div>
-            <label className="text-xs text-zinc-400 block mb-1">描边</label>
-            <input type="color" value={config.style.strokeColor} onChange={(e) => updateStyle('strokeColor', e.target.value)} className="h-8 w-full bg-transparent border-0 cursor-pointer" />
+            <span className="text-[9px] font-medium text-neutral-400 uppercase tracking-wide block mb-1">描边</span>
+            <input type="color" value={config.style.strokeColor} onChange={(e) => updateStyle('strokeColor', e.target.value)} className="h-6 w-6 bg-transparent border-0 cursor-pointer rounded" />
           </div>
         </div>
         <Slider label="描边宽度" value={config.style.strokeWidth} min={0} max={20} step={0.5} onChange={(v) => updateStyle('strokeWidth', v)} />
-        
-        <div className="mt-4">
-          <label className="text-xs text-zinc-400 block mb-1">混合模式</label>
-          <select 
-            value={config.style.blendMode} 
+
+        <div className="mt-3">
+          <span className="text-[9px] font-medium text-neutral-400 uppercase tracking-wide block mb-1">混合模式</span>
+          <select
+            value={config.style.blendMode}
             onChange={(e) => updateStyle('blendMode', e.target.value)}
-            className="w-full bg-zinc-900 border border-zinc-700 text-zinc-300 text-xs rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none"
+            className="w-full bg-neutral-100 text-neutral-700 text-[10px] font-medium rounded-lg p-2 outline-none"
           >
             {BLEND_MODES.map(mode => (
               <option key={mode} value={mode}>{mode}</option>
             ))}
           </select>
-          <p className="text-[10px] text-zinc-500 mt-1">尝试 'difference' 或 'screen' 配合高数量效果更佳</p>
+          <p className="text-[8px] text-neutral-400 mt-1">尝试 'difference' 或 'screen' 配合高数量效果更佳</p>
         </div>
       </Section>
     </div>

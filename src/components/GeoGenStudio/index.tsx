@@ -1,23 +1,26 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { LogoParams } from './types';
 import { DEFAULT_PARAMS } from './utils/presets';
 import { ControlPanel } from './components/ControlPanel';
 import { LogoRenderer } from './components/LogoRenderer';
 import { SeriesGrid } from './components/SeriesGrid';
+import { PreviewToolbar } from '../../shared/icon-export';
 
 export default function GeoGenStudio() {
     const [params, setParams] = useState<LogoParams>(DEFAULT_PARAMS);
+    const [bgColor, setBgColor] = useState('#0b1120');
+    const [iconScale, setIconScale] = useState(0.7);
+    const [borderRadius, setBorderRadius] = useState(0.22);
     const svgRef = useRef<HTMLDivElement>(null);
 
     const handleRandomize = () => {
-        // "Safe" Randomization Strategy
         setParams({
-            count: Math.floor(Math.random() * 10) + 3, // 3 to 12
+            count: Math.floor(Math.random() * 10) + 3,
             rotationOffset: Math.random() * 360,
             innerRadius: Math.random() * 60,
             length: 40 + Math.random() * 80,
             spread: 20 + Math.random() * 100,
-            cornerRadius: Math.random() > 0.5 ? 1 : Math.random(), // Bias towards organic or sharp
+            cornerRadius: Math.random() > 0.5 ? 1 : Math.random(),
             atomicRotation: (Math.random() * 90) - 45,
             hue: Math.floor(Math.random() * 360),
             saturation: 60 + Math.random() * 40,
@@ -71,11 +74,15 @@ export default function GeoGenStudio() {
         document.body.removeChild(link);
     };
 
-    return (
-        <div className="flex w-full h-full bg-slate-950 text-slate-200 font-sans overflow-hidden rounded-2xl">
+    const readmeMeta = {
+        generator: 'GeoGenStudio',
+        config: params,
+        export: { bgColor, iconScale, borderRadius },
+    };
 
-            {/* Sidebar Controls */}
-            <aside className="w-80 lg:w-96 flex-shrink-0 h-full z-20 shadow-xl border-r border-slate-800">
+    return (
+        <div className="h-full w-full bg-white rounded-2xl overflow-hidden flex relative">
+            <aside className="w-80 flex-shrink-0 bg-neutral-100 rounded-2xl">
                 <ControlPanel
                     params={params}
                     setParams={setParams}
@@ -84,36 +91,41 @@ export default function GeoGenStudio() {
                 />
             </aside>
 
-            {/* Main Content Area */}
-            <main className="flex-1 flex flex-col h-full relative">
+            <main className="flex-1 flex flex-col min-w-0">
+                <div className="flex-1 relative flex items-center justify-center p-8 overflow-hidden">
+                    <div className="absolute inset-0" style={{ backgroundColor: bgColor }} />
 
-                {/* Background Grid Pattern */}
-                <div className="absolute inset-0 z-0 opacity-10 pointer-events-none"
-                    style={{
-                        backgroundImage: 'radial-gradient(circle, #475569 1px, transparent 1px)',
-                        backgroundSize: '20px 20px'
-                    }}>
-                </div>
-
-                {/* Canvas */}
-                <div className="flex-1 flex items-center justify-center p-8 z-10 relative bg-gradient-to-br from-slate-900/50 to-slate-950/50">
-                    <div
-                        ref={svgRef}
-                        className="relative transition-all duration-300"
-                    >
-                        <LogoRenderer params={params} size={400} backgroundColor="#0b1120" className="w-full h-full max-w-[400px] max-h-[400px] md:max-w-[500px] md:max-h-[500px]" />
+                    <div ref={svgRef} className="relative z-10 w-full h-full flex items-center justify-center">
+                        <LogoRenderer
+                            params={params}
+                            size={400}
+                            backgroundColor={bgColor}
+                            className="w-full h-full max-w-[500px] max-h-[500px]"
+                        />
                     </div>
                 </div>
 
-                {/* Series Footer */}
-                <div className="h-auto bg-slate-900 border-t border-slate-800 z-10 flex-shrink-0">
-                    <div className="px-6 py-2 border-b border-slate-800 flex justify-between items-center">
-                        <span className="text-xs font-bold uppercase text-slate-500 tracking-wider">Series Generation</span>
-                        <span className="text-[10px] text-slate-600">Sampling Variations from Seed</span>
+                <div className="flex-shrink-0 bg-neutral-100 p-3">
+                    <div className="flex items-center justify-between mb-2 px-1">
+                        <span className="text-[9px] font-medium text-neutral-400 uppercase tracking-wide">Series Generation</span>
+                        <span className="text-[9px] text-neutral-400">Sampling Variations</span>
                     </div>
-                    <SeriesGrid baseParams={params} onSelect={setParams} />
+                    <SeriesGrid baseParams={params} onSelect={setParams} bgColor={bgColor} />
                 </div>
 
+                <div className="flex-shrink-0 bg-white px-6 py-4">
+                    <PreviewToolbar
+                        svgRef={svgRef}
+                        logoName="geogen-studio"
+                        bgColor={bgColor}
+                        setBgColor={setBgColor}
+                        iconScale={iconScale}
+                        setIconScale={setIconScale}
+                        borderRadius={borderRadius}
+                        setBorderRadius={setBorderRadius}
+                        readmeMeta={readmeMeta}
+                    />
+                </div>
             </main>
         </div>
     );

@@ -598,24 +598,24 @@ function StrokeLab() {
   }, []);
 
   return (
-    <div className="flex h-full w-full bg-zinc-900 text-white overflow-hidden rounded-2xl">
+    <div className="flex h-full w-full bg-white text-slate-800 overflow-hidden rounded-2xl">
       {/* 控制面板 */}
-      <div className="w-72 flex-shrink-0 border-r border-zinc-700 bg-zinc-800/50 p-4 overflow-y-auto">
+      <div className="w-72 flex-shrink-0 bg-[#f8f8f8] p-4 overflow-y-auto">
         <div className="mb-6">
-          <h2 className="text-lg font-bold mb-1">3D 笔触工坊</h2>
-          <p className="text-xs text-zinc-400">创建带有体积感和生长动画的 3D 笔触效果</p>
+          <h2 className="text-lg font-semibold text-slate-800 mb-1">3D 笔触工坊</h2>
+          <p className="text-xs text-slate-400">创建带有体积感和生长动画的 3D 笔触效果</p>
         </div>
 
         {/* 模式切换 */}
         <div className="mb-6">
-          <label className="text-xs font-medium text-zinc-400 mb-2 block">绘制模式</label>
+          <label className="text-xs font-medium text-slate-500 mb-2 block">绘制模式</label>
           <div className="flex gap-2">
             <button
               onClick={() => { setMode('free'); handleReplay(); }}
               className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                 mode === 'free'
                   ? 'bg-indigo-600 text-white'
-                  : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'
+                  : 'bg-zinc-100 text-slate-500 hover:bg-zinc-200'
               }`}
             >
               自由笔触
@@ -625,7 +625,7 @@ function StrokeLab() {
               className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                 mode === 'text'
                   ? 'bg-indigo-600 text-white'
-                  : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'
+                  : 'bg-zinc-100 text-slate-500 hover:bg-zinc-200'
               }`}
             >
               文字描边
@@ -635,8 +635,8 @@ function StrokeLab() {
 
         {/* 文字输入 - 仅在文字模式显示 */}
         {mode === 'text' && (
-          <div className="mb-6 p-3 bg-zinc-700/50 rounded-lg">
-            <label className="text-xs font-medium text-zinc-400 mb-2 block">输入文字</label>
+          <div className="mb-6 p-3 bg-white rounded-lg border border-zinc-200">
+            <label className="text-xs font-medium text-slate-500 mb-2 block">输入文字</label>
             <input
               type="text"
               value={text}
@@ -645,18 +645,18 @@ function StrokeLab() {
                 if (e.key === 'Enter') handleReplay();
               }}
               placeholder="输入中文或英文..."
-              className="w-full px-3 py-2 bg-zinc-800 border border-zinc-600 rounded-lg text-sm focus:outline-none focus:border-indigo-500"
+              className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:border-indigo-500"
               maxLength={10}
             />
-            <p className="text-xs text-zinc-500 mt-1">按 Enter 重新绘制</p>
+            <p className="text-xs text-slate-400 mt-1">按 Enter 重新绘制</p>
 
             {/* 字体选择 */}
             <div className="mt-3">
-              <label className="text-xs text-zinc-400 mb-1 block">选择字体</label>
+              <label className="text-xs text-slate-500 mb-1 block">选择字体</label>
               <select
                 value={selectedFontId}
                 onChange={(e) => handleFontChange(e.target.value)}
-                className="w-full px-2 py-1.5 bg-zinc-800 border border-zinc-600 rounded-lg text-xs focus:outline-none focus:border-indigo-500"
+                className="w-full px-2 py-1.5 bg-white border border-zinc-200 rounded-lg text-xs focus:outline-none focus:border-indigo-500"
               >
                 {FONT_OPTIONS.map(fontOpt => (
                   <option key={fontOpt.id} value={fontOpt.id}>
@@ -668,13 +668,13 @@ function StrokeLab() {
 
             {/* 文字预设 */}
             <div className="mt-3">
-              <label className="text-xs text-zinc-500 mb-1 block">快速选择</label>
+              <label className="text-xs text-slate-400 mb-1 block">快速选择</label>
               <div className="flex flex-wrap gap-1">
                 {TEXT_PRESETS.map((preset, index) => (
                   <button
                     key={index}
                     onClick={() => applyTextPreset(preset)}
-                    className="px-2 py-1 bg-zinc-600 hover:bg-zinc-500 rounded text-xs transition-colors"
+                    className="px-2 py-1 bg-zinc-100 hover:bg-zinc-200 text-slate-600 rounded text-xs transition-colors"
                   >
                     {preset.name}
                   </button>
@@ -685,8 +685,8 @@ function StrokeLab() {
             {/* 文字大小 */}
             <div className="mt-3">
               <div className="flex justify-between text-xs mb-1">
-                <span className="text-zinc-400">文字大小</span>
-                <span className="text-zinc-300">{config.textSize}</span>
+                <span className="text-slate-500">文字大小</span>
+                <span className="text-slate-600">{config.textSize}</span>
               </div>
               <input
                 type="range"
@@ -728,7 +728,7 @@ function StrokeLab() {
           </button>
           <button
             onClick={handleRandomize}
-            className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-zinc-700 hover:bg-zinc-600 rounded-lg text-sm font-medium transition-colors"
+            className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-zinc-100 hover:bg-zinc-200 text-slate-700 rounded-lg text-sm font-medium transition-colors"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -739,13 +739,13 @@ function StrokeLab() {
 
         {/* 颜色预设 */}
         <div className="mb-6">
-          <label className="text-xs font-medium text-zinc-400 mb-2 block">颜色预设</label>
+          <label className="text-xs font-medium text-slate-500 mb-2 block">颜色预设</label>
           <div className="grid grid-cols-3 gap-2">
             {COLOR_PRESETS.map((preset, index) => (
               <button
                 key={index}
                 onClick={() => applyPreset(preset)}
-                className="h-8 rounded-lg border border-zinc-600 hover:border-indigo-500 transition-colors overflow-hidden"
+                className="h-8 rounded-lg border border-zinc-200 hover:border-indigo-400 transition-colors overflow-hidden"
                 style={{
                   background: `linear-gradient(135deg, ${preset.color1}, ${preset.color2})`
                 }}
@@ -758,37 +758,37 @@ function StrokeLab() {
         {/* 颜色控制 */}
         <div className="space-y-4 mb-6">
           <div>
-            <label className="text-xs font-medium text-zinc-400 mb-1 block">起始颜色</label>
+            <label className="text-xs font-medium text-slate-500 mb-1 block">起始颜色</label>
             <div className="flex gap-2">
               <input
                 type="color"
                 value={config.color1}
                 onChange={(e) => handleConfigChange('color1', e.target.value)}
-                className="w-12 h-8 rounded cursor-pointer border border-zinc-600"
+                className="w-12 h-8 rounded cursor-pointer border border-zinc-200"
               />
               <input
                 type="text"
                 value={config.color1}
                 onChange={(e) => handleConfigChange('color1', e.target.value)}
-                className="flex-1 px-2 py-1 bg-zinc-700 border border-zinc-600 rounded text-xs font-mono"
+                className="flex-1 px-2 py-1 bg-white border border-zinc-200 rounded text-xs font-mono"
               />
             </div>
           </div>
 
           <div>
-            <label className="text-xs font-medium text-zinc-400 mb-1 block">结束颜色</label>
+            <label className="text-xs font-medium text-slate-500 mb-1 block">结束颜色</label>
             <div className="flex gap-2">
               <input
                 type="color"
                 value={config.color2}
                 onChange={(e) => handleConfigChange('color2', e.target.value)}
-                className="w-12 h-8 rounded cursor-pointer border border-zinc-600"
+                className="w-12 h-8 rounded cursor-pointer border border-zinc-200"
               />
               <input
                 type="text"
                 value={config.color2}
                 onChange={(e) => handleConfigChange('color2', e.target.value)}
-                className="flex-1 px-2 py-1 bg-zinc-700 border border-zinc-600 rounded text-xs font-mono"
+                className="flex-1 px-2 py-1 bg-white border border-zinc-200 rounded text-xs font-mono"
               />
             </div>
           </div>
@@ -796,13 +796,13 @@ function StrokeLab() {
 
         {/* 笔触参数 */}
         <div className="space-y-4 mb-6">
-          <h3 className="text-sm font-semibold text-zinc-300">笔触参数</h3>
+          <h3 className="text-sm font-semibold text-slate-600">笔触参数</h3>
 
           {mode === 'free' && (
             <div>
               <div className="flex justify-between text-xs mb-1">
-                <span className="text-zinc-400">笔触数量</span>
-                <span className="text-zinc-300">{config.strokeCount}</span>
+                <span className="text-slate-500">笔触数量</span>
+                <span className="text-slate-600">{config.strokeCount}</span>
               </div>
               <input
                 type="range"
@@ -817,8 +817,8 @@ function StrokeLab() {
 
           <div>
             <div className="flex justify-between text-xs mb-1">
-              <span className="text-zinc-400">线条宽度</span>
-              <span className="text-zinc-300">{config.lineWidth.toFixed(2)}</span>
+              <span className="text-slate-500">线条宽度</span>
+              <span className="text-slate-600">{config.lineWidth.toFixed(2)}</span>
             </div>
             <input
               type="range"
@@ -835,8 +835,8 @@ function StrokeLab() {
             <>
               <div>
                 <div className="flex justify-between text-xs mb-1">
-                  <span className="text-zinc-400">曲线复杂度</span>
-                  <span className="text-zinc-300">{config.complexity}</span>
+                  <span className="text-slate-500">曲线复杂度</span>
+                  <span className="text-slate-600">{config.complexity}</span>
                 </div>
                 <input
                   type="range"
@@ -850,8 +850,8 @@ function StrokeLab() {
 
               <div>
                 <div className="flex justify-between text-xs mb-1">
-                  <span className="text-zinc-400">曲线振幅</span>
-                  <span className="text-zinc-300">{config.amplitude.toFixed(1)}</span>
+                  <span className="text-slate-500">曲线振幅</span>
+                  <span className="text-slate-600">{config.amplitude.toFixed(1)}</span>
                 </div>
                 <input
                   type="range"
@@ -866,8 +866,8 @@ function StrokeLab() {
 
               <div>
                 <div className="flex justify-between text-xs mb-1">
-                  <span className="text-zinc-400">笔触间距</span>
-                  <span className="text-zinc-300">{config.spread.toFixed(1)}</span>
+                  <span className="text-slate-500">笔触间距</span>
+                  <span className="text-slate-600">{config.spread.toFixed(1)}</span>
                 </div>
                 <input
                   type="range"
@@ -884,8 +884,8 @@ function StrokeLab() {
 
           <div>
             <div className="flex justify-between text-xs mb-1">
-              <span className="text-zinc-400">Z轴深度</span>
-              <span className="text-zinc-300">{config.zDepth.toFixed(1)}</span>
+              <span className="text-slate-500">Z轴深度</span>
+              <span className="text-slate-600">{config.zDepth.toFixed(1)}</span>
             </div>
             <input
               type="range"
@@ -899,11 +899,11 @@ function StrokeLab() {
           </div>
 
           <div className="flex items-center justify-between">
-            <span className="text-xs text-zinc-400">两端渐细（笔锋效果）</span>
+            <span className="text-xs text-slate-500">两端渐细（笔锋效果）</span>
             <button
               onClick={() => handleConfigChange('taper', !config.taper)}
               className={`w-10 h-5 rounded-full transition-colors ${
-                config.taper ? 'bg-indigo-600' : 'bg-zinc-600'
+                config.taper ? 'bg-indigo-600' : 'bg-zinc-300'
               }`}
             >
               <div className={`w-4 h-4 rounded-full bg-white transition-transform ${
@@ -915,12 +915,12 @@ function StrokeLab() {
 
         {/* 动画参数 */}
         <div className="space-y-4 mb-6">
-          <h3 className="text-sm font-semibold text-zinc-300">动画参数</h3>
+          <h3 className="text-sm font-semibold text-slate-600">动画参数</h3>
 
           <div>
             <div className="flex justify-between text-xs mb-1">
-              <span className="text-zinc-400">动画速度</span>
-              <span className="text-zinc-300">{config.animationSpeed.toFixed(1)}</span>
+              <span className="text-slate-500">动画速度</span>
+              <span className="text-slate-600">{config.animationSpeed.toFixed(1)}</span>
             </div>
             <input
               type="range"
@@ -935,8 +935,8 @@ function StrokeLab() {
 
           <div>
             <div className="flex justify-between text-xs mb-1">
-              <span className="text-zinc-400">错开延迟</span>
-              <span className="text-zinc-300">{config.staggerDelay.toFixed(2)}s</span>
+              <span className="text-slate-500">错开延迟</span>
+              <span className="text-slate-600">{config.staggerDelay.toFixed(2)}s</span>
             </div>
             <input
               type="range"
@@ -952,19 +952,19 @@ function StrokeLab() {
 
         {/* 背景颜色 */}
         <div>
-          <label className="text-xs font-medium text-zinc-400 mb-1 block">背景颜色</label>
+          <label className="text-xs font-medium text-slate-500 mb-1 block">背景颜色</label>
           <div className="flex gap-2">
             <input
               type="color"
               value={config.bgColor}
               onChange={(e) => handleConfigChange('bgColor', e.target.value)}
-              className="w-12 h-8 rounded cursor-pointer border border-zinc-600"
+              className="w-12 h-8 rounded cursor-pointer border border-zinc-200"
             />
             <input
               type="text"
               value={config.bgColor}
               onChange={(e) => handleConfigChange('bgColor', e.target.value)}
-              className="flex-1 px-2 py-1 bg-zinc-700 border border-zinc-600 rounded text-xs font-mono"
+              className="flex-1 px-2 py-1 bg-white border border-zinc-200 rounded text-xs font-mono"
             />
           </div>
         </div>
@@ -993,7 +993,7 @@ function StrokeLab() {
         </div>
 
         {/* 当前模式 */}
-        <div className="absolute top-4 left-4 text-xs text-zinc-400 bg-zinc-900/80 px-2 py-1 rounded">
+        <div className="absolute top-4 left-4 text-xs text-slate-500 bg-zinc-900/80 px-2 py-1 rounded">
           {mode === 'text' ? `文字模式: "${text}"` : '自由笔触模式'}
         </div>
 

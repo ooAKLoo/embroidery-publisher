@@ -74,20 +74,13 @@ function LogoCanvas({ config }) {
   }, [config]);
 
   return (
-    <div className="w-full h-full flex items-center justify-center bg-[#18181b] rounded-lg overflow-hidden border border-[#27272a] shadow-inner relative group">
-      <div 
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage: 'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)',
-          backgroundSize: '20px 20px'
-        }}
-      />
-      <canvas 
-        ref={canvasRef} 
+    <div className="w-full h-full flex items-center justify-center rounded-xl overflow-hidden relative group">
+      <canvas
+        ref={canvasRef}
         className="w-full h-full max-w-[800px] max-h-[800px]"
       />
-      <div className="absolute bottom-4 right-4 text-xs text-zinc-500 font-mono opacity-0 group-hover:opacity-100 transition-opacity">
-        渲染: Canvas 2D
+      <div className="absolute bottom-3 right-3 text-[8px] text-neutral-400 font-mono opacity-0 group-hover:opacity-100 transition-opacity">
+        Canvas 2D
       </div>
     </div>
   );

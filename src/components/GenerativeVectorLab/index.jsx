@@ -7,7 +7,7 @@ import { AnimationDemoModal } from "./AnimationShowcase";
 import LottieExporter from "./LottieExporter";
 import HDAnimationExporter from "./HDAnimationExporter";
 import { generateAtomPoints, generateVariation } from "./utils/math";
-import PreviewToolbar from "../GeometricLogoGenerator/components/PreviewToolbar";
+import { PreviewToolbar } from "../../shared/icon-export";
 
 // 图标组件
 const DownloadIcon = () => (
@@ -698,7 +698,7 @@ ${transformedShapeMarkup}
     <div className="flex h-full w-full bg-white text-zinc-900 overflow-hidden font-sans rounded-2xl">
       
       {/* 左侧: 控制面板 */}
-      <div className="w-80 flex-shrink-0 border-r border-zinc-800 z-10 relative">
+      <div className="w-80 flex-shrink-0 z-10 relative">
         <ControlPanel config={config} onChange={handleConfigChange} />
       </div>
 

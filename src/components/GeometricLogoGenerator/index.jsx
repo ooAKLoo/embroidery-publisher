@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { LOGO_TYPES, getLogoType } from './constants/logoTypes';
 import { DEFAULT_COMMON_STYLES, getSvgStrokeProps } from './constants/commonStyles';
 import CategoryNav from './components/CategoryNav';
-import PreviewToolbar from './components/PreviewToolbar';
+import { PreviewToolbar } from '../../shared/icon-export';
 import ControlTabs from './components/ControlTabs';
 import { initDatabase, saveConfig, getAllConfigs, deleteConfig as dbDeleteConfig } from './services/database';
 

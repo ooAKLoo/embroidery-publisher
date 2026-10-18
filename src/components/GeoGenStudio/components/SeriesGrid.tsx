@@ -5,16 +5,13 @@ import { LogoRenderer } from './LogoRenderer';
 interface SeriesGridProps {
     baseParams: LogoParams;
     onSelect: (p: LogoParams) => void;
+    bgColor?: string;
 }
 
-export const SeriesGrid = ({ baseParams, onSelect }: SeriesGridProps) => {
+export const SeriesGrid = ({ baseParams, onSelect, bgColor = '#0b1120' }: SeriesGridProps) => {
     const [variations, setVariations] = useState<LogoParams[]>([]);
 
-    // The "Sampling Strategy" logic
     useEffect(() => {
-        // We generate variations by perturbing specific layers while keeping others constant.
-        // This simulates the "Cohesive Series" concept.
-
         const vars: LogoParams[] = [];
 
         // Variation 1: Structure Change (Count)
@@ -44,17 +41,17 @@ export const SeriesGrid = ({ baseParams, onSelect }: SeriesGridProps) => {
     }, [baseParams]);
 
     return (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 p-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 px-1">
             {variations.map((p, i) => (
                 <button
                     key={i}
                     onClick={() => onSelect(p)}
-                    className="aspect-square bg-slate-800 rounded-lg border border-slate-700 hover:border-indigo-500 transition-all flex items-center justify-center relative group overflow-hidden"
+                    className="aspect-square bg-white rounded-lg hover:ring-2 hover:ring-neutral-800 hover:ring-offset-1 transition-all flex items-center justify-center relative group overflow-hidden"
                 >
-                    <div className="absolute top-2 left-2 text-[10px] text-slate-500 uppercase font-mono opacity-0 group-hover:opacity-100 transition-opacity">
-                        Var {i + 1}
+                    <div className="absolute top-1.5 left-1.5 text-[8px] text-neutral-400 font-mono opacity-0 group-hover:opacity-100 transition-opacity">
+                        {i + 1}
                     </div>
-                    <LogoRenderer params={p} size={80} backgroundColor="#1e293b" />
+                    <LogoRenderer params={p} size={80} backgroundColor={bgColor} />
                 </button>
             ))}
         </div>

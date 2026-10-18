@@ -2,7 +2,7 @@ import { useCallback, useRef, useState } from 'react';
 import Controls from './Controls';
 import { DEFAULT_CONFIG } from './constants';
 import { describeArc, describeRibbon, downloadSVG } from './utils';
-import PreviewToolbar from '../GeometricLogoGenerator/components/PreviewToolbar';
+import { PreviewToolbar } from '../../shared/icon-export';
 
 function GeometricSpiralGenerator() {
   const [config, setConfig] = useState(DEFAULT_CONFIG);
@@ -129,8 +129,8 @@ function GeometricSpiralGenerator() {
   };
 
   return (
-    <div className="h-full w-full bg-black rounded-2xl overflow-hidden flex relative">
-      <aside className="w-80 flex-shrink-0 bg-zinc-950 border-r border-zinc-800 p-4">
+    <div className="h-full w-full bg-white rounded-2xl overflow-hidden flex relative">
+      <aside className="w-80 flex-shrink-0 bg-[#f8f8f8] rounded-2xl p-4">
         <Controls
           config={config}
           onChange={setConfig}
@@ -140,13 +140,18 @@ function GeometricSpiralGenerator() {
             setImportError('');
             setShowImport(true);
           }}
+          onExportChange={(exp) => {
+            if (exp.bgColor !== undefined) setBgColor(exp.bgColor);
+            if (exp.iconScale !== undefined) setIconScale(exp.iconScale);
+            if (exp.borderRadius !== undefined) setBorderRadius(exp.borderRadius);
+          }}
         />
       </aside>
 
       <main className="flex-1 flex flex-col overflow-hidden">
         <div className="flex-1 relative flex items-center justify-center p-8 overflow-hidden">
           <div className="absolute inset-0" style={{ backgroundColor: bgColor }} />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/10 via-transparent to-transparent opacity-60" />
+          {/* radial overlay removed for light theme */}
 
           <div ref={previewRef} className="relative z-10 w-full h-full flex items-center justify-center">
             <svg
@@ -226,7 +231,7 @@ function GeometricSpiralGenerator() {
       </main>
 
       {showImport && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/40">
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/20">
           <div className="w-[560px] max-w-[92vw] bg-white rounded-xl shadow-xl border border-zinc-200 p-4">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-semibold text-zinc-800">从 README 恢复参数</h3>
